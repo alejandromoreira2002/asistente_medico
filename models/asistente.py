@@ -1,10 +1,10 @@
 from openai import OpenAI
-from functions.functions import getKeyAsistente
+import os
 
 class AsistenteModelo():
     def __init__(self):
         self.client = OpenAI(
-            api_key=getKeyAsistente('keys/asistente.txt')
+            api_key=os.environ.get("API_GPT")
         )
 
     def getSintomas(self, corpus):

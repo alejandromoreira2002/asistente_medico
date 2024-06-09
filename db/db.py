@@ -1,22 +1,18 @@
 import mysql.connector
-from functions.functions import readConfigDB
+import os
 
 class db():
     def __init__(self):
-        mydb = readConfigDB('db/dbconfig.txt')
         config = {
-            'user': mydb['user'],
-            'password': mydb['password'],
-            'host': mydb['host'],
-            'port': mydb['port'],
-            'database': mydb['db']
+            'user': os.environ.get("MYSQL_USER"),
+            'password': os.environ.get("MYSQL_PASSWORD"),
+            'host': os.environ.get("MYSQL_HOST"),
+            'port': int(os.environ.get("MYSQL_PORT")),
+            'database': os.environ.get("MYSQL_DB")
         }
         self.mysql = mysql.connector.connect(**config)
-        #self.mysql = MySQL()
-        #self.mysql.init_app(app)
     
     def consultarDato(self, sql):
-        #cursor = self.mysql.get_db().cursor()
         cursor = self.mysql.cursor(dictionary=True)
 
         cursor.execute(sql)
@@ -27,7 +23,6 @@ class db():
             return None
 
     def consultarDatos(self, sql):
-        #cursor = self.mysql.get_db().cursor()
         cursor = self.mysql.cursor(dictionary=True)
 
         cursor.execute(sql)
