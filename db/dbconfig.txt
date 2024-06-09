@@ -1,5 +1,0 @@
-host=viaduct.proxy.rlwy.net
-port=57742
-user=root
-password=xscFXjjiaoAFZsHDZuiBflXOErGcQZPI
-db=asistente_medico
