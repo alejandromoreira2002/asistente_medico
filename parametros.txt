@@ -1,0 +1,5 @@
+peso
+talla
+presion
+frecuencia cardiaca
+temperatura

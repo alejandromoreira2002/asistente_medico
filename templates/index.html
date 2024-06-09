@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reconocimiento de Voz en Español</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="https://kit.fontawesome.com/ba52fcc0fa.js" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+</head>
+<body>
+    <div class="contenedor">
+        <div class="asistente">
+            <h1 style="text-align:center">Iniciar Asistente Médico</h1>
+            <div class="controles" id="controles">
+                <button id="start-recording" class="btn-act iniciar-conversacion" disabled><i class="fa-solid fa-play"></i></button>
+                <button id="stop-recording" class="btn-act detener-conversacion" disabled><i class="fa-solid fa-stop"></i></button>
+                <!--<button id="stop-recording" disabled>Detener Grabación</button>-->
+                <p id="result"></p>
+            </div>
+        </div>
+        <div class="formulario">
+            <!--<iframe style="width:100%;height:100%;" src="/formulario" frameborder="0">-->
+            <div style="width:100%;height:100%;overflow-y:scroll;">
+                <div class="container mt-5">
+                    <h2 class="mb-4 text-center">Formulario Médico</h2>
+                    <div>
+                        <div class="row">
+                            <div class="form-group col-sm-5 row">
+                                <div class="col-sm-7">
+                                    <label for="cod-form">Cod. Formulario</label>
+                                </div>
+                                <div class="col-sm-5">
+                                    <input type="text" class="form-control" id="cod-form" placeholder="N° Form" onchange="comprobarCampos(1)">
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-2 row"></div>
+                            <div class="form-group col-sm-5 row">
+                                <div class="col-auto">
+                                    <label for="fecha_atencion">Fecha de Atención</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input type="date" class="form-control" id="fecha_atencion" onchange="comprobarCampos(1)">
+                                </div>
+                            </div>
+                        </div>
+                        <h3>Datos del Paciente</h3>
+                        <div class="row">
+                            <div class="form-group col-sm-4">
+                                <label for="cédula">Cédula</label>
+                                <div class="row">
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control col-auto" id="cedula" placeholder="Ingrese numero de cédula" disabled onchange="comprobarCampos(2)">
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <button class="btn btn-primary" id="btn-buscar" disabled>Buscar</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label for="nombre">Nombres y Apellidos</label>
+                                <input type="text" class="form-control" id="nombres" placeholder="Ingrese nombres y apellidos" disabled onchange="comprobarCampos(2)">
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label for="fechaNacimiento">Fecha de Nacimiento</label>
+                                <input type="date" class="form-control" id="fechaNacimiento" disabled onchange="comprobarCampos(2)">
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label for="edad">Edad</label>
+                                <input type="number" class="form-control" id="edad" placeholder="Ingrese edad" disabled onchange="comprobarCampos(2)">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="telefono">Número de Teléfono</label>
+                                <input type="tel" class="form-control" id="telefono" placeholder="Ingrese número de teléfono" disabled onchange="comprobarCampos(2)">
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="correo">Correo Personal</label>
+                                <input type="email" class="form-control" id="correo" placeholder="Ingrese correo personal" disabled onchange="comprobarCampos(2)">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="ciudad">Ciudad</label>
+                                <input type="text" class="form-control" id="ciudad" placeholder="Ingrese ciudad" disabled onchange="comprobarCampos(2)">
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="direccion">Dirección</label>
+                                <input type="text" class="form-control" id="direccion" placeholder="Ingrese dirección" disabled onchange="comprobarCampos(2)">
+                            </div>
+                        </div>
+                        <h3>Datos de Consulta Médica</h3>
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="peso">Peso</label>
+                                <input type="text" class="form-control" id="peso" placeholder="Ingrese peso" disabled>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="talla">Talla</label>
+                                <input type="text" class="form-control" id="talla" placeholder="Ingrese talla" disabled>
+                            </div>
+                        </div>
+                        <label for="">Presión</label>
+                        <div class="row">
+                            <div class="form-group row col-sm-4">
+                                <div class="col-auto">
+                                    <input type="text" class="form-control" id="p-sistolica" placeholder="Ingrese presión sistólica" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group row col-sm-4">
+                                <div class="col-auto">
+                                    <input type="text" class="form-control" id="p-distolica" placeholder="Ingrese presión sistólica" disabled>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="frecuencia-card">Frecuencia Cardiaca</label>
+                                <input type="text" class="form-control" id="frecuencia-card" placeholder="Ingrese frecuencia cardiaca" disabled>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="temperatura">Temperatura</label>
+                                <input type="text" class="form-control" id="temperatura" placeholder="Ingrese temperatura" disabled>
+                            </div>
+                        </div>
+                        
+                        <h3>Sintomatología</h3>
+                        <textarea class="form-control" id="sintomatologia" placeholder="Aquí aparecerán los sintomas" style="height:150px;" disabled>
+
+                        </textarea>
+                        <button class="btn btn-primary" disabled>Guardar</button>
+                    </div>
+                </div>
+            <!--</iframe>-->
+            </div>
+        </div>
+    </div>
+    <script src="static/scripts/script.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
