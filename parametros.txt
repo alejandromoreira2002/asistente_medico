@@ -1,5 +1,5 @@
 peso
-talla
+estatura
 presion
 frecuencia cardiaca
 temperatura
