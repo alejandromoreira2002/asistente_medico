@@ -16,10 +16,10 @@
         <div class="asistente">
             <h1 style="text-align:center">Iniciar Asistente Médico</h1>
             <div class="controles" id="controles">
-                <button id="start-recording" class="btn-act iniciar-conversacion" disabled><i class="fa-solid fa-play"></i></button>
-                <button id="stop-recording" class="btn-act detener-conversacion" disabled><i class="fa-solid fa-stop"></i></button>
+                <button id="start-recording" class="btn-act iniciar-conversacion" onclick="iniciarEscucha()" disabled><i class="fa-solid fa-play"></i></button>
+                <button id="stop-recording" class="btn-act detener-conversacion" onclick="detenerEscucha()" disabled><i class="fa-solid fa-stop"></i></button>
                 <!--<button id="stop-recording" disabled>Detener Grabación</button>-->
-                <p id="result"></p>
+                <p id="info-adicional"></p>
             </div>
         </div>
         <div class="formulario">
@@ -56,7 +56,7 @@
                                         <input type="text" class="form-control col-auto" id="cedula" placeholder="Ingrese numero de cédula" disabled onchange="comprobarCampos(2)">
                                     </div>
                                     <div class="col-sm-4">
-                                        <button class="btn btn-primary" id="btn-buscar" disabled>Buscar</button>
+                                        <button class="btn btn-primary" id="btn-buscar" onclick="buscarPaciente()" disabled>Buscar</button>
                                     </div>
                                 </div>
                             </div>

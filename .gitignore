@@ -1,4 +1,5 @@
 .env
 keys
 db/dbconfig.txt
-test
+test/pruebaia.py
+test/voice.py

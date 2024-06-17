@@ -1,6 +1,124 @@
-$('#stop-recording').hide();
+const btnStop = $('#stop-recording');
+const btnStart = $('#start-recording');
+const infoAdicional = $('#result');
+
+btnStop.hide();
 $('#fecha_atencion').val(formatearFecha(new Date()));
-document.getElementById('btn-buscar').addEventListener('click', () => {
+
+var conversacion = []; // Guardara el historial de conversacion
+const recognition = new webkitSpeechRecognition(); // Convertira la voz en texto y viceversa
+recognition.lang = 'es-ES';
+recognition.continuous = false;
+recognition.interimResults = false;
+
+const utterance = new SpeechSynthesisUtterance(); // Reproducira voz en base a texto
+utterance.lang = 'es-ES';
+utterance.onend = () => {
+    btnStop.hide();
+    btnStart.show();
+    if(btnStart.attr('disabled') != undefined){
+        btnStop.removeAttr('disabled');
+        btnStart.removeAttr('disabled');
+    }
+}
+
+// Funcion que permite reproducir voz en base al texto
+function hablar(texto) {
+    utterance.text = texto
+    window.speechSynthesis.speak(utterance);
+}
+
+
+/* EVENTOS DE ESCUCHA DEL NAVEGADOR */
+function iniciarEscucha(){
+    recognition.start();
+    btnStart.hide();
+    btnStop.show();
+    infoAdicional.text('Escuchando...');
+}
+
+function detenerEscucha(){
+    recognition.stop();
+    btnStop.hide();
+    btnStart.show();
+    infoAdicional.text('');
+}
+
+// hace posible la conversacion con el asistente
+function conversarAsistente(){
+    const formData = new FormData();
+    formData.append('mensaje', JSON.stringify(conversacion));
+    fetch('/conversar', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(respuesta => {
+        let texto = respuesta['mensaje'];
+        hablar(texto);
+        conversacion.push({"role": "assistant", "content": texto});
+        //$('#sintomatologia').val(data['sintomas']);
+        //$('#sintomatologia').removeAttr('disabled');
+    });
+}
+
+recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    infoAdicional.text('');
+
+    if(transcript.includes("detener asistente")){
+        recognition.stop();
+        conversacion = [];
+        btnStart.attr('disabled', 'true');
+        btnStop.attr('disabled', 'true');
+        /*fetch('/detenerAsistente', {
+            method: 'GET',
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data['code'] == 1){
+                console.log("correcto")
+            }else{
+                console.log("incorrecto")
+            }
+        });*/
+    }else{
+        conversacion.push({"role": "user", "content": transcript});
+        conversarAsistente();
+    }
+
+    /*const formData = new FormData();
+    formData.append('corpus', transcript)
+    fetch('/sintomas', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        let texto = `Los síntomas que has mencionado son los siguientes: ${data['sintomas']}. ¿Es correcto?`
+        hablar(texto);
+        $('#sintomatologia').val(data['sintomas'])
+        $('#sintomatologia').removeAttr('disabled');
+    });*/
+};
+
+recognition.onerror = (event) => {
+    infoAdicional.text(`Error: ${event.error}`);
+    recognition.stop();
+    btnStop.hide();
+    btnStart.show();
+};
+
+recognition.onend = () => {
+    //recognition.start();
+    btnStop.hide();
+    btnStart.show();
+    btnStart.attr("disabled", "true");
+    btnStop.attr("disabled", "true");
+};
+
+//Buscar paciente por numero de cedula
+function buscarPaciente() {
     let cedula = document.getElementById('cedula').value;
 
     const formData = new FormData();
@@ -14,8 +132,6 @@ document.getElementById('btn-buscar').addEventListener('click', () => {
         if(data.code == 1){
             let paciente = data['datos']
             cargarDatosPacientes(paciente);
-            $('#stop-recording').removeAttr('disabled');
-            $('#start-recording').removeAttr('disabled');
 
             $('#peso').removeAttr('disabled');
             $('#talla').removeAttr('disabled');
@@ -24,13 +140,17 @@ document.getElementById('btn-buscar').addEventListener('click', () => {
             $('#frecuencia-card').removeAttr('disabled');
             $('#temperatura').removeAttr('disabled');
 
-            let txtBienvenida = `Bienvenido ${paciente['nombres']}. El día de hoy seré tu asistente médico. Por favor, indicame cuáles son tus síntomas.`;
-            hablar(txtBienvenida);
+            
+            //let txtBienvenida = `Bienvenido ${paciente['nombres']}. El día de hoy seré tu asistente médico. Por favor, indicame cuáles son tus síntomas.`;
+            let txtBienvenida = `Dale una bienvenida al usuario que vas a atender, él se llama ${paciente['nombres']}`;
+            conversacion.push({"role": "user", "content": txtBienvenida});
+            console.log(conversacion);
+            conversarAsistente();
         }else{
             Swal.fire('Error', 'No hay pacientes con ese número de cedula', 'error');
         }
     });
-})
+}
 
 function comprobarCampos(cod){
     switch(cod){
@@ -102,20 +222,6 @@ function comprobarCampos(cod){
 
 }
 
-function formatearFecha(date){
-    let year = date.getFullYear();
-    let month = (date.getMonth() + 1).toString().padStart(2, '0'); // Los meses van de 0 a 11
-    let day = date.getDate().toString().padStart(2, '0');
-
-    return `${year}-${month}-${day}`;
-}
-
-function hablar(texto) {
-    let utterance = new SpeechSynthesisUtterance(texto);
-    utterance.lang = 'es-ES';
-    window.speechSynthesis.speak(utterance);
-}
-
 function cargarDatosPacientes(paciente){
     let hoy = new Date();
     let fNac = new Date(paciente['f_nacimiento']);
@@ -135,72 +241,10 @@ function cargarDatosPacientes(paciente){
     $('#direccion').val(paciente['direccion']);
 }
 
-// Verificar compatibilidad del navegador
-if (!('webkitSpeechRecognition' in window)) {
-    alert("Lo siento, tu navegador no soporta la Web Speech API.");
-} else {
-    // Crear una instancia de SpeechRecognition
-    const recognition = new webkitSpeechRecognition();
+function formatearFecha(date){
+    let year = date.getFullYear();
+    let month = (date.getMonth() + 1).toString().padStart(2, '0'); // Los meses van de 0 a 11
+    let day = date.getDate().toString().padStart(2, '0');
 
-    // Configuración para el idioma español
-    recognition.lang = 'es-ES';
-    recognition.continuous = false;
-    recognition.interimResults = false;
-
-    const resultElement = document.getElementById('result');
-
-    document.getElementById('start-recording').addEventListener('click', () => {
-        recognition.start();
-        $('#start-recording').hide();
-        $('#stop-recording').show();
-        //let nStopButton = $('<button id="stop-recording" class="detener-conversacion"><i class="fa-solid fa-stop"></i></button>')
-        //$('#controles').insertBefore(nStopButton, $('#result'));
-        //startButton.disabled = true;
-        //stopButton.disabled = false;
-        $('#result').text('Escuchando...');
-    });
-
-    document.getElementById('stop-recording').addEventListener('click', () => {
-        recognition.stop();
-        //startButton.disabled = false;
-        //stopButton.disabled = true;
-        $('#stop-recording').hide();
-        $('#start-recording').show();
-        //let nStartButton = $('<button id="start-recording" class="iniciar-conversacion"><i class="fa-solid fa-play"></i></button>')
-        //$('#controles').insertBefore(nStartButton, $('#result'));
-        $('#result').text('');
-    });
-
-    recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        //resultElement.textContent = `Texto reconocido: ${transcript}`;
-        //let nStartButton = $('<button id="start-recording" class="iniciar-conversacion"><i class="fa-solid fa-play"></i></button>')
-        //$('#controles').insertBefore(nStartButton, $('#result'));
-        $('#result').text('');
-
-        const formData = new FormData();
-        formData.append('corpus', transcript)
-        fetch('/sintomas', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            let texto = `Los síntomas que has mencionado son los siguientes: ${data['sintomas']}. ¿Es correcto?`
-            hablar(texto);
-            $('#sintomatologia').val(data['sintomas'])
-            $('#sintomatologia').removeAttr('disabled');
-        });
-    };
-
-    recognition.onerror = (event) => {
-        resultElement.textContent = `Error: ${event.error}`;
-        $('#stop-recording').hide();
-        $('#start-recording').show();
-    };
-
-    recognition.onend = () => {
-        $('#stop-recording').hide();
-        $('#start-recording').show();
-    };
+    return `${year}-${month}-${day}`;
 }
