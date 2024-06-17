@@ -14,7 +14,7 @@ historial_conversacion = [
         sobre sus sintomas, si crees que su respuesta no te basta le puedes 
         seguir preguntando por otros síntomas hasta que creas que tienes 
         los síntomas suficientes. Cuando termines de reconocer todos los 
-        síntomas que él te ha mencionado, los devolverás dentro de llaves y 
+        síntomas que él te ha mencionado, los devolverás dentro de corchetes y 
         cada uno separado por coma.
     """
     },

@@ -1,12 +1,13 @@
 const btnStop = $('#stop-recording');
 const btnStart = $('#start-recording');
 const infoAdicional = $('#result');
+var existeSintomas = false;
 
 btnStop.hide();
 $('#fecha_atencion').val(formatearFecha(new Date()));
 
 var conversacion = []; // Guardara el historial de conversacion
-const recognition = new webkitSpeechRecognition(); // Convertira la voz en texto y viceversa
+const recognition = new SpeechRecognition(); // Convertira la voz en texto y viceversa
 recognition.lang = 'es-ES';
 recognition.continuous = false;
 recognition.interimResults = false;
@@ -20,6 +21,12 @@ utterance.onend = () => {
         btnStop.removeAttr('disabled');
         btnStart.removeAttr('disabled');
     }
+}
+utterance.onpause = (event) => {
+    console.log(event);
+}
+utterance.onerror = (event) => {
+    console.log(event);
 }
 
 // Funcion que permite reproducir voz en base al texto
@@ -55,6 +62,14 @@ function conversarAsistente(){
     .then(response => response.json())
     .then(respuesta => {
         let texto = respuesta['mensaje'];
+        if(texto.match(/\[[^\d]+\]$/g) && existeSintomas == false){
+            let sintomas = texto.match(/\[[^\d]+\]$/g)[0];
+            sintomas.replace("[", "");
+            sintomas.replace("]", "");
+            $("#sintomatologia").val(sintomas)
+            $('#sintomatologia').removeAttr('disabled');
+            existeSintomas = true;
+        }
         hablar(texto);
         conversacion.push({"role": "assistant", "content": texto});
         //$('#sintomatologia').val(data['sintomas']);

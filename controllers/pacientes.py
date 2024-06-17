@@ -2,10 +2,10 @@ from models.pacientes import PacienteModelo
 
 class PacientesControlador():
     def __init__(self):
-        self.modelo = PacienteModelo()
+        self.modeloPaciente = PacienteModelo()
 
     def getPaciente(self, cedula):
-        paciente = self.modelo.getPaciente(cedula)
+        paciente = self.modeloPaciente.getPaciente(cedula)
 
         if(paciente):
             return {

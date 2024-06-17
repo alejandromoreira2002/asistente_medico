@@ -1,4 +1,3 @@
-.env
 keys
 db/dbconfig.txt
 test/pruebaia.py
