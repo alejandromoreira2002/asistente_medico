@@ -9,6 +9,7 @@ indice = 0;
 with app.test_request_context():
     url_for('static', filename='/css/style.css')
     url_for('static', filename='/scripts/script.js')
+    url_for('static', filename='/scripts/prueba.js')
 
 # Configurar el registro
 logging.basicConfig(level=logging.INFO)
@@ -25,9 +26,9 @@ def log_request_info():
 def Index():
     return render_template('index.html')
 
-@app.get('/formulario')
+@app.get('/prueba')
 def getFormulario():
-    return render_template('formulario.html')
+    return render_template('prueba.html')
 
 @app.post('/paciente')
 def getPaciente():

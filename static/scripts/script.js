@@ -1,3 +1,27 @@
+if(window.webkitSpeechRecognition == undefined){
+    Swal.fire({
+        title:"Error",
+        text:"Su navegador no soporta el reconocimiento de voz.\nIntente con otro navegador",
+        icon:"error",
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        footer: '<a href="https://www.google.com/intl/es-419/chrome/">Se recomienda usar Chrome</a>'
+    });
+    $('#cod-form').attr('disabled', 'true');
+    $('#fecha_atencion').attr('disabled', 'true');
+}else if(window.SpeechSynthesisUtterance == undefined){
+    Swal.fire({
+        title:"Error",
+        text:"Su navegador no soporta el interprete de texto a voz.\nIntente con otro navegador",
+        icon:"error",
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        footer: '<a href="https://www.google.com/intl/es-419/chrome/">Se recomienda usar Chrome</a>'
+    });
+    $('#cod-form').attr('disabled', 'true');
+    $('#fecha_atencion').attr('disabled', 'true');
+}
+
 const btnStop = $('#stop-recording');
 const btnStart = $('#start-recording');
 const infoAdicional = $('#result');
@@ -7,32 +31,73 @@ btnStop.hide();
 $('#fecha_atencion').val(formatearFecha(new Date()));
 
 var conversacion = []; // Guardara el historial de conversacion
-const recognition = new SpeechRecognition(); // Convertira la voz en texto y viceversa
+const recognition = new webkitSpeechRecognition(); // Convertira la voz en texto y viceversa
 recognition.lang = 'es-ES';
 recognition.continuous = false;
 recognition.interimResults = false;
 
 const utterance = new SpeechSynthesisUtterance(); // Reproducira voz en base a texto
 utterance.lang = 'es-ES';
-utterance.onend = () => {
-    btnStop.hide();
-    btnStart.show();
-    if(btnStart.attr('disabled') != undefined){
-        btnStop.removeAttr('disabled');
-        btnStart.removeAttr('disabled');
-    }
-}
-utterance.onpause = (event) => {
-    console.log(event);
-}
-utterance.onerror = (event) => {
-    console.log(event);
-}
 
 // Funcion que permite reproducir voz en base al texto
-function hablar(texto) {
-    utterance.text = texto
-    window.speechSynthesis.speak(utterance);
+async function hablar(texto) {
+    const speechChunks = makeCunksOfText(texto); //Fragmenta el texto y reproduce en cola. Evita la saturación de SpeechSynthesis
+    console.log(speechChunks);
+    for (let i = 0; i < speechChunks.length; i++) {
+        await new Promise((resolve, reject) => {
+            window.speechSynthesis.cancel();
+            utterance.text = speechChunks[i];
+            window.speechSynthesis.speak(utterance);
+            utterance.onend = () => {
+                if (speechChunks.length - 1 == i) {
+                    btnStop.hide();
+                    btnStart.show();
+                    if(btnStart.attr('disabled') != undefined){
+                        btnStop.removeAttr('disabled');
+                        btnStart.removeAttr('disabled');
+                    }
+                }
+                resolve();
+            };
+            utterance.onerror = (error) => {
+                console.log(error);
+                resolve();
+            };
+        });
+    }
+}
+
+function makeCunksOfText(text) {
+    const maxLength = 220; // entre 190 y 220
+    let speechChunks = [];
+
+    // Split the text into chunks of maximum length maxLength without breaking words
+    while (text.length > 0) {
+        if (text.length <= maxLength) {
+            speechChunks.push(text);
+            break;
+        }
+
+        let chunk = text.substring(0, maxLength + 1);
+
+        let lastPointIndex = chunk.lastIndexOf('.');
+        let lastSpaceIndex = chunk.lastIndexOf(' ');
+        if (lastPointIndex !== -1) {
+            speechChunks.push(text.substring(0, lastPointIndex));
+            text = text.substring(lastPointIndex + 1);
+
+        } else if (lastSpaceIndex !== -1) {
+            speechChunks.push(text.substring(0, lastSpaceIndex));
+            text = text.substring(lastSpaceIndex + 1);
+
+        } else {
+            // If there are no spaces in the chunk, split at the maxLength
+            speechChunks.push(text.substring(0, maxLength));
+            text = text.substring(maxLength);
+        }
+    }
+
+    return speechChunks
 }
 
 
