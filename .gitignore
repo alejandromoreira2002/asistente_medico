@@ -5,3 +5,5 @@ test/pruebaia.py
 test/voice.py
 static/scripts/prueba.js
 templates/prueba.html
+test/genSalt.py
+api.rest

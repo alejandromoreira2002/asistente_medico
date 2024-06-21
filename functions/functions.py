@@ -1,3 +1,12 @@
+#import bcrypt
+
+"""
+def encriptar(texto):
+    salt = b'$2b$12$lH47ukSwcXcOSywg7ENz3u'
+    hashed = bcrypt.hashpw(texto, salt)
+    return hashed
+"""
+
 def readConfigDB(route):
     lines = {}
     with open(route, 'r') as file:

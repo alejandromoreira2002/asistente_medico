@@ -1,11 +1,11 @@
 from flask import Flask, render_template, url_for, redirect, request, session, jsonify
 from controllers.pacientes import PacientesControlador
 from controllers.asistente import AsistenteControlador
+#from functions.functions import encriptar
 import logging
 import json
 
 app = Flask(__name__)
-indice = 0;
 with app.test_request_context():
     url_for('static', filename='/css/style.css')
     url_for('static', filename='/scripts/script.js')
@@ -36,6 +36,23 @@ def getPaciente():
     controlador = PacientesControlador()
     return jsonify(controlador.getPaciente(cedula))
 
+@app.post('/add/paciente')
+def agregarPaciente():
+    paciente = {
+        "cedula": request.form['cedula'],
+        "nombres": request.form['nombres'],
+        "apellidos": request.form['apellidos'],
+        "f_nac": request.form['f_nac'],
+        "edad": request.form['edad'],
+        "telefono": request.form['telefono'],
+        "correo": request.form['correo'],
+        "ciudad": request.form['ciudad'],
+        "direccion": request.form['direccion']
+    }
+
+    controlador = PacientesControlador()
+    jsonify(controlador.setPaciente(paciente))
+
 @app.post('/sintomas')
 def getSintomas():
     corpus = request.form['corpus']
@@ -47,7 +64,9 @@ def getRespuesta():
     mensaje = request.form['mensaje']
     mensajeList = json.loads(mensaje)
     controlador = AsistenteControlador()
-    return jsonify(controlador.getRespuesta(mensajeList))
+    respuesta = controlador.getRespuesta(mensajeList)
+    print(respuesta)
+    return jsonify(respuesta)
 
 @app.get('/detenerAsistente')
 def stopAsistente():

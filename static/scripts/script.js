@@ -25,7 +25,7 @@ if(window.webkitSpeechRecognition == undefined){
 const btnStop = $('#stop-recording');
 const btnStart = $('#start-recording');
 const infoAdicional = $('#result');
-var existeSintomas = false;
+var asistenteFinalizo = false;
 
 btnStop.hide();
 $('#fecha_atencion').val(formatearFecha(new Date()));
@@ -52,7 +52,7 @@ async function hablar(texto) {
                 if (speechChunks.length - 1 == i) {
                     btnStop.hide();
                     btnStart.show();
-                    if(btnStart.attr('disabled') != undefined){
+                    if(btnStart.attr('disabled') != undefined && asistenteFinalizo == false){
                         btnStop.removeAttr('disabled');
                         btnStart.removeAttr('disabled');
                     }
@@ -126,17 +126,36 @@ function conversarAsistente(){
     })
     .then(response => response.json())
     .then(respuesta => {
-        let texto = respuesta['mensaje'];
-        if(texto.match(/\[[^\d]+\]$/g) && existeSintomas == false){
-            let sintomas = texto.match(/\[[^\d]+\]$/g)[0];
-            sintomas.replace("[", "");
-            sintomas.replace("]", "");
-            $("#sintomatologia").val(sintomas)
-            $('#sintomatologia').removeAttr('disabled');
-            existeSintomas = true;
+        let esJSON = true;
+        let contenido = "";
+        let texto = "";
+        try{
+            contenido = JSON.parse(respuesta['mensaje']);
+        }catch (e){
+            console.log(e);
+            esJSON = false;
+            texto = respuesta['mensaje'];
         }
+        
+        if(esJSON){
+            texto = contenido['mensaje'];
+            if(contenido['sintomas'] && contenido['sintomas'].length > 0){
+                let sintomas = contenido['sintomas'].join(', ');
+                $('#sintomatologia').val(sintomas)
+                $('#sintomatologia').removeAttr('disabled');
+                document.querySelector("#sintomatologia").scrollIntoView({ behavior: 'smooth' });
+            }
+            if(contenido['comando'] && contenido['comando'] == "finalizar"){
+                btnStop.attr('disabled', 'true');
+                btnStart.attr('disabled', 'true');
+                asistenteFinalizo = true;
+            }
+            console.log(contenido);
+        }
+        console.log(texto);
         hablar(texto);
         conversacion.push({"role": "assistant", "content": texto});
+        if(asistenteFinalizo){conversacion = []};
         //$('#sintomatologia').val(data['sintomas']);
         //$('#sintomatologia').removeAttr('disabled');
     });
@@ -222,7 +241,7 @@ function buscarPaciente() {
 
             
             //let txtBienvenida = `Bienvenido ${paciente['nombres']}. El día de hoy seré tu asistente médico. Por favor, indicame cuáles son tus síntomas.`;
-            let txtBienvenida = `Dale una bienvenida al usuario que vas a atender, él se llama ${paciente['nombres']}`;
+            let txtBienvenida = `Dale una bienvenida al usuario que vas a atender, él se llama ${paciente['nombres']}, y tiene una edad de ${$("#edad").text()} años.`;
             conversacion.push({"role": "user", "content": txtBienvenida});
             console.log(conversacion);
             conversarAsistente();

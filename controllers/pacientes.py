@@ -2,10 +2,10 @@ from models.pacientes import PacienteModelo
 
 class PacientesControlador():
     def __init__(self):
-        self.modeloPaciente = PacienteModelo()
+        self.modelo = PacienteModelo()
 
     def getPaciente(self, cedula):
-        paciente = self.modeloPaciente.getPaciente(cedula)
+        paciente = self.modelo.getPaciente(cedula)
 
         if(paciente):
             return {
@@ -24,3 +24,10 @@ class PacientesControlador():
             return {
                 "code": 0
             }
+    
+    def setPaciente(self, paciente):
+        respuesta = self.modelo.setPaciente(paciente)
+        if respuesta == 1:
+            return {"res": 1, "mensaje": "Los datos fueron agregados con exito"}
+        else:
+            return {"res": 0, "mensaje": "No se pudo realizar la insercion"}

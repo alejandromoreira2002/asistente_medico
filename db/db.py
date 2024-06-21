@@ -33,9 +33,9 @@ class db():
             return None
     
     def insertarDatos(self, sql, data):
-        cursor = self.mysql.get_db().cursor()
+        cursor = self.mysql.cursor()
         op = cursor.execute(sql, data)
-        self.mysql.get_db().commit()
+        self.mysql.commit()
         cursor.close()
         if(op):
             return 1

@@ -15,5 +15,10 @@ ciudad VARCHAR(20),
 direccion VARCHAR(50)
 );
 
-INSERT INTO pacientes(cedula,nombres,apellidos,f_nacimiento,edad,telefono,correo,ciudad,direccion)
-VALUES('1316307618','Teddy Alejandro', 'Moreira Vélez', '2002-01-24', 22, '0997679158', 'tmoreira7618@utm.edu.ec','Portoviejo','Villas 15 de Abril');
+CREATE TABLE usuarios(
+	id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario VARCHAR(50),
+    correo VARCHAR(50),
+    contrasena VARCHAR(200),
+    rol VARCHAR(15)
+);
