@@ -32,12 +32,17 @@ class db():
         else:
             return None
     
-    def insertarDatos(self, sql, data):
+    def insertarDatos(self, sql, data, devolucion=0):
         cursor = self.mysql.cursor()
-        op = cursor.execute(sql, data)
+        cursor.execute(sql, data)
+        idRow = cursor.lastrowid
+
+        respuesta = None
+        if devolucion:
+            respuesta = {'res': 1 if idRow else 0, 'id': idRow}
+        else:
+            respuesta = 1 if idRow else 0
+            
         self.mysql.commit()
         cursor.close()
-        if(op):
-            return 1
-        else:
-            return 0
+        return respuesta

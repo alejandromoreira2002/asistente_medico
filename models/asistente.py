@@ -1,5 +1,7 @@
 from openai import OpenAI
+from functions.asistente import getFuncionesAsistente
 import os
+import json
 
 class AsistenteModelo():
     def __init__(self):
@@ -9,34 +11,47 @@ class AsistenteModelo():
         self.sistema = [
             {
                 "role": "system",
-                "content": """
-                    Eres un asistente medico que se preocupa por 
-                    la salud de tu paciente y para ayudarlo necesitas saber todos 
-                    los síntomas que él presenta.
-                    Tu tarea es preguntarle al paciente 
-                    sobre sus sintomas, si crees que su respuesta no te basta le puedes 
-                    seguir preguntando por otros síntomas hasta que creas que tienes 
-                    los síntomas suficientes.
-                    Puedes preguntarle mas por cada uno de los sintomas que el paciente te haya mencionado.
-                    Cuando el paciente diga ya no tenga mas sintomas que mencionarte, deberas
-                    finalizar la conversacion sin preguntar si necesita algo más.
-                    Cuando termines de reconocer todos los síntomas que él te ha mencionado,
-                    los devolverás en formato JSON con 3 keys: 'sintomas' teniendo como value los
-                    sintomas del paciente, 'mensaje' teniendo como value cualquier mensaje de conversacion
-                    con el paciente y la key 'comando' con el value 'finalizar' cuando te despidas.
-                """
+                "content": "Eres un asistente medico y te encuentras operativo en el área de triage en una clínica, te preocupas por la salud del paciente en turno y para poder ayudarle necesitas saber todos los sintomas que está presentando. Si el paciente ha experimentado anteriormente otros tipos de sintomas, comenzaras preguntandole si los sigue presentando actualmente, cuando termines de hablar de ello con el paciente, le preguntaras si tiene nuevos sintomas actualmente. Si el paciente no te da mucha información, le preguntaras mas detalle sobre cada uno de los sintomas que presenta."
+                #"content": "Eres un asistente medico y te encuentras operativo en el área de triage en una clínica, te preocupas por la salud del paciente en turno y para poder ayudarle necesitas saber todos los sintomas que está presentando. Tu trabajo será preguntarle al paciente sobre los síntomas que está experimentando actualmente y extraerlos. Si el paciente no te da mucha información, le preguntaras mas detalle sobre cada uno de los sintomas que presenta. Si el paciente presentó otros sintomas en alguna consulta anterior, le preguntaras sobre si esos síntomas persisten o no. Cuando termines de reconocer todos los síntomas que él te ha mencionado,  los devolverás en formato JSON con 3 keys: 'sintomas' teniendo como value los sintomas del paciente, 'mensaje' teniendo como value cualquier mensaje de conversacion con el paciente y la key 'comando' con el value 'finalizar' cuando te despidas."
+                
             }
         ]
+        self.funciones = getFuncionesAsistente()
 
-    def getRespuesta(self, mensaje):
-        mensajes = self.sistema + mensaje
+    def getRespuesta(self, mensajes):
+        #mensaje = self.buscarToolCalls(mensaje)
+        #mensajes = self.sistema + mensaje
         response = self.client.chat.completions.create(
             model="gpt-3.5-turbo",
-            response_format={ "type": "json_object" },
-            messages=mensajes
+            #response_format={ "type": "json_object" },
+            messages=mensajes,
+            tools=self.funciones,
+            tool_choice="auto",
+            max_tokens=256,
+            temperature=1,
+            top_p=1
         )
-        respuesta_modelo = response.choices[0].message.content
-        return respuesta_modelo
+        print(response)
+        respuesta = response.choices[0].message
+        return {
+            'respuesta': respuesta,
+            'respuesta_msg': respuesta.content,
+            'asis_funciones': respuesta.tool_calls
+        }
+    
+    def buscarToolCalls(self, msg):
+        print("--------------- MENSAJE ------------------")
+        print(msg)
+        mensajes = [];
+        for m in msg:
+            print("---------m------")
+            print(m)
+            print(type(m))
+            if(type(m) is dict):
+                mensajes.append(m)
+            else:
+                mensajes.append(ChatCompletionMessageToolCall.from_dict(json.loads(m)))
+        return mensajes
 
     def getSintomas(self, corpus):
         response = self.client.chat.completions.create(
@@ -55,7 +70,14 @@ class AsistenteModelo():
 
         return response.choices[0].message.content
     
-    
+class ChatCompletionMessageToolCall:
+    @classmethod
+    def from_dict(cls, data):
+        instance = cls()
+        instance.id = data['id']
+        instance.function = data['function']
+        instance.type = data['type']
+        return instance
 
 """
 de este modo:

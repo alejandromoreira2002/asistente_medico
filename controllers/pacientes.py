@@ -11,6 +11,7 @@ class PacientesControlador():
             return {
                 "code": 1,
                 "datos": {
+                    "id": paciente['id'],
                     "nombres": paciente['nombres'],
                     "apellidos": paciente['apellidos'],
                     "f_nacimiento": paciente['f_nacimiento'].strftime("%Y-%m-%d"),

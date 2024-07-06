@@ -7,3 +7,4 @@ static/scripts/prueba.js
 templates/prueba.html
 test/genSalt.py
 api.rest
+ayuda.txt

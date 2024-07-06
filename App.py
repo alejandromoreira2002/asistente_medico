@@ -1,11 +1,14 @@
 from flask import Flask, render_template, url_for, redirect, request, session, jsonify
 from controllers.pacientes import PacientesControlador
 from controllers.asistente import AsistenteControlador
+from controllers.formulario import FormularioControlador
 #from functions.functions import encriptar
+from functions.asistente import getMensajeSistema
 import logging
 import json
 
 app = Flask(__name__)
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 with app.test_request_context():
     url_for('static', filename='/css/style.css')
     url_for('static', filename='/scripts/script.js')
@@ -32,9 +35,16 @@ def getFormulario():
 
 @app.post('/paciente')
 def getPaciente():
+    if 'user' in session:
+        session.pop('user', None)
     cedula = request.form['cedula']
     controlador = PacientesControlador()
-    return jsonify(controlador.getPaciente(cedula))
+    paciente = controlador.getPaciente(cedula)
+    if paciente['code'] == 1:
+        session['user'] = {}
+        session['user'] = cedula
+        session['mensajes'] = getMensajeSistema()
+    return jsonify(paciente)
 
 @app.post('/add/paciente')
 def agregarPaciente():
@@ -55,18 +65,54 @@ def agregarPaciente():
 
 @app.post('/sintomas')
 def getSintomas():
-    corpus = request.form['corpus']
-    controlador = AsistenteControlador()
-    return jsonify(controlador.getSintomas(corpus))
+    cedula = request.form['cedula']
+    controlador = FormularioControlador()
+    return jsonify(controlador.consultarSintomas(cedula))
 
+indice = 0
 @app.post('/conversar')
 def getRespuesta():
     mensaje = request.form['mensaje']
     mensajeList = json.loads(mensaje)
+
+    mensTemp = session.get('mensajes')
+    for melist in mensajeList:
+        mensTemp.append(melist)
+    
     controlador = AsistenteControlador()
-    respuesta = controlador.getRespuesta(mensajeList)
-    print(respuesta)
-    return jsonify(respuesta)
+    respuesta = controlador.getRespuesta(mensTemp)
+    #if respuesta['mensaje']:
+    #    mensTemp.append(respuesta['mensaje'])
+    #global indice
+    #respuesta = {
+        #"mensaje": respuesta['respuesta'],
+        #"respuesta_msg": posMensajes[indice],
+        #"asis_funciones": None
+    #}
+    session['mensajes'] = mensTemp
+    print(session['mensajes'])
+    #print(session['user'] + " ====> " + str(session['mensajes']))
+    #indice += 1
+    return jsonify({"respuesta_msg": respuesta['respuesta_msg'], "asis_funciones": respuesta['asis_funciones']})
+
+@app.post('/form/guardar')
+def guardarFormulario():
+    parametros = {
+        'idPaciente': request.form['idPaciente'],
+        'codFormulario': request.form['codFormulario'],
+        'fechaAtencion': request.form['fechaAtencion'],
+        'cedula': request.form['cedula'],
+        'peso': request.form['peso'],
+        'estatura': request.form['estatura'],
+        'presionSistolica': request.form['presionSistolica'],
+        'presionDistolica': request.form['presionDistolica'],
+        'frecuenciaCardiaca': request.form['frecuenciaCardiaca'],
+        'temperatura': request.form['temperatura'],
+        'sintomas': request.form['sintomas']
+    }
+    
+    controlador = FormularioControlador()
+    return jsonify(controlador.guardarFormulario(parametros))
 
 @app.get('/detenerAsistente')
 def stopAsistente():
