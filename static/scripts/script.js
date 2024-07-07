@@ -22,12 +22,13 @@ if(window.webkitSpeechRecognition == undefined){
     $('#fecha_atencion').attr('disabled', 'true');
 }
 
-const btnStop = $('#stop-recording');
-const btnStart = $('#start-recording');
+//const btnStop = $('#stop-recording');
+//const btnStart = $('#start-recording');
 const infoAdicional = $('#result');
+var estadoAsistente = "detenido"; // cambiar a detenido
 var asistenteFinalizo = false;
 
-btnStop.hide();
+//btnStop.hide();
 $('#fecha_atencion').val(formatearFecha(new Date()));
 
 var conversacion = []; // Guardara el historial de conversacion
@@ -39,22 +40,75 @@ recognition.interimResults = false;
 const utterance = new SpeechSynthesisUtterance(); // Reproducira voz en base a texto
 utterance.lang = 'es-ES';
 
+var indexT = 0;
+/*function typeAnim(texto) {
+    if (indexT < texto.length) {
+        document.querySelector('#typeContenido').textContent += texto.charAt(indexT);
+        indexT++;
+        setTimeout(typeAnim(texto), 50); // Cambia el tiempo de espera según la velocidad deseada
+    }
+}
+
+function escribirTexto(texto){
+    typeAnim(texto);
+}*/
+
+function cambiaAnimacionAsistente(animacion){
+    let clasesAnim = [
+        "iw-speaking",
+        "iw-hearing",
+        "iw-loading"
+    ];
+
+    for(let ca of clasesAnim){
+        if($('#inner-wave').hasClass(ca)){
+            $('#inner-wave').removeClass(ca);
+        }
+    }
+
+    if(animacion != "estatica"){
+        $('#outer-circle').removeClass('oc-pulsing');
+        $('#inner-wave').addClass(animacion);
+    }else{
+        $('#outer-circle').addClass('oc-pulsing');
+    }
+}
+
+
 // Funcion que permite reproducir voz en base al texto
 async function hablar(texto) {
     const speechChunks = makeCunksOfText(texto); //Fragmenta el texto y reproduce en cola. Evita la saturación de SpeechSynthesis
     console.log(speechChunks);
+    if(!$('#inner-wave').hasClass('iw-enabled')){
+        $('#inner-wave').addClass('iw-enabled');
+        /*document.getElementById('asistente-btn').addEventListener('click', toggleEscucha());*/
+    }
+    
     for (let i = 0; i < speechChunks.length; i++) {
         await new Promise((resolve, reject) => {
             window.speechSynthesis.cancel();
             utterance.text = speechChunks[i];
             window.speechSynthesis.speak(utterance);
+            utterance.onstart = () => {
+                if(i == 0){
+                    cambiaAnimacionAsistente("iw-speaking");
+                    estadoAsistente = "detenido"
+                }
+            }
             utterance.onend = () => {
                 if (speechChunks.length - 1 == i) {
-                    btnStop.hide();
+                    /*btnStop.hide();
                     btnStart.show();
                     if(btnStart.attr('disabled') != undefined && asistenteFinalizo == false){
                         btnStop.removeAttr('disabled');
                         btnStart.removeAttr('disabled');
+                    }*/
+                   cambiaAnimacionAsistente("estatica");
+                   estadoAsistente = "esperando";
+                   
+                    if(asistenteFinalizo){
+                        $('#inner-wave').removeClass('iw-enabled');
+                        estadoAsistente = "detenido";
                     }
                 }
                 resolve();
@@ -102,18 +156,28 @@ function makeCunksOfText(text) {
 
 
 /* EVENTOS DE ESCUCHA DEL NAVEGADOR */
+
+function toggleEscucha(){
+    if(estadoAsistente == "esperando"){
+        iniciarEscucha();
+    }else if(estadoAsistente == "escuchando"){
+        detenerEscucha();
+    }
+}
+
 function iniciarEscucha(){
     recognition.start();
-    btnStart.hide();
-    btnStop.show();
-    infoAdicional.text('Escuchando...');
+    /*btnStart.hide();
+    btnStop.show();*/
+    //infoAdicional.text('Escuchando...');
+    
 }
 
 function detenerEscucha(){
     recognition.stop();
-    btnStop.hide();
-    btnStart.show();
-    infoAdicional.text('');
+    /*btnStop.hide();
+    btnStart.show();*/
+    //infoAdicional.text('');
 }
 
 // hace posible la conversacion con el asistente
@@ -168,8 +232,21 @@ function conversarAsistente(){
                 activarFuncion(afuncion);
             }
         }else if(respuesta['respuesta_msg']){
-            hablar(respuesta['respuesta_msg']);
-            conversacion.push({"role": "assistant", "content": respuesta['respuesta_msg']});
+            let textType = document.getElementById('typeContenido');
+            let rMensaje = respuesta['respuesta_msg']
+            let iTextChar = 0;
+
+            textType.textContent = "";
+            idInt = setInterval(() => {
+                if (iTextChar < rMensaje.length) {
+                    textType.textContent += rMensaje.charAt(iTextChar);
+                    iTextChar++;
+                }else{
+                    clearInterval(idInt);
+                }
+            }, 55); // Cambia el tiempo de espera según la velocidad deseada
+            hablar(rMensaje);
+            conversacion.push({"role": "assistant", "content": rMensaje});
         }
         
         /*$('#sintomatologia').val(data['sintomas']);
@@ -177,11 +254,24 @@ function conversarAsistente(){
     });
 }
 
+/*recognition.onstart = (event) => {
+    estadoAsistente = "detenido";
+}*/
+
+recognition.onaudiostart = (event) => {
+    cambiaAnimacionAsistente("iw-hearing");
+    estadoAsistente = "escuchando";
+}
+recognition.onaudioend = (event) => {
+    cambiaAnimacionAsistente("iw-loading");
+    estadoAsistente = "detenido";
+}
+
 recognition.onresult = (event) => {
     const transcript = event.results[0][0].transcript;
-    infoAdicional.text('');
+    //infoAdicional.text('');
 
-    if(transcript.includes("detener asistente")){
+    /*if(transcript.includes("detener asistente")){
         recognition.stop();
         conversacion = [];
         btnStart.attr('disabled', 'true');
@@ -196,11 +286,14 @@ recognition.onresult = (event) => {
             }else{
                 console.log("incorrecto")
             }
-        });*/
+        });
     }else{
         conversacion.push({"role": "user", "content": transcript});
         conversarAsistente();
-    }
+    }*/
+
+    conversacion.push({"role": "user", "content": transcript});
+    conversarAsistente();
 
     /*const formData = new FormData();
     formData.append('corpus', transcript)
@@ -218,19 +311,23 @@ recognition.onresult = (event) => {
 };
 
 recognition.onerror = (event) => {
-    infoAdicional.text(`Error: ${event.error}`);
+    /*infoAdicional.text(`Error: ${event.error}`);
     recognition.stop();
     btnStop.hide();
-    btnStart.show();
+    btnStart.show();*/
+    Swal.fire("Error al reconocer la voz", "Error: "+event.error, "error");
+    cambiaAnimacionAsistente("estatica");
+    estadoAsistente = "esperando";
 };
 
-recognition.onend = () => {
+/*recognition.onend = () => {
     //recognition.start();
     btnStop.hide();
     btnStart.show();
     btnStart.attr("disabled", "true");
     btnStop.attr("disabled", "true");
-};
+    //cambiaAnimacionAsistente("iw-loading");
+};*/
 
 //Buscar paciente por numero de cedula
 function buscarPaciente() {
@@ -244,6 +341,7 @@ function buscarPaciente() {
     })
     .then(response => response.json())
     .then(data => {
+        asistenteFinalizo = false;
         if(data.code == 1){
             let paciente = data['datos']
             cargarDatosPacientes(paciente);
@@ -277,6 +375,10 @@ function cargarHistorialSintomas(cedula, nombres){
     })
     .then(response => response.json())
     .then(data => {
+        if(!$('#contenedor-typing').hasClass('ct-appear')){
+            $('#contenedor-typing').addClass('ct-appear');
+        }
+
         $('#tblHistorialSintomas tbody').empty();
         let txtBienvenida = `El paciente que atenderas se llama ${nombres}, y tiene ${$("#edad").val()} años de edad. `;
         if(data.res == 1){

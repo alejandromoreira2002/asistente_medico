@@ -35,13 +35,10 @@ def getFormulario():
 
 @app.post('/paciente')
 def getPaciente():
-    if 'user' in session:
-        session.pop('user', None)
     cedula = request.form['cedula']
     controlador = PacientesControlador()
     paciente = controlador.getPaciente(cedula)
     if paciente['code'] == 1:
-        session['user'] = {}
         session['user'] = cedula
         session['mensajes'] = getMensajeSistema()
     return jsonify(paciente)

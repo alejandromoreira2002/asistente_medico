@@ -16,10 +16,23 @@
         <div class="asistente">
             <h1 style="text-align:center">Iniciar Asistente Médico</h1>
             <div class="controles" id="controles">
-                <button id="start-recording" class="btn-act iniciar-conversacion" onclick="iniciarEscucha()" disabled><i class="fa-solid fa-play"></i></button>
-                <button id="stop-recording" class="btn-act detener-conversacion" onclick="detenerEscucha()" disabled><i class="fa-solid fa-stop"></i></button>
+                <div class="container-icon" id="asistente-btn" onclick="toggleEscucha()">
+                    <div class="outer-circle" id="outer-circle">
+                        <div class="inner-wave" id="inner-wave"></div>
+                    </div>
+                </div>
+                <!--<button id="start-recording" class="btn-act iniciar-conversacion" onclick="iniciarEscucha()" disabled><i class="fa-solid fa-play"></i></button>-->
+                <!--<button id="stop-recording" class="btn-act detener-conversacion" onclick="detenerEscucha()" disabled><i class="fa-solid fa-stop"></i></button>-->
                 <!--<button id="stop-recording" disabled>Detener Grabación</button>-->
                 <p id="info-adicional"></p>
+            </div>
+            <div class="contenedor-typing" id="contenedor-typing">
+                <div class="filtro-typing"></div>
+                <div class="texto-type">
+                    <p id="typeContenido">
+
+                    </p>
+                </div>
             </div>
         </div>
         <div class="formulario">
