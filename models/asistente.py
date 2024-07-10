@@ -39,20 +39,6 @@ class AsistenteModelo():
             'asis_funciones': respuesta.tool_calls
         }
     
-    def buscarToolCalls(self, msg):
-        print("--------------- MENSAJE ------------------")
-        print(msg)
-        mensajes = [];
-        for m in msg:
-            print("---------m------")
-            print(m)
-            print(type(m))
-            if(type(m) is dict):
-                mensajes.append(m)
-            else:
-                mensajes.append(ChatCompletionMessageToolCall.from_dict(json.loads(m)))
-        return mensajes
-
     def getSintomas(self, corpus):
         response = self.client.chat.completions.create(
             model="gpt-3.5-turbo",
@@ -70,15 +56,6 @@ class AsistenteModelo():
 
         return response.choices[0].message.content
     
-class ChatCompletionMessageToolCall:
-    @classmethod
-    def from_dict(cls, data):
-        instance = cls()
-        instance.id = data['id']
-        instance.function = data['function']
-        instance.type = data['type']
-        return instance
-
 """
 de este modo:
                     Los sintomas encontrados seran el value de la key

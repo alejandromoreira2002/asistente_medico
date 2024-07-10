@@ -14,6 +14,7 @@ class PacientesControlador():
                     "id": paciente['id'],
                     "nombres": paciente['nombres'],
                     "apellidos": paciente['apellidos'],
+                    "genero": paciente['genero'],
                     "f_nacimiento": paciente['f_nacimiento'].strftime("%Y-%m-%d"),
                     "telefono": paciente['telefono'],
                     "correo": paciente['correo'],

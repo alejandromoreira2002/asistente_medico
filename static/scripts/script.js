@@ -380,7 +380,7 @@ function cargarHistorialSintomas(cedula, nombres){
         }
 
         $('#tblHistorialSintomas tbody').empty();
-        let txtBienvenida = `El paciente que atenderas se llama ${nombres}, y tiene ${$("#edad").val()} años de edad. `;
+        let txtBienvenida = `El paciente que atenderas se llama ${nombres}, tiene ${$("#edad").val()} años de edad y su genero es ${$("#genero").val()=='M'?"Masculino":"Femenino"}. `; //y es de genero ...
         if(data.res == 1){
             let indice = 0;
             let sintomas = data['contenido']
@@ -492,6 +492,7 @@ function cargarDatosPacientes(paciente){
     $('#idPaciente').val(paciente['id']);
     $('#nombres').val(`${paciente['nombres']} ${paciente['apellidos']}`);
     $('#fechaNacimiento').val(paciente['f_nacimiento']);
+    $('#genero').val(paciente['genero']);
     $('#edad').val(edad);
     $('#telefono').val(paciente['telefono']);
     $('#correo').val(paciente['correo']);
@@ -512,7 +513,13 @@ function getSintomas(sintomas){
     console.log(fArgumentos);
     enviarRespuestaAFuncion(sintomas['funcion_id'],sintomas['funcion_name']);
 
-    let txtSintomas = fArgumentos['sintomas'].join(', ');
+    let sFiltrados = fArgumentos['sintomas'].filter(s => !fArgumentos['excluidos'].includes(s));
+    fArgumentos['nuevos'].forEach(s => {
+        if (!sFiltrados.includes(s)) {
+            sFiltrados.push(s);
+        }
+    });
+    let txtSintomas = sFiltrados.join(', ');
     $('#sintomatologia').val(txtSintomas);
     $('#sintomatologia').removeAttr('disabled');
     document.querySelector("#sintomatologia").scrollIntoView({ behavior: 'smooth' });
