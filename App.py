@@ -11,8 +11,8 @@ app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 with app.test_request_context():
     url_for('static', filename='/img/')
-    url_for('static', filename='/css/style.css')
-    url_for('static', filename='/scripts/script.js')
+    url_for('static', filename='/css/')
+    url_for('static', filename='/scripts/')
 
 # Configurar el registro
 logging.basicConfig(level=logging.INFO)

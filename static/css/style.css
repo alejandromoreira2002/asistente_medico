@@ -183,6 +183,24 @@
     z-index: 50;
 }
 
+.formulario-carga{
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(255,255,255,0.5);
+    z-index: 50;
+}
+
+.mensaje-cargaf{
+    color: #4d4d4d;
+    /* font-weight: 500; */
+    margin-top: -27px;
+}
+
 @keyframes pulse {
     0% { box-shadow: 0 0 0 0 rgba(150, 150, 150, 0.4); }
     70% { box-shadow: 0 0 0 10px rgba(150, 150, 150, 0); }

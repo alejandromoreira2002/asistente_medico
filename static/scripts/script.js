@@ -22,13 +22,10 @@ if(window.webkitSpeechRecognition == undefined){
     $('#fecha_atencion').attr('disabled', 'true');
 }
 
-//const btnStop = $('#stop-recording');
-//const btnStart = $('#start-recording');
 const infoAdicional = $('#result');
 var estadoAsistente = "detenido"; // cambiar a detenido
 var asistenteFinalizo = false;
 
-//btnStop.hide();
 $('#fecha_atencion').val(formatearFecha(new Date()));
 
 var conversacion = []; // Guardara el historial de conversacion
@@ -41,17 +38,6 @@ const utterance = new SpeechSynthesisUtterance(); // Reproducira voz en base a t
 utterance.lang = 'es-ES';
 
 var indexT = 0;
-/*function typeAnim(texto) {
-    if (indexT < texto.length) {
-        document.querySelector('#typeContenido').textContent += texto.charAt(indexT);
-        indexT++;
-        setTimeout(typeAnim(texto), 50); // Cambia el tiempo de espera según la velocidad deseada
-    }
-}
-
-function escribirTexto(texto){
-    typeAnim(texto);
-}*/
 
 function cambiaAnimacionAsistente(animacion){
     let clasesAnim = [
@@ -81,7 +67,6 @@ async function hablar(texto) {
     console.log(speechChunks);
     if(!$('#inner-wave').hasClass('iw-enabled')){
         $('#inner-wave').addClass('iw-enabled');
-        /*document.getElementById('asistente-btn').addEventListener('click', toggleEscucha());*/
     }
     
     for (let i = 0; i < speechChunks.length; i++) {
@@ -97,12 +82,6 @@ async function hablar(texto) {
             }
             utterance.onend = () => {
                 if (speechChunks.length - 1 == i) {
-                    /*btnStop.hide();
-                    btnStart.show();
-                    if(btnStart.attr('disabled') != undefined && asistenteFinalizo == false){
-                        btnStop.removeAttr('disabled');
-                        btnStart.removeAttr('disabled');
-                    }*/
                    cambiaAnimacionAsistente("estatica");
                    estadoAsistente = "esperando";
                    
@@ -167,17 +146,10 @@ function toggleEscucha(){
 
 function iniciarEscucha(){
     recognition.start();
-    /*btnStart.hide();
-    btnStop.show();*/
-    //infoAdicional.text('Escuchando...');
-    
 }
 
 function detenerEscucha(){
     recognition.stop();
-    /*btnStop.hide();
-    btnStart.show();*/
-    //infoAdicional.text('');
 }
 
 // hace posible la conversacion con el asistente
@@ -191,46 +163,9 @@ function conversarAsistente(){
     .then(response => response.json())
     .then(respuesta => {
         conversacion = [];
-        /*let esJSON = true;
-        let contenido = "";
-        let texto = "";
-        try{
-            contenido = JSON.parse(respuesta['mensaje']);
-        }catch (e){
-            console.log(e);
-            esJSON = false;
-            texto = respuesta['mensaje'];
-        }
-        
-        if(esJSON){
-            texto = contenido['mensaje'];
-            if(contenido['sintomas'] && contenido['sintomas'].length > 0){
-                let sintomas = typeof(contenido['sintomas']) == 'object' ? contenido['sintomas'].join(', ') : contenido['sintomas'];
-                $('#sintomatologia').val(sintomas)
-                $('#sintomatologia').removeAttr('disabled');
-                document.querySelector("#sintomatologia").scrollIntoView({ behavior: 'smooth' });
-            }
-            if(contenido['comando'] && contenido['comando'] == "finalizar"){
-                btnStop.attr('disabled', 'true');
-                btnStart.attr('disabled', 'true');
-                asistenteFinalizo = true;
-            }
-            console.log(contenido);
-        }
-        console.log(texto);
-        hablar(texto);*/
         if(respuesta['asis_funciones']){
-            let handleAFunciones = {
-                'get_sintomas': getSintomas,
-                'finalizar': finalizarAsistente
-            }
-            for(let afuncion of respuesta['asis_funciones']){
-                //afuncion['funcion']
-                afuncion['funcion_args'] = JSON.parse(afuncion['funcion_args']);
-                console.log(afuncion);
-                const activarFuncion = handleAFunciones[afuncion['funcion_name']];
-                activarFuncion(afuncion);
-            }
+            ejecutarFuncion(respuesta['asis_funciones']);
+
         }else if(respuesta['respuesta_msg']){
             let textType = document.getElementById('typeContenido');
             let rMensaje = respuesta['respuesta_msg']
@@ -248,15 +183,8 @@ function conversarAsistente(){
             hablar(rMensaje);
             conversacion.push({"role": "assistant", "content": rMensaje});
         }
-        
-        /*$('#sintomatologia').val(data['sintomas']);
-        $('#sintomatologia').removeAttr('disabled');*/
     });
 }
-
-/*recognition.onstart = (event) => {
-    estadoAsistente = "detenido";
-}*/
 
 recognition.onaudiostart = (event) => {
     cambiaAnimacionAsistente("iw-hearing");
@@ -269,52 +197,12 @@ recognition.onaudioend = (event) => {
 
 recognition.onresult = (event) => {
     const transcript = event.results[0][0].transcript;
-    //infoAdicional.text('');
-
-    /*if(transcript.includes("detener asistente")){
-        recognition.stop();
-        conversacion = [];
-        btnStart.attr('disabled', 'true');
-        btnStop.attr('disabled', 'true');
-        /*fetch('/detenerAsistente', {
-            method: 'GET',
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data['code'] == 1){
-                console.log("correcto")
-            }else{
-                console.log("incorrecto")
-            }
-        });
-    }else{
-        conversacion.push({"role": "user", "content": transcript});
-        conversarAsistente();
-    }*/
 
     conversacion.push({"role": "user", "content": transcript});
     conversarAsistente();
-
-    /*const formData = new FormData();
-    formData.append('corpus', transcript)
-    fetch('/sintomas', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        let texto = `Los síntomas que has mencionado son los siguientes: ${data['sintomas']}. ¿Es correcto?`
-        hablar(texto);
-        $('#sintomatologia').val(data['sintomas'])
-        $('#sintomatologia').removeAttr('disabled');
-    });*/
 };
 
 recognition.onerror = (event) => {
-    /*infoAdicional.text(`Error: ${event.error}`);
-    recognition.stop();
-    btnStop.hide();
-    btnStart.show();*/
     Swal.fire("Error al reconocer la voz", "Error: "+event.error, "error");
     cambiaAnimacionAsistente("estatica");
     estadoAsistente = "esperando";
@@ -329,18 +217,29 @@ recognition.onerror = (event) => {
     //cambiaAnimacionAsistente("iw-loading");
 };*/
 
+function toggleLoading(accion, mensaje=""){
+    if(accion == 'mostrar'){
+        $('#formulario-carga').show();
+    }else if(accion == 'ocultar'){
+        $('#formulario-carga').hide();
+    }
+    $('#mensaje-cargaf p').text(mensaje);
+}
+
 //Buscar paciente por numero de cedula
 function buscarPaciente() {
     let cedula = document.getElementById('cedula').value;
 
     const formData = new FormData();
-    formData.append('cedula', cedula)
+    formData.append('cedula', cedula);
+    toggleLoading('mostrar', 'Cargando datos del paciente...');
     fetch('/paciente', {
         method: 'POST',
         body: formData
     })
     .then(response => response.json())
     .then(data => {
+        //toggleLoading('ocultar');
         asistenteFinalizo = false;
         if(data.code == 1){
             let paciente = data['datos']
@@ -354,12 +253,6 @@ function buscarPaciente() {
             $('#temperatura').removeAttr('disabled');
 
             cargarHistorialSintomas(cedula, paciente['nombres']);
-
-            //let txtBienvenida = `Dale una bienvenida al usuario que vas a atender, él se llama ${paciente['nombres']}, y tiene una edad de ${$("#edad").val()} años.`;
-            /*let txtBienvenida = `El paciente que atenderas se llama ${paciente['nombres']}, y tiene ${$("#edad").val()} años de edad. Dale una bienvenida y ayudalo a detectar sus sintomas.`;
-            conversacion.push({"role": "user", "content": txtBienvenida});
-            console.log(conversacion);*/
-            //conversarAsistente();
         }else{
             Swal.fire('Error', 'No hay pacientes con ese número de cedula', 'error');
         }
@@ -367,6 +260,7 @@ function buscarPaciente() {
 }
 
 function cargarHistorialSintomas(cedula, nombres){
+    toggleLoading('mostrar', 'Cargando sintomas...');
     const formData = new FormData();
     formData.append('cedula', cedula)
     fetch('/sintomas', {
@@ -375,6 +269,7 @@ function cargarHistorialSintomas(cedula, nombres){
     })
     .then(response => response.json())
     .then(data => {
+        toggleLoading('ocultar');
         if(!$('#contenedor-typing').hasClass('ct-appear')){
             $('#contenedor-typing').addClass('ct-appear');
         }
@@ -399,7 +294,6 @@ function cargarHistorialSintomas(cedula, nombres){
             console.log(sintomas[0]['Sintomas']);
 
             txtBienvenida = txtBienvenida + `Segun tus registros este paciente en una consulta anterior llegó presentando los siguientes sintomas: ${sintomas[0]['Sintomas']}. Dale una bienvenida, y ayudalo.`;
-            //let txtBienvenida = `El paciente que atenderas se llama ${paciente['nombres']}, y tiene ${$("#edad").val()} años de edad. Dale una bienvenida y ayudalo a detectar sus sintomas.`;
         }else{
             txtBienvenida = txtBienvenida + `Es la primera vez que este paciente llega atenderse a la clinica, por lo que no ha tenido registros de sintomas anteriormente. Dale una bienvenida, y ayudalo.`;
         }
@@ -508,39 +402,81 @@ function formatearFecha(date){
     return `${year}-${month}-${day}`;
 }
 
+function ejecutarFuncion(asisFunciones){
+    let handleAFunciones = {
+        'get_sintomas': getSintomas,
+        'finalizar': finalizarAsistente
+    }
+
+    for(let afuncion of asisFunciones){
+        //afuncion['funcion']
+        afuncion['funcion_args'] = JSON.parse(afuncion['funcion_args']);
+        //console.log(afuncion);
+        const activarFuncion = handleAFunciones[afuncion['funcion_name']];
+
+        let rcontent = activarFuncion(afuncion);
+        let respuestaF = {
+            "role": "function",
+            "name": afuncion['funcion_name'],
+            "content": rcontent,
+        };
+        conversacion.push(respuestaF);
+        conversarAsistente();
+    }
+}
+
 function getSintomas(sintomas){
     let fArgumentos = sintomas['funcion_args'];
     console.log(fArgumentos);
-    enviarRespuestaAFuncion(sintomas['funcion_id'],sintomas['funcion_name']);
 
-    let sFiltrados = fArgumentos['sintomas'].filter(s => !fArgumentos['excluidos'].includes(s));
-    fArgumentos['nuevos'].forEach(s => {
-        if (!sFiltrados.includes(s)) {
-            sFiltrados.push(s);
+    let sFiltrados = fArgumentos['sintomas'];
+    if(fArgumentos['excluidos']){
+        sFiltrados = fArgumentos['sintomas'].filter(s => !fArgumentos['excluidos'].includes(s));
+        console.log("SinExcluidos => " + sFiltrados);
+    }
+    if(fArgumentos['nuevos']){
+        fArgumentos['nuevos'].forEach(s => {
+            if (!sFiltrados.includes(s)) {
+                sFiltrados.push(s);
+            }
+        });
+        console.log("ConNuevos => " + sFiltrados);
+    }
+    let sintomasFinales = [];
+    if(fArgumentos['sfromgenero']){
+        for(let sfg of fArgumentos['sfromgenero']){
+            for(let sfilt of sFiltrados){
+                console.log(sfg);
+                console.log(sfilt);
+                if(!sfilt.includes(sfg)){
+                    sintomasFinales.push(sfilt);
+                }
+            }
         }
-    });
-    let txtSintomas = sFiltrados.join(', ');
+        //sintomasFinales = sFiltrados.filter(s => !fArgumentos['sfromgenero'].includes(s));
+        console.log("SinGenero => " + sintomasFinales);
+
+    }
+    console.log("Ultimos => " + sintomasFinales);
+    let txtSintomas = sintomasFinales.join(', ');
     $('#sintomatologia').val(txtSintomas);
     $('#sintomatologia').removeAttr('disabled');
     document.querySelector("#sintomatologia").scrollIntoView({ behavior: 'smooth' });
+
+    if(fArgumentos['sfromgenero']){
+        let genero = $('#genero').val()=="M"?"Masculino":"Femenino";
+        return fArgumentos['sfromgenero'].join(',') + " no son sintomas que correspondan al genero " + genero;
+    }else{
+        return JSON.stringify({success: true});
+    }
 }
 
 function finalizarAsistente(respuesta){
     let fArgumentos = respuesta['funcion_args'];
     console.log(fArgumentos);
-    enviarRespuestaAFuncion(respuesta['funcion_id'],respuesta['funcion_name']);
 
     asistenteFinalizo = true;
-}
-
-function enviarRespuestaAFuncion(id, name){
-    let respuestaF = {
-        "role": "function",
-        "name": name,
-        "content": JSON.stringify({success: true}),
-    };
-    conversacion.push(respuestaF);
-    conversarAsistente();
+    return JSON.stringify({success: true});
 }
 
 function guardarFormulario(){
