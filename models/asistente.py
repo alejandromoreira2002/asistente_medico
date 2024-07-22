@@ -18,26 +18,51 @@ class AsistenteModelo():
         ]
         self.funciones = getFuncionesAsistente()
 
-    def getRespuesta(self, mensajes):
+    def getRespuesta(self, paciente, mensajes, compMsgs):
         #mensaje = self.buscarToolCalls(mensaje)
         #mensajes = self.sistema + mensaje
+        tMensajes = mensajes
+        for cm in compMsgs:
+            if cm and cm['paciente'] == paciente: 
+                tMensajes.insert(cm['lastId'], cm['data']);
         response = self.client.chat.completions.create(
             model="gpt-3.5-turbo",
             #response_format={ "type": "json_object" },
-            messages=mensajes,
+            messages=tMensajes,
             tools=self.funciones,
             tool_choice="auto",
             max_tokens=256,
             temperature=1,
             top_p=1
         )
-        print(response)
         respuesta = response.choices[0].message
+        #print(respuesta)
         return {
             'respuesta': respuesta,
             'respuesta_msg': respuesta.content,
             'asis_funciones': respuesta.tool_calls
         }
+    
+    def filtrarSintomasxGenero(self, sintomas, genero):
+        sint = sintomas['nuevos'] if sintomas['nuevos'] else sintomas['sintomas']
+        response = self.client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            #response_format={ "type": "json_object" },
+            response_format={ "type": "json_object" },
+            messages=[
+                {
+                    "role": "system",
+                    "content": f"Eres un asistente medico capaz de filtrar sintomas y devolverlos en formato JSON: guardaras los sintomas que no correspondan al genero {genero} como value de la key 'degenero' y el resto de sintomas los guardaras como valor de la key 'otros'."
+                },
+                {
+                    "role": "user",
+                    "content": f"Filtra los sintomas de la siguiente lista: {sint}"
+                }
+            ]
+        )
+        respuesta = response.choices[0].message.content
+        print(respuesta)
+        return respuesta
     
     def getSintomas(self, corpus):
         response = self.client.chat.completions.create(

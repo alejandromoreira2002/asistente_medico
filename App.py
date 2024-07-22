@@ -7,12 +7,15 @@ from functions.asistente import getMensajeSistema
 import logging
 import json
 
+compMsgs = []
+
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 with app.test_request_context():
     url_for('static', filename='/img/')
-    url_for('static', filename='/css/')
-    url_for('static', filename='/scripts/')
+    url_for('static', filename='/css/style.css')
+    url_for('static', filename='/css/loading.css')
+    url_for('static', filename='/scripts/script.js')
 
 # Configurar el registro
 logging.basicConfig(level=logging.INFO)
@@ -35,12 +38,15 @@ def getFormulario():
 
 @app.post('/paciente')
 def getPaciente():
+    global compMsgs
     cedula = request.form['cedula']
     controlador = PacientesControlador()
     paciente = controlador.getPaciente(cedula)
     if paciente['code'] == 1:
         session['user'] = cedula
         session['mensajes'] = getMensajeSistema()
+        compMsgs = list(filter(lambda x: x['paciente'] != cedula, compMsgs))
+        print(compMsgs)
     return jsonify(paciente)
 
 @app.post('/add/paciente')
@@ -69,6 +75,9 @@ def getSintomas():
 indice = 0
 @app.post('/conversar')
 def getRespuesta():
+    global compMsgs
+
+    genero = request.form['genero']
     mensaje = request.form['mensaje']
     mensajeList = json.loads(mensaje)
 
@@ -76,20 +85,14 @@ def getRespuesta():
     for melist in mensajeList:
         mensTemp.append(melist)
     
+    mTmpAsis = list(mensTemp)
     controlador = AsistenteControlador()
-    respuesta = controlador.getRespuesta(mensTemp)
-    #if respuesta['mensaje']:
-    #    mensTemp.append(respuesta['mensaje'])
-    #global indice
-    #respuesta = {
-        #"mensaje": respuesta['respuesta'],
-        #"respuesta_msg": posMensajes[indice],
-        #"asis_funciones": None
-    #}
+    respuesta = controlador.getRespuesta(session.get('user'), mTmpAsis, compMsgs, genero)
+    if respuesta['mensaje']:
+        nuevoCM = {"paciente": session.get('user'), "lastId": len(mTmpAsis), "data": respuesta['mensaje']}
+        compMsgs.append(nuevoCM)
+
     session['mensajes'] = mensTemp
-    print(session['mensajes'])
-    #print(session['user'] + " ====> " + str(session['mensajes']))
-    #indice += 1
     return jsonify({"respuesta_msg": respuesta['respuesta_msg'], "asis_funciones": respuesta['asis_funciones']})
 
 @app.post('/form/guardar')

@@ -156,6 +156,8 @@ function detenerEscucha(){
 function conversarAsistente(){
     const formData = new FormData();
     formData.append('mensaje', JSON.stringify(conversacion));
+    formData.append('genero', $("#genero").val()=='M'?"Masculino":"Femenino");
+    console.log(conversacion);
     fetch('/conversar', {
         method: 'POST',
         body: formData
@@ -256,7 +258,11 @@ function buscarPaciente() {
         }else{
             Swal.fire('Error', 'No hay pacientes con ese número de cedula', 'error');
         }
-    });
+    })
+    .catch(err => {
+        toggleLoading('ocultar');
+        Swal.fire('Error', `No se pudo realizar la solicitud. Error: ${err}`, 'error');
+    })
 }
 
 function cargarHistorialSintomas(cedula, nombres){
@@ -301,7 +307,10 @@ function cargarHistorialSintomas(cedula, nombres){
         console.log(conversacion);
         conversarAsistente();
     })
-    .catch(err => Swal.fire('Error', `No se pudo realizar la solicitud. Error: ${err}`, 'error'));
+    .catch(err => {
+        toggleLoading('ocultar');
+        Swal.fire('Error', `No se pudo realizar la solicitud. Error: ${err}`, 'error')
+    });
 }
 
 function comprobarCampos(cod){
@@ -403,26 +412,29 @@ function formatearFecha(date){
 }
 
 function ejecutarFuncion(asisFunciones){
+    console.log(asisFunciones);
     let handleAFunciones = {
         'get_sintomas': getSintomas,
+        'sfromgenero': getSintomasxGenero,
         'finalizar': finalizarAsistente
     }
 
     for(let afuncion of asisFunciones){
         //afuncion['funcion']
-        afuncion['funcion_args'] = JSON.parse(afuncion['funcion_args']);
+        //afuncion['funcion_args'] = JSON.parse(afuncion['funcion_args']);
         //console.log(afuncion);
         const activarFuncion = handleAFunciones[afuncion['funcion_name']];
 
         let rcontent = activarFuncion(afuncion);
         let respuestaF = {
-            "role": "function",
+            "tool_call_id": afuncion['funcion_id'],
+            "role": "tool",
             "name": afuncion['funcion_name'],
             "content": rcontent,
         };
         conversacion.push(respuestaF);
-        conversarAsistente();
     }
+    conversarAsistente();
 }
 
 function getSintomas(sintomas){
@@ -442,15 +454,32 @@ function getSintomas(sintomas){
         });
         console.log("ConNuevos => " + sFiltrados);
     }
-    let sintomasFinales = [];
-    if(fArgumentos['sfromgenero']){
-        for(let sfg of fArgumentos['sfromgenero']){
+    let sintomasFinales = sFiltrados;
+    if(fArgumentos['sfromgenero'] && fArgumentos['sfromgenero'].length > 0){
+        sintomasFinales = [];
+        /*if(typeof(fArgumentos['sfromgenero']) == 'object'){
+            for(let sfg of fArgumentos['sfromgenero']){
+                for(let sfilt of sFiltrados){
+                    console.log(sfg);
+                    console.log(sfilt);
+                    if(!sfilt.includes(sfg)){
+                        sintomasFinales.push(sfilt);
+                    }
+                }
+            }
+        }else{
             for(let sfilt of sFiltrados){
+                let sfg = fArgumentos['sfromgenero'];
                 console.log(sfg);
                 console.log(sfilt);
                 if(!sfilt.includes(sfg)){
                     sintomasFinales.push(sfilt);
                 }
+            }
+        }*/
+        for(let sfilt of sFiltrados){
+            if(!fArgumentos['sfromgenero'].includes(sfilt)){
+                sintomasFinales.push(sfilt);
             }
         }
         //sintomasFinales = sFiltrados.filter(s => !fArgumentos['sfromgenero'].includes(s));
@@ -465,10 +494,16 @@ function getSintomas(sintomas){
 
     if(fArgumentos['sfromgenero']){
         let genero = $('#genero').val()=="M"?"Masculino":"Femenino";
-        return fArgumentos['sfromgenero'].join(',') + " no son sintomas que correspondan al genero " + genero;
+        let sintomasgenero = (typeof(fArgumentos['sfromgenero']) == 'object') ? fArgumentos['sfromgenero'].join(',') : fArgumentos['sfromgenero'];
+        return sintomasgenero + " no son sintomas que correspondan al genero " + genero;
     }else{
         return JSON.stringify({success: true});
     }
+}
+
+function getSintomasxGenero(sintomas){
+    console.log(sintomas);
+    return JSON.stringify({success: true});
 }
 
 function finalizarAsistente(respuesta){
