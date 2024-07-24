@@ -68,14 +68,22 @@ def getPaciente():
         print(compMsgs)
     return jsonify(paciente)
 
-@app.post('/add/paciente')
+@app.post('/paciente/verificar')
+def existePaciente():
+    cedula = request.form['cedula']
+    controlador = PacientesControlador()
+    respuesta = controlador.verificarCedula(cedula)
+    return jsonify(respuesta)
+
+@app.post('/paciente/add')
 def agregarPaciente():
     paciente = {
         "cedula": request.form['cedula'],
         "nombres": request.form['nombres'],
         "apellidos": request.form['apellidos'],
-        "f_nac": request.form['f_nac'],
         "edad": request.form['edad'],
+        "genero": request.form['genero'],
+        "f_nacimiento": request.form['f_nacimiento'],
         "telefono": request.form['telefono'],
         "correo": request.form['correo'],
         "ciudad": request.form['ciudad'],
@@ -83,7 +91,7 @@ def agregarPaciente():
     }
 
     controlador = PacientesControlador()
-    jsonify(controlador.setPaciente(paciente))
+    return jsonify(controlador.setPaciente(paciente))
 
 @app.post('/sintomas')
 def getSintomas():

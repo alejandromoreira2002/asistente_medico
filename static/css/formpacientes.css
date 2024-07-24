@@ -12,6 +12,24 @@ body{
     align-items: center;
 }
 
+.formulario-carga{
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(255,255,255,0.5);
+    z-index: 50;
+}
+
+.mensaje-cargaf{
+    color: #4d4d4d;
+    /* font-weight: 500; */
+    margin-top: -27px;
+}
+
 .formulario{
     border: 2px solid #252525;
     border-radius: 20px;
