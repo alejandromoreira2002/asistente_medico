@@ -22,6 +22,8 @@ if(window.webkitSpeechRecognition == undefined){
     $('#fecha_atencion').attr('disabled', 'true');
 }
 
+generarCodigoForm();
+
 const infoAdicional = $('#result');
 var estadoAsistente = "detenido"; // cambiar a detenido
 var asistenteFinalizo = false;
@@ -60,6 +62,29 @@ function cambiaAnimacionAsistente(animacion){
     }
 }
 
+function generarCodigoForm(){
+    toggleLoading('mostrar', 'Cargando formulario...');
+    fetch('/form/codigo', {
+        method: 'GET',
+    })
+    .then(response => response.json())
+    .then(data => {
+        toggleLoading('ocultar');
+        if(data['res'] == 1){
+            $('#cod-form').val(data['contenido']);
+        }
+    })
+    .catch(err => {
+        toggleLoading('ocultar');
+        Swal.fire({
+            title:"No se pudo generar el codigo de formulario.",
+            text:`Error: ${err}`,
+            icon:"error",
+            showConfirmButton: false,
+            allowOutsideClick: false,
+        });
+    })
+}
 
 // Funcion que permite reproducir voz en base al texto
 async function hablar(texto) {
@@ -164,6 +189,9 @@ function conversarAsistente(){
     })
     .then(response => response.json())
     .then(respuesta => {
+        if(!$('#contenedor-typing').hasClass('ct-appear')){
+            $('#contenedor-typing').addClass('ct-appear');
+        }
         conversacion = [];
         if(respuesta['asis_funciones']){
             ejecutarFuncion(respuesta['asis_funciones']);
@@ -231,9 +259,11 @@ function toggleLoading(accion, mensaje=""){
 //Buscar paciente por numero de cedula
 function buscarPaciente() {
     let cedula = document.getElementById('cedula').value;
+    let fecha = document.getElementById('fecha_atencion').value;
 
     const formData = new FormData();
     formData.append('cedula', cedula);
+    formData.append('fecha', fecha);
     toggleLoading('mostrar', 'Cargando datos del paciente...');
     fetch('/paciente', {
         method: 'POST',
@@ -276,9 +306,6 @@ function cargarHistorialSintomas(cedula, nombres){
     .then(response => response.json())
     .then(data => {
         toggleLoading('ocultar');
-        if(!$('#contenedor-typing').hasClass('ct-appear')){
-            $('#contenedor-typing').addClass('ct-appear');
-        }
 
         $('#tblHistorialSintomas tbody').empty();
         let txtBienvenida = `El paciente que atenderas se llama ${nombres}, tiene ${$("#edad").val()} años de edad y su genero es ${$("#genero").val()=='M'?"Masculino":"Femenino"}. `; //y es de genero ...

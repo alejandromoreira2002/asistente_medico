@@ -46,3 +46,24 @@ class db():
         self.mysql.commit()
         cursor.close()
         return respuesta
+    
+    def actualizarDatos(self, sql, data):
+        cursor = self.mysql.cursor()
+        cursor.execute(sql, data)
+        self.mysql.commit()
+        filasAct = cursor.rowcount
+        
+        respuesta = None
+        if filasAct > 0:
+            respuesta = 1
+        else:
+            respuesta = 0
+            
+        cursor.close()
+        return respuesta
+    
+    def ejecutar_SP(self, procedimiento, params):
+        cursor = self.mysql.cursor()
+        resultado = cursor.callproc(procedimiento, params)
+        cursor.close()
+        return resultado

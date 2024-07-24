@@ -17,6 +17,13 @@ class FormularioControlador():
                 'contenido': 'No se encontraron sintomas relacionados a ese número de cedula'
             }
     
+    def getCodigo(self):
+        codigo = self.modelo.getCodigo();
+        return {
+            'res': 1,
+            'contenido': codigo
+        };
+    
     def guardarFormulario(self, parametros):
         res = self.modelo.grabarSintomas(parametros)
         if res['res'] == 1:

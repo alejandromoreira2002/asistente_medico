@@ -17,6 +17,10 @@ class AsistenteControlador():
         respuesta_msg = respuesta['respuesta_msg']
         funciones = respuesta['asis_funciones']
 
+        print(mensajes)
+        mensajes = list(map(lambda c: str(c) if not type(c) is dict else c, mensajes))
+        print(mensajes)
+
         if funciones:
             obj_funciones = [];
             for funcion in funciones:
@@ -26,8 +30,8 @@ class AsistenteControlador():
                 if(funcion.function.name == 'get_sintomas'):
                     nFiltrados = self.modelo.filtrarSintomasxGenero(argumentos, genero)
                     resnfilt = json.loads(nFiltrados)
-                    argumentos['nuevos'] = resnfilt['otros']
-                    argumentos['sfromgenero'] = resnfilt['degenero']
+                    argumentos['nuevos'] = resnfilt['otros'] if 'otros' in resnfilt else []
+                    argumentos['sfromgenero'] = resnfilt['degenero'] if 'degenero' in resnfilt else []
                 obj_funciones.append(
                     {
                         "funcion_id": funcion.id,

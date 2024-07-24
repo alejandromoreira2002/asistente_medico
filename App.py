@@ -2,11 +2,15 @@ from flask import Flask, render_template, url_for, redirect, request, session, j
 from controllers.pacientes import PacientesControlador
 from controllers.asistente import AsistenteControlador
 from controllers.formulario import FormularioControlador
+from controllers.chats import ChatControlador
 #from functions.functions import encriptar
+from functions.functions import generarCodigoAleatorio
 from functions.asistente import getMensajeSistema
 import logging
 import json
 
+# Guardara todos los ChatCompletions de respuesta a las funciones del asistente
+# Esto evita que el asistente vuelva a repetir el envio de la funcion
 compMsgs = []
 
 app = Flask(__name__)
@@ -36,15 +40,30 @@ def Index():
 def getFormulario():
     return render_template('prueba.html')
 
+@app.get('/pacientes')
+def pacientesPage():
+    return render_template('pacientes.html')
+
 @app.post('/paciente')
 def getPaciente():
     global compMsgs
     cedula = request.form['cedula']
+    fecha = request.form['fecha']
     controlador = PacientesControlador()
     paciente = controlador.getPaciente(cedula)
     if paciente['code'] == 1:
+        historialControl = ChatControlador()
+        codigo = ''
+        existeCodigo = 1
+        while(existeCodigo):
+            codigo = generarCodigoAleatorio(5)
+            existeCodigo = historialControl.verificarCodigo(codigo)
+        print(codigo)
+        session['codigo'] = codigo
         session['user'] = cedula
-        session['mensajes'] = getMensajeSistema()
+        tmpMensaje = getMensajeSistema()
+        session['mensajes'] = tmpMensaje
+        historialControl.insertarChat(tmpMensaje, codigo, cedula, fecha)
         compMsgs = list(filter(lambda x: x['paciente'] != cedula, compMsgs))
         print(compMsgs)
     return jsonify(paciente)
@@ -72,7 +91,11 @@ def getSintomas():
     controlador = FormularioControlador()
     return jsonify(controlador.consultarSintomas(cedula))
 
-indice = 0
+@app.get('/form/codigo')
+def getCodigoForm():
+    controlador = FormularioControlador()
+    return jsonify(controlador.getCodigo())
+
 @app.post('/conversar')
 def getRespuesta():
     global compMsgs
@@ -91,6 +114,12 @@ def getRespuesta():
     if respuesta['mensaje']:
         nuevoCM = {"paciente": session.get('user'), "lastId": len(mTmpAsis), "data": respuesta['mensaje']}
         compMsgs.append(nuevoCM)
+        mTmpAsis.append(str(respuesta['mensaje']))
+    else:
+        mTmpAsis.append({'role': 'assistant', 'content': respuesta['respuesta_msg']})
+    
+    historialControl = ChatControlador()
+    historialControl.actualizarChat(session['codigo'], mTmpAsis)
 
     session['mensajes'] = mensTemp
     return jsonify({"respuesta_msg": respuesta['respuesta_msg'], "asis_funciones": respuesta['asis_funciones']})
@@ -108,7 +137,8 @@ def guardarFormulario():
         'presionDistolica': request.form['presionDistolica'],
         'frecuenciaCardiaca': request.form['frecuenciaCardiaca'],
         'temperatura': request.form['temperatura'],
-        'sintomas': request.form['sintomas']
+        'sintomas': request.form['sintomas'],
+        'cod_chat': session['codigo']
     }
     
     controlador = FormularioControlador()

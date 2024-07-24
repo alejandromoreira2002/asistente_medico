@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistente Médico Virtual</title>
+    <meta name="author" content="Teddy Alejandro Moreira Vélez">
+    <meta name="description" content="Asistente medico virtual conversacional para preconsulta">
+    <link rel="shortcut icon" type="image/ico" href="static/img/favicon.ico"/>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/formpacientes.css">
+    <link rel="stylesheet" href="static/css/loading.css">
+    <script src="https://kit.fontawesome.com/ba52fcc0fa.js" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+</head>
+<body>
+    <div class="contenedor">
+        <div class="formulario-carga" id="formulario-carga" style="display: none;">
+            <div class="loadingio-spinner-ellipsis-2by998twmg8">
+                <div class="ldio-yzaezf3dcmj">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+            </div>
+            <div class="mensaje-cargaf" id="mensaje-cargaf">
+                <p>Cargando formulario...</p>
+            </div>
+        </div>
+        <div class="formulario">
+            <!--<iframe style="width:100%;height:100%;" src="/formulario" frameborder="0">-->
+            <div>
+                <div class="container" style="padding: 25px 20px;">
+                    <h2 class="mb-4 text-center">Registro de Pacientes</h2>
+                    <div>
+                        <div class="row">
+                            <div class="form-group col-sm-2">
+                                <input type="hidden" id="idPaciente" value=".">
+                                <label for="cedula">Cédula</label>
+                                <input type="text" class="form-control col-auto" id="cedula" placeholder="Ingrese numero de cédula" onchange="buscarCedula()">
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label for="nombre">Nombres y Apellidos</label>
+                                <input type="text" class="form-control" id="nombres" placeholder="Ingrese nombres y apellidos" disabled onchange="comprobarCampos(2)">
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label for="genero">Genero</label>
+                                <select class="form-control" name="genero" id="genero" disabled>
+                                    <option value="" selected disabled>Seleccione genero</option>
+                                    <option value="M">Masculino</option>
+                                    <option value="F">Femenino</option>
+                                </select>
+                                <!--<input type="text" class="form-control" placeholder="Escriba su genero" id="genero" disabled>-->
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label for="fechaNacimiento">Fecha de Nacimiento</label>
+                                <input type="date" class="form-control" id="fechaNacimiento" disabled onchange="comprobarCampos(2)">
+                            </div>
+                            <div class="form-group col-sm-2">
+                                <label for="edad">Edad</label>
+                                <input type="number" class="form-control" id="edad" placeholder="Ingrese edad" disabled onchange="comprobarCampos(2)">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="telefono">Número de Teléfono</label>
+                                <input type="tel" class="form-control" id="telefono" placeholder="Ingrese número de teléfono" disabled onchange="comprobarCampos(2)">
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="correo">Correo Personal</label>
+                                <input type="email" class="form-control" id="correo" placeholder="Ingrese correo personal" disabled onchange="comprobarCampos(2)">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="ciudad">Ciudad</label>
+                                <input type="text" class="form-control" id="ciudad" placeholder="Ingrese ciudad" disabled onchange="comprobarCampos(2)">
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="direccion">Dirección</label>
+                                <input type="text" class="form-control" id="direccion" placeholder="Ingrese dirección" disabled onchange="comprobarCampos(2)">
+                            </div>
+                        </div>
+                        <div class="row" style="justify-content:center">
+                            <div class="col-sm-3">
+                                <button class="btn btn-primary col-sm-12" id="btnGuardarForm" style="padding: 10px 0;" onclick="guardarFormulario()">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <!--</iframe>-->
+            </div>
+        </div>
+    </div>
+
+    <script src="static/scripts/formpacientes.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

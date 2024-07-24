@@ -1,3 +1,5 @@
+import random
+import string
 #import bcrypt
 
 """
@@ -6,6 +8,9 @@ def encriptar(texto):
     hashed = bcrypt.hashpw(texto, salt)
     return hashed
 """
+def generarCodigoAleatorio(longitud):
+    letras = string.ascii_letters  # Contiene letras mayúsculas y minúsculas
+    return ''.join(random.choice(letras) for _ in range(longitud))
 
 def readConfigDB(route):
     lines = {}
