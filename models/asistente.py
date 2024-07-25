@@ -46,7 +46,7 @@ class AsistenteModelo():
     def filtrarSintomasxGenero(self, sintomas, genero):
         sint = sintomas['nuevos'] if sintomas['nuevos'] else sintomas['sintomas']
         response = self.client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             #response_format={ "type": "json_object" },
             response_format={ "type": "json_object" },
             messages=[
