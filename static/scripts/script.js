@@ -559,12 +559,14 @@ function guardarFormulario(){
     //Datos Sintomatologia
     formData.append('sintomas', $('#sintomatologia').val());
     
+    toggleLoading('mostrar', 'Guardando formulario...');
     fetch('/form/guardar', {
         method: 'POST',
         body: formData
     })
     .then(response => response.json())
     .then(data => {
+        toggleLoading('ocultar');
         if(data.res == 1){
             Swal.fire("Guardado exitoso", data.contenido, "success");
         }else{
@@ -572,6 +574,7 @@ function guardarFormulario(){
         }
     })
     .catch(err => {
+        toggleLoading('ocultar');
         Swal.fire("Ocurrió un error al enviar los datos", `Error: ${err}`, "error")
     })
 }

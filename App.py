@@ -44,6 +44,22 @@ def getFormulario():
 def pacientesPage():
     return render_template('pacientes.html')
 
+@app.get('/admin')
+def indexAdmin():
+    if 'admin' in session:
+        return redirect(url_for('dashboardAdmin'))
+    else:
+        return redirect(url_for('loginAdmin'))
+
+
+@app.get('/admin/login')
+def loginAdmin():
+    return render_template('admin/login.html')
+
+@app.get('/admin/dashboard')
+def dashboardAdmin():
+    return render_template('admin/login.html')
+
 @app.post('/paciente')
 def getPaciente():
     global compMsgs
@@ -119,15 +135,17 @@ def getRespuesta():
     mTmpAsis = list(mensTemp)
     controlador = AsistenteControlador()
     respuesta = controlador.getRespuesta(session.get('user'), mTmpAsis, compMsgs, genero)
+    almacenar_msg = respuesta['almacenar_msg']
     if respuesta['mensaje']:
-        nuevoCM = {"paciente": session.get('user'), "lastId": len(mTmpAsis), "data": respuesta['mensaje']}
+        nuevoCM = {"paciente": session.get('user'), "lastId": len(almacenar_msg), "data": respuesta['mensaje']}
         compMsgs.append(nuevoCM)
-        mTmpAsis.append(str(respuesta['mensaje']))
+        almacenar_msg.append(str(respuesta['mensaje']))
     else:
-        mTmpAsis.append({'role': 'assistant', 'content': respuesta['respuesta_msg']})
+        almacenar_msg.append({'role': 'assistant', 'content': respuesta['respuesta_msg']})
     
     historialControl = ChatControlador()
-    historialControl.actualizarChat(session['codigo'], mTmpAsis)
+    print(almacenar_msg)
+    historialControl.actualizarChat(session['codigo'], almacenar_msg)
 
     session['mensajes'] = mensTemp
     return jsonify({"respuesta_msg": respuesta['respuesta_msg'], "asis_funciones": respuesta['asis_funciones']})

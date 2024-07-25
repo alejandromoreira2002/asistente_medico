@@ -40,12 +40,14 @@ class AsistenteControlador():
                     }
                 )
             return {
+                "almacenar_msg": mensajes,
                 "mensaje": respuesta['respuesta'],
                 "respuesta_msg": respuesta_msg,
                 "asis_funciones": obj_funciones
             }
         else:
             return {
+                "almacenar_msg": mensajes,
                 "mensaje": None,
                 "respuesta_msg": respuesta_msg,
                 "asis_funciones": None
