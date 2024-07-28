@@ -41,11 +41,11 @@ function comprobarCampos(cod=''){
         $('#apellidos').val() != '' &&
         $('#genero').val() != '' &&
         $('#fechaNacimiento').val() != '' &&
-        $('#edad').val() != '' &&
-        $('#telefono').val() != '' &&
-        $('#correo').val() != '' &&
-        $('#ciudad').val() != '' &&
-        $('#direccion').val() != ''
+        $('#edad').val() != ''
+        //$('#telefono').val() != '' &&
+        //$('#correo').val() != '' &&
+        //$('#ciudad').val() != '' &&
+        //$('#direccion').val() != ''
     ){
         $('#btnGuardarPac').removeAttr('disabled');
     }else if(
@@ -53,11 +53,11 @@ function comprobarCampos(cod=''){
         $('#nombres').val() == '' ||
         $('#apellidos').val() == '' ||
         $('#fechaNacimiento').val() == '' ||
-        $('#edad').val() == '' ||
-        $('#telefono').val() == '' ||
-        $('#correo').val() == '' ||
-        $('#ciudad').val() == '' ||
-        $('#direccion').val() == ''
+        $('#edad').val() == '' 
+        //$('#telefono').val() == '' ||
+        //$('#correo').val() == '' ||
+        //$('#ciudad').val() == '' ||
+        //$('#direccion').val() == ''
     ){
         $('#btnGuardarPac').attr('disabled', true);
     }
@@ -65,8 +65,13 @@ function comprobarCampos(cod=''){
 }
 
 function buscarCedula(){
-    toggleLoading('mostrar', 'Verificando cedula...');
     let cedula = $('#cedula').val();
+    if(cedula.trim() == '' || cedula == '.' || isNaN(parseInt(cedula)) || (cedula.length < 8 || cedula.length > 12)){
+        Swal.fire('No se puede consultar paciente', 'El numero de cedula ingresado es incorrecto.', 'error');
+        return;
+    }
+
+    toggleLoading('mostrar', 'Verificando cedula...');
     let formData = new FormData();
     formData.append('cedula', cedula)
     fetch('/paciente/verificar', {
@@ -99,6 +104,26 @@ function buscarCedula(){
 }
 
 function registrarPaciente(){
+    let camposALlenar = [];
+    let elementos = document.querySelectorAll('.obligatorios');
+    for(let el of elementos){
+        if(el.value.trim() == '' || el.value == '.'){
+            camposALlenar.push(el.id);
+        }
+    }
+
+    if(
+        ($('#cedula').val().trim() == '' || $('#cedula').val() == '.') ||
+        ($('#nombres').val().trim() == '' || $('#nombres').val() == '.') ||
+        ($('#apellidos').val().trim() == '' || $('#apellidos').val() == '.') ||
+        ($('#genero').val().trim() == '' || $('#genero').val() == '.') ||
+        ($('#fechaNacimiento').val().trim() == '' || $('#fechaNacimiento').val() == '.') ||
+        ($('#edad').val().trim() == '' || $('#edad').val() == '.')
+    ){
+        let camposTxt = camposALlenar.join(', ');
+        Swal.fire('No se puede guardar', `Por favor, llene los siguientes campos obligatorios: ${camposTxt}`, 'error');
+        return;
+    }
     toggleLoading('mostrar', 'Guardando paciente...');
     let cedula = $('#cedula').val();
     let nombres = $('#nombres').val();
@@ -106,10 +131,10 @@ function registrarPaciente(){
     let genero = $('#genero').val();
     let f_nacimiento = $('#fechaNacimiento').val();
     let edad = $('#edad').val();
-    let telefono = $('#telefono').val();
-    let correo = $('#correo').val();
-    let ciudad = $('#ciudad').val();
-    let direccion = $('#direccion').val();
+    let telefono = $('#telefono').val().trim() == '' ? '.' : $('#telefono').val();
+    let correo = $('#correo').val().trim() == '' ? '.' : $('#correo').val();
+    let ciudad = $('#ciudad').val().trim() == '' ? '.' : $('#ciudad').val();
+    let direccion = $('#direccion').val().trim() == '' ? '.' : $('#direccion').val();
 
     let formData = new FormData();
     formData.append('cedula', cedula);

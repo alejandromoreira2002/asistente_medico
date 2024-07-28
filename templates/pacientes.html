@@ -37,15 +37,15 @@
                             <div class="form-group col-2">
                                 <input type="hidden" id="idPaciente" value=".">
                                 <label for="cedula" class="form-label">Cédula</label>
-                                <input type="text" class="form-control col-auto" id="cedula" placeholder="Ingrese numero de cédula" onchange="buscarCedula()">
+                                <input type="text" class="form-control obligatorios col-auto" id="cedula" placeholder="Ingrese numero de cédula" onchange="buscarCedula()">
                             </div>
                             <div class="form-group col-2">
                                 <label for="nombre" class="form-label">Nombres</label>
-                                <input type="text" class="form-control" id="nombres" placeholder="Ingrese nombres" onchange="comprobarCampos()">
+                                <input type="text" class="form-control obligatorios" id="nombres" placeholder="Ingrese nombres" onchange="comprobarCampos()">
                             </div>
                             <div class="form-group col-2">
                                 <label for="apellidos" class="form-label">Apellidos</label>
-                                <input type="text" class="form-control" id="apellidos" placeholder="Ingrese apellidos" onchange="comprobarCampos()">
+                                <input type="text" class="form-control obligatorios" id="apellidos" placeholder="Ingrese apellidos" onchange="comprobarCampos()">
                             </div>
                             
                             <!--<div class="form-group col-sm-2">
@@ -55,20 +55,20 @@
                             </div>-->
                             <div class="form-group col-2">
                                 <label for="genero" class="form-label">Genero</label>
-                                <select class="form-control" name="genero" id="genero" onchange="comprobarCampos()">
-                                    <option value="" selected>Seleccione genero</option>
+                                <select class="form-control obligatorios" name="genero" id="genero" onchange="comprobarCampos()">
+                                    <option value="" selected disabled>Seleccione genero</option>
                                     <option value="M">Masculino</option>
                                     <option value="F">Femenino</option>
                                 </select>
-                                <!--<input type="text" class="form-control" placeholder="Escriba su genero" id="genero">-->
+                                <!--<input type="text" class="form-control obligatorios" placeholder="Escriba su genero" id="genero">-->
                             </div>
                             <div class="form-group col-2">
                                 <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento</label>
-                                <input type="date" class="form-control" id="fechaNacimiento" onchange="comprobarCampos(1)">
+                                <input type="date" class="form-control obligatorios" id="fechaNacimiento" onchange="comprobarCampos(1)">
                             </div>
                             <div class="form-group col-2">
                                 <label for="edad" class="form-label">Edad</label>
-                                <input type="number" class="form-control" id="edad" placeholder="Ingrese edad" onchange="comprobarCampos()" disabled>
+                                <input type="number" class="form-control obligatorios" id="edad" placeholder="Ingrese edad" onchange="comprobarCampos()" disabled>
                             </div>
                         </div>
                         <div class="row mb-3">
