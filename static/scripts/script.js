@@ -72,6 +72,9 @@ function generarCodigoForm(){
         toggleLoading('ocultar');
         if(data['res'] == 1){
             $('#cod-form').val(data['contenido']);
+            $('#cedula').focus();
+        }else{
+            location.reload();
         }
     })
     .catch(err => {
@@ -112,6 +115,7 @@ async function hablar(texto) {
                    
                     if(asistenteFinalizo){
                         $('#inner-wave').removeClass('iw-enabled');
+                        guardarFormulario();
                         estadoAsistente = "detenido";
                     }
                 }
@@ -256,6 +260,16 @@ function toggleLoading(accion, mensaje=""){
     $('#mensaje-cargaf p').text(mensaje);
 }
 
+function abrirModalHistorialSintomas(){
+    let tabla = $('#tblHistorialSintomas tbody');
+    if(tabla && tabla.children().length > 0){
+        $('#modalHistorialSintomas').modal('show');
+    }else{
+        Swal.fire('Seleccione paciente', 'Debe elegir un paciente para ver el historial de síntomas.', 'warning');
+    }
+    
+}
+
 //Buscar paciente por numero de cedula
 function buscarPaciente() {
     let cedula = document.getElementById('cedula').value;
@@ -306,6 +320,7 @@ function cargarHistorialSintomas(cedula, nombres){
     .then(response => response.json())
     .then(data => {
         toggleLoading('ocultar');
+        $('#btnGuardarForm').removeAttr('disabled');
 
         $('#tblHistorialSintomas tbody').empty();
         let txtBienvenida = `El paciente que atenderas se llama ${nombres}, tiene ${$("#edad").val()} años de edad y su genero es ${$("#genero").val()=='M'?"Masculino":"Femenino"}. `; //y es de genero ...
@@ -438,12 +453,13 @@ function formatearFecha(date){
     return `${year}-${month}-${day}`;
 }
 
-function ejecutarFuncion(asisFunciones){
+async function ejecutarFuncion(asisFunciones){
     console.log(asisFunciones);
     let handleAFunciones = {
         'get_sintomas': getSintomas,
         'sfromgenero': getSintomasxGenero,
-        'finalizar': finalizarAsistente
+        'finalizar': finalizarAsistente,
+        'guardar_form': guardarxAsistente
     }
 
     for(let afuncion of asisFunciones){
@@ -519,7 +535,7 @@ function getSintomas(sintomas){
     $('#sintomatologia').removeAttr('disabled');
     document.querySelector("#sintomatologia").scrollIntoView({ behavior: 'smooth' });
 
-    if(fArgumentos['sfromgenero']){
+    if(fArgumentos['sfromgenero'] && fArgumentos['sfromgenero'].length > 0){
         let genero = $('#genero').val()=="M"?"Masculino":"Femenino";
         let sintomasgenero = (typeof(fArgumentos['sfromgenero']) == 'object') ? fArgumentos['sfromgenero'].join(',') : fArgumentos['sfromgenero'];
         return sintomasgenero + " no son sintomas que correspondan al genero " + genero;
@@ -537,8 +553,46 @@ function finalizarAsistente(respuesta){
     let fArgumentos = respuesta['funcion_args'];
     console.log(fArgumentos);
 
+    //asistenteFinalizo = true;
+    //return JSON.stringify({success: true, extraMsg: "Preguntale al paciente que si desea guardar el formulario, lo puede hacer dando clic el botón de guardar o tambien pidiendotelo a ti."});
+    return "Informale al paciente que puede guardar el formulario solicitandotelo a ti o si lo desea tambien puede hacerlo dando click en el botón.";
+}
+
+async function guardarxAsistente(respuesta){
+    /*let fArgumentos = respuesta['funcion_args'];
+    console.log(fArgumentos);
+    let data = await guardarFormulario();
+    let r;
+
+    if (data){
+        if(data.res == 1){
+            asistenteFinalizo = true;
+            r = JSON.stringify({success: true}); //Informale que se esta guardando el formulario
+        }else{
+            r = `Hubo un problema al guardar el formulario: ${data["contenido"]}`;
+        }
+    })
+    .catch(err => {
+        r = err;
+    });
+
+    return r;*/
+    let fArgumentos = respuesta['funcion_args'];
+    console.log(fArgumentos);
+
     asistenteFinalizo = true;
-    return JSON.stringify({success: true});
+    //return JSON.stringify({success: true, extraMsg: "Preguntale al paciente que si desea guardar el formulario, lo puede hacer dando clic el botón de guardar o tambien pidiendotelo a ti."});
+    return "Informale al paciente que se esta guardando el formulario.";
+}
+
+function pedirGuardarForm(){
+    if(asistenteFinalizo){
+        guardarFormulario();
+    }else{
+        let msgGuardar = "Guarda el formulario";
+        conversacion.push({"role": "user", "content": msgGuardar});
+        conversarAsistente();
+    }
 }
 
 function guardarFormulario(){
@@ -569,6 +623,7 @@ function guardarFormulario(){
         toggleLoading('ocultar');
         if(data.res == 1){
             Swal.fire("Guardado exitoso", data.contenido, "success");
+            $('#btnGuardarForm').attr('disabled', true);
         }else{
             Swal.fire("Error al guardar", data.contenido, "error");
         }

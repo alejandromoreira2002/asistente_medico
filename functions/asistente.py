@@ -64,7 +64,25 @@ def getFuncionesAsistente():
         }
     }
 
-    return [sintomas, finalizar]
+    guardado = {
+        "type": "function",
+        "function":{
+            "name": "guardar_form",
+            "description": "Detecta cuando el usuario desea guardar el formulario",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "respuesta": {
+                        "type": "boolean",
+                        "description": "Envia True cuando guarde el formulario"
+                    }
+                },
+                "required": ["respuesta"]
+            }
+        }
+    }
+
+    return [sintomas, finalizar, guardado]
 
 def getMensajeSistema():
     return [{
