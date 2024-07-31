@@ -22,6 +22,22 @@ if(window.webkitSpeechRecognition == undefined){
     $('#fecha_atencion').attr('disabled', 'true');
 }
 
+if(location.pathname=='/'){
+    Swal.fire({
+        type: 'info',
+        title: 'Asistente Mejorado',
+        text: 'Ver el asistente medico en modelo 3D',
+        showCancelButton: true,
+        confirmButtonText: 'Ver nuevo asistente',
+        cancelButtonText: 'Continuar con asistente actual',
+        allowOutsideClick: false,
+    }).then((result) => {
+        if(result.value){
+            location.href = '/asistente/3d';
+        }
+    });
+}
+
 generarCodigoForm();
 
 const infoAdicional = $('#result');
