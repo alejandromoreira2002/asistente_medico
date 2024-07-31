@@ -34,11 +34,27 @@
 </head>
 <body>
     <div class="contenedor">
-        <div class="asistente">
-            <div id="unity-container" class="unity-desktop" style="
-                            height: 100vh;
-                            width: 30%;
-                        ">
+        <div class="asistente" style="padding-top: 0;">
+            <div id="unity-container" class="unity-desktop" style="height: 100vh;width: 30%;display: flex; justify-content: center; align-items: center;">
+                <div class="controles" id="controles" style="z-index:500;position: absolute;top:140px"><!--bottom: 88px;-->
+                    <div class="container-icon" id="asistente-btn" onclick="toggleEscucha()">
+                        <div class="outer-circle" id="outer-circle">
+                            <div class="inner-wave" id="inner-wave"></div>
+                        </div>
+                    </div>
+                    <!--<button id="start-recording" class="btn-act iniciar-conversacion" onclick="iniciarEscucha()" disabled><i class="fa-solid fa-play"></i></button>-->
+                    <!--<button id="stop-recording" class="btn-act detener-conversacion" onclick="detenerEscucha()" disabled><i class="fa-solid fa-stop"></i></button>-->
+                    <!--<button id="stop-recording" disabled>Detener Grabación</button>-->
+                    <p id="info-adicional"></p>
+                </div>
+                <div class="contenedor-typing" id="contenedor-typing" style="z-index:499;position: absolute;bottom:88px;border-radius: 20px;background-color: #ffffffad;">
+                    <div class="filtro-typing" style="display:none"></div>
+                    <div class="texto-type">
+                        <p id="typeContenido" style="padding:5px 15px;">
+    
+                        </p>
+                    </div>
+                </div>
                 <canvas id="unity-canvas" width="500" height="607" tabindex="-1"
                     style="width: 500px;height: 100%;cursor: default;"></canvas>
                 <div id="unity-loading-bar" style="display: none;">
@@ -98,7 +114,7 @@
                                         <input type="text" class="form-control col-auto" id="cedula" placeholder="Ingrese numero de cédula">
                                     </div>
                                     <div class="col-4">
-                                        <button class="btn btn-primary" id="btn-buscar" onclick="buscarPaciente()" disabled>Buscar</button>
+                                        <button class="btn btn-primary" id="btn-buscar" onclick="buscarPaciente()">Buscar</button>
                                     </div>
                                 </div>
                             </div>
