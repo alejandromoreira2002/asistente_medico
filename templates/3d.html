@@ -1,0 +1,324 @@
+<!-- templates/index.html -->
+<!--<!DOCTYPE html>
+<html>
+<head>
+    <title>Unity WebGL</title>
+    <script src="{{ url_for('serve_file', filename='Build/MedicoBuild.loader.js') }}"></script>
+</head>
+<body>
+    <div id="unityContainer" style="width: 800px; height: 600px;"></div>
+    <script>
+        var unityInstance = UnityLoader.instantiate("unityContainer", "{{ url_for('serve_file', filename='Build/YourUnityBuild.json') }}");
+    </script>
+</body>
+</html>-->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistente Médico Virtual</title>
+    <meta name="author" content="Teddy Alejandro Moreira Vélez">
+    <meta name="description" content="Asistente medico virtual conversacional para preconsulta">
+    <link rel="shortcut icon" type="image/ico" href="../../static/img/favicon.ico"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../static/css/style.css">
+    <link rel="stylesheet" href="../../static/css/loading.css">
+    <link rel="stylesheet" href="../../static/TemplateData/style.css">
+    <script src="https://kit.fontawesome.com/ba52fcc0fa.js" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+</head>
+<body>
+    <div class="contenedor">
+        <div class="asistente">
+            <div id="unity-container" class="unity-desktop" style="
+                            height: 100vh;
+                            width: 30%;
+                        ">
+                <canvas id="unity-canvas" width="500" height="607" tabindex="-1"
+                    style="width: 500px;height: 100%;cursor: default;"></canvas>
+                <div id="unity-loading-bar" style="display: none;">
+                    <div id="unity-logo"></div>
+                    <div id="unity-progress-bar-empty">
+                        <div id="unity-progress-bar-full" style="width: 100%;"></div>
+                    </div>
+                </div>
+                <div id="unity-warning"> </div>
+            
+            </div>
+        </div>
+        <div class="formulario">
+            <div class="formulario-carga" id="formulario-carga" style="display: none;">
+                <div class="loadingio-spinner-ellipsis-2by998twmg8">
+                    <div class="ldio-yzaezf3dcmj">
+                        <div></div><div></div><div></div><div></div><div></div>
+                    </div>
+                </div>
+                <div class="mensaje-cargaf" id="mensaje-cargaf">
+                    <p>Cargando formulario...</p>
+                </div>
+            </div>
+            <div style="width:100%;height:100%;overflow-y:scroll;">
+                <div class="container mt-5">
+                    <h2 class="mb-4 text-center">Formulario Médico</h2>
+                    <div>
+                        <div class="row mt-2">
+                            <div class="form-group col-5 row mb-3">
+                                <div class="col-7">
+                                    <label for="cod-form">Cod. Formulario</label>
+                                </div>
+                                <div class="col-5">
+                                    <input type="text" class="form-control" id="cod-form" placeholder="N° Form" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group col-2 row mb-3"></div>
+                            <div class="form-group col-5 row">
+                                <div class="col-auto">
+                                    <label for="fecha_atencion">Fecha de Atención</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input type="date" class="form-control" id="fecha_atencion" disabled>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 style="display: inline-block; margin-right:15px">Datos del Paciente</h3>
+                            <a href="/pacientes" style="text-decoration: underline;">Agregar pacientes</a>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="form-group col-4">
+                                <input type="hidden" id="idPaciente" value=".">
+                                <label for="cedula">Cédula</label>
+                                <div class="row">
+                                    <div class="col-8">
+                                        <input type="text" class="form-control col-auto" id="cedula" placeholder="Ingrese numero de cédula">
+                                    </div>
+                                    <div class="col-4">
+                                        <button class="btn btn-primary" id="btn-buscar" onclick="buscarPaciente()" disabled>Buscar</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="nombre">Nombres y Apellidos</label>
+                                <input type="text" class="form-control" id="nombres" disabled onchange="comprobarCampos(2)">
+                                <input type="hidden" class="form-control" id="genero" disabled>
+                            </div>
+                            <div class="form-group col-2">
+                                <label for="fechaNacimiento">Fecha de Nacimiento</label>
+                                <input type="date" class="form-control" id="fechaNacimiento" disabled onchange="comprobarCampos(2)">
+                            </div>
+                            <div class="form-group col-2">
+                                <label for="edad">Edad</label>
+                                <input type="number" class="form-control" id="edad" disabled onchange="comprobarCampos(2)">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="form-group col-6">
+                                <label for="telefono">Número de Teléfono</label>
+                                <input type="tel" class="form-control" id="telefono" disabled onchange="comprobarCampos(2)">
+                            </div>
+                            <div class="form-group col-6">
+                                <label for="correo">Correo Personal</label>
+                                <input type="email" class="form-control" id="correo" disabled onchange="comprobarCampos(2)">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="form-group col-6">
+                                <label for="ciudad">Ciudad</label>
+                                <input type="text" class="form-control" id="ciudad" disabled onchange="comprobarCampos(2)">
+                            </div>
+                            <div class="form-group col-6">
+                                <label for="direccion">Dirección</label>
+                                <input type="text" class="form-control" id="direccion" disabled onchange="comprobarCampos(2)">
+                            </div>
+                        </div>
+                        <h3>Datos de Consulta Médica</h3>
+                        <div class="row mb-3 mt-2">
+                            <div class="form-group col-6">
+                                <label for="peso">Peso</label>
+                                <input type="text" class="form-control" id="peso" placeholder="Ingrese peso" disabled>
+                            </div>
+                            <div class="form-group col-6">
+                                <label for="talla">Estatura</label>
+                                <input type="text" class="form-control" id="talla" placeholder="Ingrese talla" disabled>
+                            </div>
+                        </div>
+                        <label for="">Presión</label>
+                        <div class="row mb-3">
+                            <div class="form-group row col-4">
+                                <div class="col-auto">
+                                    <input type="text" class="form-control" id="p-sistolica" placeholder="Ingrese presión sistólica" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group row col-4">
+                                <div class="col-auto">
+                                    <input type="text" class="form-control" id="p-distolica" placeholder="Ingrese presión distólica" disabled>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="form-group col-6">
+                                <label for="frecuencia-card">Frecuencia Cardiaca</label>
+                                <input type="text" class="form-control" id="frecuencia-card" placeholder="Ingrese frecuencia cardiaca" disabled>
+                            </div>
+                            <div class="form-group col-6">
+                                <label for="temperatura">Temperatura</label>
+                                <input type="text" class="form-control" id="temperatura" placeholder="Ingrese temperatura" disabled>
+                            </div>
+                        </div>
+                        
+                        <h3>Sintomatología</h3>
+                        <textarea class="form-control mt-2" id="sintomatologia" style="height:150px;" disabled>
+
+                        </textarea>
+                        <div class="row mb-3">
+                            <div class="col-4 col-offset-4">
+                                <button style="border:none;text-decoration:underline;color:cadetblue;" onclick="abrirModalHistorialSintomas()"">Historial Sintomas</button>
+                            </div>
+                        </div>
+                        <div class="row" style="justify-content:center;margin-bottom:10px">
+                            <div class="col-3">
+                                <button class="btn btn-primary col-12" id="btnGuardarForm" style="padding: 10px 0;" onclick="pedirGuardarForm()" disabled>Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalHistorialSintomas" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Historial de Sintomas</h4>
+                </div>
+                <div class="modal-body" style="overflow-y:auto;max-height:400px">
+                    <table class="table table-hover" id="tblHistorialSintomas">
+                        <thead>
+                            <tr>
+                                <th><b>#</b></th>
+                                <th>Fecha</th>
+                                <th>Cedula</th>
+                                <th>Sintomas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+      var unityInstance = null;
+
+      var container = document.querySelector("#unity-container");
+      var canvas = document.querySelector("#unity-canvas");
+      var loadingBar = document.querySelector("#unity-loading-bar");
+      var progressBarFull = document.querySelector("#unity-progress-bar-full");
+      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+      var warningBanner = document.querySelector("#unity-warning");
+
+      // Shows a temporary message banner/ribbon for a few seconds, or
+      // a permanent error message on top of the canvas if type=='error'.
+      // If type=='warning', a yellow highlight color is used.
+      // Modify or remove this function to customize the visually presented
+      // way that non-critical warnings and error messages are presented to the
+      // user.
+      function unityShowBanner(msg, type) {
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type == 'error') div.style = 'background: red; padding: 10px;';
+        else {
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function() {
+            warningBanner.removeChild(div);
+            updateBannerVisibility();
+          }, 5000);
+        }
+        updateBannerVisibility();
+      }
+
+      var buildUrl = "../../static/Build";
+      var loaderUrl = buildUrl + "/MedicoBuild.loader.js";
+      var config = {
+        dataUrl: buildUrl + "/MedicoBuild.data",
+        frameworkUrl: buildUrl + "/MedicoBuild.framework.js",
+        codeUrl: buildUrl + "/MedicoBuild.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "DefaultCompany",
+        productName: "AsistenteIA",
+        productVersion: "0.1.0",
+        showBanner: unityShowBanner,
+      };
+
+      // By default Unity keeps WebGL canvas render target size matched with
+      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
+      // Set this to false if you want to decouple this synchronization from
+      // happening inside the engine, and you would instead like to size up
+      // the canvas DOM size and WebGL render target sizes yourself.
+      // config.matchWebGLToCanvasSize = false;
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        // Mobile device style: fill the whole browser client area with the game canvas:
+
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+        container.className = "unity-mobile";
+        canvas.className = "unity-mobile";
+
+        // To lower canvas resolution on mobile devices to gain some
+        // performance, uncomment the following line:
+        // config.devicePixelRatio = 1;
+
+
+      } else {
+        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
+
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+      }
+
+      loadingBar.style.display = "block";
+
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          progressBarFull.style.width = 100 * progress + "%";
+              }).then((instance) => {
+                unityInstance = instance;
+                loadingBar.style.display = "none";
+                /*fullscreenButton.onclick = () => {
+                  unityInstance.SetFullscreen(1);
+                };*/
+              }).catch((message) => {
+                alert(message);
+              });
+            };
+
+      document.body.appendChild(script);
+
+    </script>
+    <script src="../../static/scripts/script.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

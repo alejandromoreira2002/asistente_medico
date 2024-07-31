@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, redirect, request, session, jsonify
+from flask import Flask, render_template, url_for, redirect, request, session, jsonify, send_from_directory
 from controllers.pacientes import PacientesControlador
 from controllers.asistente import AsistenteControlador
 from controllers.formulario import FormularioControlador
@@ -17,6 +17,8 @@ app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 with app.test_request_context():
     url_for('static', filename='/img/')
+    url_for('static', filename='/Build/')
+    url_for('static', filename='/TemplateData/')
     url_for('static', filename='/css/style.css')
     url_for('static', filename='/css/loading.css')
     url_for('static', filename='/scripts/script.js')
@@ -36,9 +38,13 @@ def log_request_info():
 def Index():
     return render_template('index.html')
 
-@app.get('/prueba')
-def getFormulario():
-    return render_template('prueba.html')
+@app.get('/asistente/3d')
+def asistente3D():
+    return render_template('3d.html')
+
+@app.route('/<path:filename>')
+def serve_file(filename):
+    return send_from_directory('static', filename)
 
 @app.get('/pacientes')
 def pacientesPage():
@@ -55,6 +61,14 @@ def indexAdmin():
 @app.get('/admin/login')
 def loginAdmin():
     return render_template('admin/login.html')
+
+@app.post('/admin/login')
+def loginPostAdmin():
+    usuario = request.form['usuario']
+    password = request.form['password']
+    respuesta = None
+    return jsonify(respuesta)
+
 
 @app.get('/admin/dashboard')
 def dashboardAdmin():
