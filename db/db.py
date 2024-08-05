@@ -39,7 +39,11 @@ class db():
 
         respuesta = None
         if devolucion:
-            respuesta = {'res': 1 if idRow else 0, 'id': idRow}
+            if idRow:
+                respuesta = {'res': 1, 'id': idRow}
+            else:
+                respuesta = {'res': 0, 'id': 0}
+
         else:
             respuesta = 1 if idRow else 0
             

@@ -4,7 +4,7 @@ import os
 import json
 
 class AsistenteModelo():
-    def __init__(self):
+    def __init__(self, codFuncs):
         self.client = OpenAI(
             api_key=os.environ.get("API_GPT")
         )
@@ -16,7 +16,7 @@ class AsistenteModelo():
                 
             }
         ]
-        self.funciones = getFuncionesAsistente()
+        self.funciones = getFuncionesAsistente(codFuncs)
 
     def getRespuesta(self, paciente, mensajes, compMsgs):
         #mensaje = self.buscarToolCalls(mensaje)

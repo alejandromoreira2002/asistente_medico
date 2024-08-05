@@ -1,4 +1,4 @@
-def getFuncionesAsistente():
+def getFuncionesAsistente(codFuncs):
     sintomas = {
         "type": "function",
         "function":{
@@ -28,20 +28,38 @@ def getFuncionesAsistente():
         }
     }
 
-    sintomasxgenero = {
+    diagnostico = {
         "type": "function",
         "function":{
-            "name": "get_sintomas_g",
-            "description": "Extrae los sintomas que no corresponden al genero del paciente.",
+            "name": "get_diagnostico",
+            "description": "En base a los sintomas de la conversación devuelveme el diagnostico del paciente",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "sfromgenero":{
-                        "type": "array",
-                        "items": {"type": "string"}, #['gen_sintoma1', 'gen_sintoma2', 'gen_sintoma3', ...]
+                    "diagnostico":{
+                        "type": "string",
+                        "description": "Diagnostico del paciente"
                     }
                 },
-                "required": ["sfromgenero"]
+                "required": ["diagnostico"]
+            }
+        }
+    }
+
+    tratamiento = {
+        "type": "function",
+        "function":{
+            "name": "get_tratamiento",
+            "description": "Devuelveme el tratamiento que debe seguir el paciente",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "tratamiento":{
+                        "type": "string",
+                        "description": "tratamiento del paciente"
+                    }
+                },
+                "required": ["tratamiento"]
             }
         }
     }
@@ -81,11 +99,32 @@ def getFuncionesAsistente():
             }
         }
     }
+    
+    funciones = []
 
-    return [sintomas, finalizar, guardado]
+    if '1' in codFuncs:
+        funciones.append(sintomas)
+    if '2' in codFuncs:
+        funciones.append(diagnostico)
+    if '3' in codFuncs:
+        funciones.append(tratamiento)
+    
+    funciones += [finalizar, guardado]
 
-def getMensajeSistema():
+    return funciones
+
+def getMensajeSistema(codFuncs):
+    contenidoSistema = "Eres un asistente medico y te encuentras operativo en el dispensario médico de la Universidad Técnica de Manabí, te preocupas por la salud del paciente en turno y para poder ayudarle necesitas saber todos los sintomas que está presentando. Si el paciente ha experimentado anteriormente otros tipos de sintomas, comenzaras preguntandole si los sigue presentando actualmente, cuando termines de hablar de ello con el paciente, le preguntaras si tiene nuevos sintomas actualmente. Si el paciente no te da mucha información, le preguntaras mas detalle sobre cada uno de los sintomas que presenta. Evita programar una cita para el paciente"
+    if codFuncs == ['1']:
+        contenidoSistema += " No menciones un diagnostico ni le recomiendes algun tratamiento al paciente."
+    else:
+        if '2' in codFuncs:
+            contenidoSistema += " Luego de reconocer todos sus sintomas, le daras un diagnostico al paciente."
+        if '3' in codFuncs:
+            adicional = " y su diagnostico" if '2' in codFuncs else ""
+            contenidoSistema += " Luego de reconocer todos sus sintomas" + adicional + ", le recomendaras seguir un tratamiento al paciente."
+
     return [{
         "role": "system",
-        "content": "Eres un asistente medico y te encuentras operativo en el dispensario médico de la Universidad Técnica de Manabí, te preocupas por la salud del paciente en turno y para poder ayudarle necesitas saber todos los sintomas que está presentando. Si el paciente ha experimentado anteriormente otros tipos de sintomas, comenzaras preguntandole si los sigue presentando actualmente, cuando termines de hablar de ello con el paciente, le preguntaras si tiene nuevos sintomas actualmente. Si el paciente no te da mucha información, le preguntaras mas detalle sobre cada uno de los sintomas que presenta. Recuerda que debes tratar al paciente de acuerdo a su edad." # 
+        "content": contenidoSistema
     }]

@@ -34,15 +34,25 @@ if(location.pathname=='/'){
     }).then((result) => {
         if(result.value){
             location.href = '/asistente/3d';
+        }else{
+            $('#cedula').focus();
+            /*$('#fondo_popups').show();
+            $('#sidebar_preferencias').collapse('show');*/
         }
     });
+}else{
+    $('#fondo_popups').show();
+    $('#sidebar_preferencias').collapse('show');
 }
+
+
 
 generarCodigoForm();
 
 const infoAdicional = $('#result');
 var estadoAsistente = "detenido"; // cambiar a detenido
 var asistenteFinalizo = false;
+var preferencias = ['1'];
 
 $('#fecha_atencion').val(formatearFecha(new Date()));
 
@@ -88,7 +98,6 @@ function generarCodigoForm(){
         toggleLoading('ocultar');
         if(data['res'] == 1){
             $('#cod-form').val(data['contenido']);
-            $('#cedula').focus();
         }else{
             location.reload();
         }
@@ -103,6 +112,29 @@ function generarCodigoForm(){
             allowOutsideClick: false,
         });
     })
+}
+
+function aceptarPreferenciasA(){
+    let preferenciasElem = document.querySelectorAll('.opc_preferencias');
+    let cantValidados = 0;
+    preferenciasElem.forEach(p => cantValidados += p.checked == true ? 1 : 0);
+    if(cantValidados == 0){
+        Swal.fire('Error', 'Seleccione al menos una preferencia antes de comenzar.', 'error');
+        return;
+    }else{
+        preferencias = [];
+        for(let pe of preferenciasElem){
+            if(pe.checked){
+                let prefId = pe.id.split('_')[1];
+                console.log(prefId);
+                document.querySelector(`#${prefId}`).parentElement.style.display = 'block';
+                preferencias.push(pe.value);
+            }
+        }
+        $('#fondo_popups').hide();
+        $('#sidebar_preferencias').collapse('hide');
+        $('#cedula').focus();
+    }
 }
 
 // Funcion que permite reproducir voz en base al texto
@@ -293,6 +325,7 @@ function buscarPaciente() {
 
     const formData = new FormData();
     formData.append('cedula', cedula);
+    formData.append('codfuncs', preferencias);
     formData.append('fecha', fecha);
     toggleLoading('mostrar', 'Cargando datos del paciente...');
     fetch('/paciente', {
@@ -474,6 +507,8 @@ async function ejecutarFuncion(asisFunciones){
     let handleAFunciones = {
         'get_sintomas': getSintomas,
         'sfromgenero': getSintomasxGenero,
+        'get_diagnostico': getDiagnostico,
+        'get_tratamiento': getTratamiento,
         'finalizar': finalizarAsistente,
         'guardar_form': guardarxAsistente
     }
@@ -565,6 +600,22 @@ function getSintomasxGenero(sintomas){
     return JSON.stringify({success: true});
 }
 
+function getDiagnostico(respuesta){
+    let diagnostico = respuesta['funcion_args']['diagnostico'];
+    $('#diagnostico').val(diagnostico);
+    $('#diagnostico').removeAttr('disabled');
+    document.querySelector("#diagnostico").scrollIntoView({ behavior: 'smooth' });
+    return JSON.stringify({success: true});
+}
+
+function getTratamiento(respuesta){
+    let tratamiento = respuesta['funcion_args']['tratamiento'];
+    $('#tratamiento').val(tratamiento);
+    $('#tratamiento').removeAttr('disabled');
+    document.querySelector("#tratamiento").scrollIntoView({ behavior: 'smooth' });
+    return JSON.stringify({success: true});
+}
+
 function finalizarAsistente(respuesta){
     let fArgumentos = respuesta['funcion_args'];
     console.log(fArgumentos);
@@ -598,7 +649,7 @@ async function guardarxAsistente(respuesta){
 
     asistenteFinalizo = true;
     //return JSON.stringify({success: true, extraMsg: "Preguntale al paciente que si desea guardar el formulario, lo puede hacer dando clic el botón de guardar o tambien pidiendotelo a ti."});
-    return "Informale al paciente que se esta guardando el formulario.";
+    return "Informale al paciente que se esta guardando el formulario y finaliza la conversacion.";
 }
 
 function pedirGuardarForm(){
@@ -627,7 +678,11 @@ function guardarFormulario(){
     formData.append('frecuenciaCardiaca', $('#frecuencia-card').val() == "" ? "0.00" : parseFloat($('#frecuencia-card').val()));
     formData.append('temperatura', $('#temperatura').val() == "" ? "0.00" : parseFloat($('#temperatura').val()));
     //Datos Sintomatologia
-    formData.append('sintomas', $('#sintomatologia').val());
+
+    if(preferencias.includes('1')) formData.append('sintomas', $('#sintomatologia').val());
+    if(preferencias.includes('2')) formData.append('diagnostico', $('#diagnostico').val());
+    if(preferencias.includes('3')) formData.append('tratamiento', $('#tratamiento').val());
+
     
     toggleLoading('mostrar', 'Guardando formulario...');
     fetch('/form/guardar', {

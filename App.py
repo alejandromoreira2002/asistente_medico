@@ -79,6 +79,9 @@ def getPaciente():
     global compMsgs
     cedula = request.form['cedula']
     fecha = request.form['fecha']
+    print("CODIGOOOOOOOOOO")
+    #print(request.form['codfuncs'].split(','))
+    codfuncs = request.form['codfuncs'].split(',') if request.form['codfuncs'] else ['1']
     controlador = PacientesControlador()
     paciente = controlador.getPaciente(cedula)
     if paciente['code'] == 1:
@@ -91,12 +94,20 @@ def getPaciente():
         print(codigo)
         session['codigo'] = codigo
         session['user'] = cedula
-        tmpMensaje = getMensajeSistema()
+        session['codfuncs'] = codfuncs
+        tmpMensaje = getMensajeSistema(codfuncs)
         session['mensajes'] = tmpMensaje
         historialControl.insertarChat(tmpMensaje, codigo, cedula, fecha)
         compMsgs = list(filter(lambda x: x['paciente'] != cedula, compMsgs))
         print(compMsgs)
     return jsonify(paciente)
+
+@app.get('/prueba/paciente')
+def getPruebaPaciente():
+    controlador = PacientesControlador()
+    paciente = controlador.getPaciente('1316307618')
+    print(paciente)
+    return jsonify({'paciente': paciente})
 
 @app.post('/paciente/verificar')
 def existePaciente():
@@ -147,7 +158,7 @@ def getRespuesta():
         mensTemp.append(melist)
     
     mTmpAsis = list(mensTemp)
-    controlador = AsistenteControlador()
+    controlador = AsistenteControlador(session['codfuncs'])
     respuesta = controlador.getRespuesta(session.get('user'), mTmpAsis, compMsgs, genero)
     almacenar_msg = respuesta['almacenar_msg']
     if respuesta['mensaje']:
@@ -177,9 +188,17 @@ def guardarFormulario():
         'presionDistolica': request.form['presionDistolica'],
         'frecuenciaCardiaca': request.form['frecuenciaCardiaca'],
         'temperatura': request.form['temperatura'],
-        'sintomas': request.form['sintomas'],
+        'codfuncs': session['codfuncs'],
+        #'sintomas': request.form['sintomas'],
         'cod_chat': session['codigo']
     }
+
+    if '1' in session['codfuncs']:
+        parametros['sintomas'] = request.form['sintomas']
+    if '2' in session['codfuncs']:
+        parametros['diagnostico'] = request.form['diagnostico']
+    if '3' in session['codfuncs']:
+        parametros['tratamiento'] = request.form['tratamiento']
     
     controlador = FormularioControlador()
     return jsonify(controlador.guardarFormulario(parametros))

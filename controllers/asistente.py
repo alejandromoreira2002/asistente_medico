@@ -3,8 +3,8 @@ from flask import session
 import json
 
 class AsistenteControlador():
-    def __init__(self):
-        self.modelo = AsistenteModelo()
+    def __init__(self, codFuncs):
+        self.modelo = AsistenteModelo(codFuncs)
     
     def getSintomas(self, corpus):
         sintomas = self.modelo.getSintomas(corpus)

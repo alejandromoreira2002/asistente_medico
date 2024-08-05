@@ -25,9 +25,36 @@ class FormularioControlador():
         };
     
     def guardarFormulario(self, parametros):
-        res = self.modelo.grabarSintomas(parametros)
-        if res['res'] == 1:
-            parametros['idSintomas'] = res['id']
+        actres = 1
+        ultmsg = ''
+        parametros['idSintomas'] = 1
+        parametros['idDiagnostico'] = 1
+        parametros['idTratamiento'] = 1
+        if '1' in parametros['codfuncs'] and actres == 1:
+            res = self.modelo.grabarSintomas(parametros)
+            actres = res['res']
+            ultmsg = res['msg']
+            parametros['idSintomas'] = res['id'] if res['res']==1 else 1
+            #print(parametros['idSintomas'])
+
+        if '2' in parametros['codfuncs'] and actres == 1:
+            res = self.modelo.grabarDiagnostico(parametros)
+            actres = res['res']
+            ultmsg = res['msg']
+            parametros['idDiagnostico'] = res['id'] if res['res']==1 else 1
+            #print(parametros['idDiagnostico'])
+
+        if '3' in parametros['codfuncs'] and actres == 1:
+            res = self.modelo.grabarTratamiento(parametros)
+            actres = res['res']
+            ultmsg = res['msg']
+            parametros['idTratamiento'] = res['id'] if res['res']==1 else 1
+            #print(parametros['idTratamiento'])
+
+        #res = self.modelo.grabarSintomas(parametros)
+        if actres == 1:
+            #parametros['idSintomas'] = res['id']
+            #print(parametros)
             res2 = self.modelo.grabarFormulario(parametros)
             return {
                 'res': res2,
@@ -36,5 +63,5 @@ class FormularioControlador():
         else:
             return {
                 'res': 0,
-                'contenido': "Hubo un problema al guardar los sintomas. No se pudo guardar el formulario."
+                'contenido': ultmsg + ". No se pudo guardar el formulario."
             }

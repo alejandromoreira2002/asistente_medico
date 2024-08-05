@@ -185,6 +185,44 @@
             <!--</iframe>-->
             </div>
         </div>
+        <!--<div class="sidebar_preferencias" >-->
+        <div id="fondo_popups" style="display:none;position: absolute;width: 100vw; height: 100vh;background-color: rgba(0, 0, 0, 0.118); z-index: 499;">
+
+        </div>
+        <div class="collapse collapse-horizontal" id="sidebar_preferencias" style="position: absolute; top:0; right: 0; height: 100vh; width: 300px; z-index:500;">
+            <div class="card card-body" style="width: 300px;margin: 20px 0;">
+                <h3>Preferencias</h3>
+                <p>Elige las preferencias del asistente:</p>
+                <div class="form-check">
+                    <input class="form-check-input opc_preferencias" type="checkbox" value="1" id="pref_sintomas" name="opc_preferencias">
+                    <label class="form-check-label" for="pref_sintomas">
+                        Obtener sintomatologia
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input opc_preferencias" type="checkbox" value="2" id="pref_diagnostico" name="opc_preferencias">
+                    <label class="form-check-label" for="pref_diagnostico">
+                        Obtener diagnostico
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input opc_preferencias" type="checkbox" value="3" id="pref_tratamiento" name="opc_preferencias">
+                    <label class="form-check-label" for="pref_tratamiento">
+                        Obtener tratamiento
+                    </label>
+                </div>
+                <!--<input type="checkbox" value="sintomas" name="opc_preferencias"> 
+                <input type="checkbox" value="diagnostico" name="opc_preferencias"> 
+                <input type="checkbox" value="tratamiento" name="opc_preferencias"> Obtener tratamiento-->
+                <!--<ul>
+                    <li>Obtener sintomatología</li>
+                    <li>Obtener diagnostico</li>
+                    <li>Obtener tratamiento</li>
+                </ul>-->
+                <div class="d-flex justify-content-center"><button class="btn btn-primary" onclick="aceptarPreferenciasA()">Aceptar</button></div>
+            </div>
+        </div>
+        <!--</div>-->
     </div>
 
     <div class="modal fade" id="modalHistorialSintomas" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
