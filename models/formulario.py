@@ -11,12 +11,12 @@ class FormularioModelo():
         return resultado[0]
     
     def consultarSintomas(self, cedula):
-        sql = f"SELECT Cedula, Sintomas, Fecha FROM Sintomas_Historial WHERE Cedula = '{cedula}' ORDER BY ID DESC"
+        sql = f"SELECT Cedula, Sintomas, Fecha FROM sintomas_historial WHERE Cedula = '{cedula}' ORDER BY ID DESC"
         datos = self.db.consultarDatos(sql)
         return datos
     
     def grabarSintomas(self, formulario):
-        sql = "INSERT INTO Sintomas_Historial(Cedula, Sintomas, Fecha) VALUES(%s, %s, %s)"
+        sql = "INSERT INTO sintomas_historial(Cedula, Sintomas, Fecha) VALUES(%s, %s, %s)"
         parametros = (
             formulario['cedula'],
             formulario['sintomas'],
@@ -69,7 +69,7 @@ class FormularioModelo():
     
     def grabarFormulario(self, formulario):
         #print(formulario)
-        sql = "INSERT INTO Formulario(ID_Paciente, CodFormulario, Fecha_Ate, Peso, Estatura, Presion_Sistolica, Presion_Distolica, Frecuencia_Cardiaca, Temperatura, ID_Sintomas, cod_chat, ID_Diagnostico, ID_Tratamiento) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+        sql = "INSERT INTO formulario(ID_Paciente, CodFormulario, Fecha_Ate, Peso, Estatura, Presion_Sistolica, Presion_Distolica, Frecuencia_Cardiaca, Temperatura, ID_Sintomas, cod_chat, ID_Diagnostico, ID_Tratamiento) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
         parametros = (
             formulario['idPaciente'],
             formulario['codFormulario'],

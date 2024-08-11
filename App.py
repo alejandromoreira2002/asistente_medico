@@ -42,6 +42,10 @@ def Index():
 def asistente3D():
     return render_template('3d.html')
 
+@app.get('/avatar')
+def modeloAvatar():
+    return render_template('avatar.html')
+
 @app.route('/<path:filename>')
 def serve_file(filename):
     return send_from_directory('static', filename)

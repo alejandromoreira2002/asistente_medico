@@ -7,7 +7,7 @@ class PacienteModelo():
         self.db = db()
     
     def verificarCedula(self, cedula):
-        sql = f"SELECT cedula FROM Pacientes WHERE cedula = '{cedula}' LIMIT 1"
+        sql = f"SELECT cedula FROM pacientes WHERE cedula = '{cedula}' LIMIT 1"
         datos = self.db.consultarDato(sql)
         if datos and len(datos) > 0:
             return 1
@@ -15,7 +15,7 @@ class PacienteModelo():
             return 0
     
     def getPaciente(self, cedula):
-        sql = f"SELECT * FROM Pacientes WHERE cedula = '{cedula}' LIMIT 1"
+        sql = f"SELECT * FROM pacientes WHERE cedula = '{cedula}' LIMIT 1"
         datos = self.db.consultarDato(sql)
 
         if datos:
@@ -24,7 +24,7 @@ class PacienteModelo():
             return None
     
     def setPaciente(self, paciente):
-        sql = "INSERT INTO Pacientes(cedula, genero, nombres, apellidos, f_nacimiento, edad, telefono, correo, ciudad, direccion) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        sql = "INSERT INTO pacientes(cedula, genero, nombres, apellidos, f_nacimiento, edad, telefono, correo, ciudad, direccion) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         parametros = (
             paciente['cedula'],
             paciente['genero'],
