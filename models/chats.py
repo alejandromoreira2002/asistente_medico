@@ -18,7 +18,7 @@ class ChatModelo():
         sql = "INSERT INTO chats_historial(codigo, paciente, conversacion, fecha) VALUES(%s,%s,%s,%s)"
         parametros = (codigo, cedula, chat, fecha)
         resultado = self.db.insertarDatos(sql, parametros)
-        print("RESULTADO DE INSERCION: ", resultado)
+        #print("RESULTADO DE INSERCION: ", resultado)
         return resultado
     
     def actualizarChat(self, codigo, chat):

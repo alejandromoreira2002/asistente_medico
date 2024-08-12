@@ -17,16 +17,16 @@ class AsistenteControlador():
         respuesta_msg = respuesta['respuesta_msg']
         funciones = respuesta['asis_funciones']
 
-        print(mensajes)
+        #print(mensajes)
         mensajes = list(map(lambda c: str(c) if not type(c) is dict else c, mensajes))
-        print(mensajes)
+        #print(mensajes)
 
         if funciones:
             obj_funciones = [];
             for funcion in funciones:
                 argumentos = json.loads(funcion.function.arguments)
                 #json_args = json.loads(argumentos)
-                print(argumentos)
+                #print(argumentos)
                 if(funcion.function.name == 'get_sintomas'):
                     nFiltrados = self.modelo.filtrarSintomasxGenero(argumentos, genero)
                     resnfilt = json.loads(nFiltrados)

@@ -83,7 +83,7 @@ def getPaciente():
     global compMsgs
     cedula = request.form['cedula']
     fecha = request.form['fecha']
-    print("CODIGOOOOOOOOOO")
+    #print("CODIGOOOOOOOOOO")
     #print(request.form['codfuncs'].split(','))
     codfuncs = request.form['codfuncs'].split(',') if request.form['codfuncs'] else ['1']
     controlador = PacientesControlador()
@@ -95,7 +95,7 @@ def getPaciente():
         while(existeCodigo):
             codigo = generarCodigoAleatorio(5)
             existeCodigo = historialControl.verificarCodigo(codigo)
-        print(codigo)
+        #print(codigo)
         session['codigo'] = codigo
         session['user'] = cedula
         session['codfuncs'] = codfuncs
@@ -103,14 +103,14 @@ def getPaciente():
         session['mensajes'] = tmpMensaje
         historialControl.insertarChat(tmpMensaje, codigo, cedula, fecha)
         compMsgs = list(filter(lambda x: x['paciente'] != cedula, compMsgs))
-        print(compMsgs)
+        #print(compMsgs)
     return jsonify(paciente)
 
 @app.get('/prueba/paciente')
 def getPruebaPaciente():
     controlador = PacientesControlador()
     paciente = controlador.getPaciente('1316307618')
-    print(paciente)
+    #print(paciente)
     return jsonify({'paciente': paciente})
 
 @app.post('/paciente/verificar')
@@ -173,7 +173,7 @@ def getRespuesta():
         almacenar_msg.append({'role': 'assistant', 'content': respuesta['respuesta_msg']})
     
     historialControl = ChatControlador()
-    print(almacenar_msg)
+    #print(almacenar_msg)
     historialControl.actualizarChat(session['codigo'], almacenar_msg)
 
     session['mensajes'] = mensTemp

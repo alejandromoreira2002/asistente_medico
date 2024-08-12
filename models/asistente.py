@@ -36,7 +36,7 @@ class AsistenteModelo():
             top_p=1
         )
         respuesta = response.choices[0].message
-        #print(respuesta)
+        print(response.choices[0])
         return {
             'respuesta': respuesta,
             'respuesta_msg': respuesta.content,
@@ -61,7 +61,7 @@ class AsistenteModelo():
             ]
         )
         respuesta = response.choices[0].message.content
-        print(respuesta)
+        #print(respuesta)
         return respuesta
     
     def getSintomas(self, corpus):

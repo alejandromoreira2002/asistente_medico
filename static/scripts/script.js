@@ -328,6 +328,7 @@ function buscarPaciente() {
     formData.append('codfuncs', preferencias);
     formData.append('fecha', fecha);
     toggleLoading('mostrar', 'Cargando datos del paciente...');
+    $('#btn-buscar').attr('disabled', true);
     fetch('/paciente', {
         method: 'POST',
         body: formData
@@ -349,10 +350,12 @@ function buscarPaciente() {
 
             cargarHistorialSintomas(cedula, paciente['nombres']);
         }else{
+            $('#btn-buscar').removeAttr('disabled');
             Swal.fire('Error', 'No hay pacientes con ese número de cedula', 'error');
         }
     })
     .catch(err => {
+        $('#btn-buscar').removeAttr('disabled');
         toggleLoading('ocultar');
         Swal.fire('Error', `No se pudo realizar la solicitud. Error: ${err}`, 'error');
     })
@@ -396,9 +399,11 @@ function cargarHistorialSintomas(cedula, nombres){
         }
         conversacion.push({"role": "user", "content": txtBienvenida});
         console.log(conversacion);
+        $('#btn-buscar').removeAttr('disabled'); //revisar
         conversarAsistente();
     })
     .catch(err => {
+        $('#btn-buscar').removeAttr('disabled');
         toggleLoading('ocultar');
         Swal.fire('Error', `No se pudo realizar la solicitud. Error: ${err}`, 'error')
     });
@@ -601,7 +606,7 @@ function getSintomasxGenero(sintomas){
 }
 
 function getDiagnostico(respuesta){
-    let diagnostico = respuesta['funcion_args']['diagnostico'];
+    let diagnostico = respuesta['funcion_args']['diagnosticos'].join(', ');
     $('#diagnostico').val(diagnostico);
     $('#diagnostico').removeAttr('disabled');
     document.querySelector("#diagnostico").scrollIntoView({ behavior: 'smooth' });

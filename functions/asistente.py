@@ -32,16 +32,17 @@ def getFuncionesAsistente(codFuncs):
         "type": "function",
         "function":{
             "name": "get_diagnostico",
-            "description": "En base a los sintomas de la conversación devuelveme el diagnostico del paciente",
+            "description": "En base a los sintomas de la conversación devuelveme los posibles diagnosticos del paciente",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "diagnostico":{
-                        "type": "string",
-                        "description": "Diagnostico del paciente"
+                    "diagnosticos": {
+                        "type": "array",
+                        "items": {"type": "string"}, #['sintoma1', 'sintoma2', 'sintoma3', ...]
+                        "description": "Posibles diagnosticos del paciente"
                     }
                 },
-                "required": ["diagnostico"]
+                "required": ["diagnosticos"]
             }
         }
     }
@@ -119,9 +120,9 @@ def getMensajeSistema(codFuncs):
         contenidoSistema += " No menciones un diagnostico ni le recomiendes algun tratamiento al paciente."
     else:
         if '2' in codFuncs:
-            contenidoSistema += " Luego de reconocer todos sus sintomas, le daras un diagnostico al paciente."
+            contenidoSistema += " Luego de reconocer todos sus sintomas, le daras al menos tres posibles diagnosticos al paciente."
         if '3' in codFuncs:
-            adicional = " y su diagnostico" if '2' in codFuncs else ""
+            adicional = " y sus posibles diagnosticos" if '2' in codFuncs else ""
             contenidoSistema += " Luego de reconocer todos sus sintomas" + adicional + ", le recomendaras seguir un tratamiento al paciente."
 
     return [{
