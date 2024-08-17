@@ -13,6 +13,32 @@ class ChatControlador():
         else:
             return 0
     
+    def getChats(self):
+        datos = self.modelo.getChats()
+        if datos and len(datos) > 0:
+            return {
+                "res": 1,
+                "datos": datos
+            }
+        else:
+            return {
+                "res": 0,
+                "datos": "No existen datos."
+            }
+    
+    def getContenidoChat(self, codigo):
+        datos = self.modelo.getContenidoChat(codigo)
+        if datos and len(datos) > 0:
+            return {
+                "res": 1,
+                "datos": datos
+            }
+        else:
+            return {
+                "res": 0,
+                "datos": "No existen datos."
+            }
+
     def insertarChat(self, chat, codigo, cedula, fecha):
         chat_json = json.dumps(chat)
         self.modelo.insertarChat(chat_json, codigo, cedula, fecha)

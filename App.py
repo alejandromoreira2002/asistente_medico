@@ -1,20 +1,29 @@
 from flask import Flask, render_template, url_for, redirect, request, session, jsonify, send_from_directory
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
 from controllers.pacientes import PacientesControlador
 from controllers.asistente import AsistenteControlador
 from controllers.formulario import FormularioControlador
 from controllers.chats import ChatControlador
+from controllers.usuario import UsuarioControlador
 #from functions.functions import encriptar
 from functions.functions import generarCodigoAleatorio
 from functions.asistente import getMensajeSistema
 import logging
 import json
+import bcrypt
 
 # Guardara todos los ChatCompletions de respuesta a las funciones del asistente
 # Esto evita que el asistente vuelva a repetir el envio de la funcion
 compMsgs = []
 
 app = Flask(__name__)
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+app.config['SECRET_KEY'] = b'_5#y2L"F4Q8z\n\xec]/'
+app.config["JWT_SECRET_KEY"] = b'_5#y2L"F4Q8z\n\xec]/'
+app.config['JWT_TOKEN_LOCATION'] = ['headers']
+
+# JWT Initialization
+jwt = JWTManager(app)
+
 with app.test_request_context():
     url_for('static', filename='/img/')
     url_for('static', filename='/Build/')
@@ -61,22 +70,89 @@ def indexAdmin():
     else:
         return redirect(url_for('loginAdmin'))
 
-
 @app.get('/admin/login')
 def loginAdmin():
-    return render_template('admin/login.html')
+    if 'admin' in session:
+        return redirect(url_for('dashboardAdmin'))
+    else:
+        return render_template('admin/login.html')
 
 @app.post('/admin/login')
 def loginPostAdmin():
-    usuario = request.form['usuario']
+    username = request.form['usuario']
     password = request.form['password']
-    respuesta = None
-    return jsonify(respuesta)
+    parametros = {'username': username, 'password': password}
 
+    controlador = UsuarioControlador()
+    usuario = controlador.loginUsuario(parametros)
+    
+    #print(usuario)
+    if usuario['res'] == 1:
+        access_token = create_access_token(identity=usuario['id'])
+        session['admin'] = usuario['id']
+        return jsonify({'code': 1, 'message': 'Login Success', 'access_token': access_token})
+    else:
+        return jsonify({'code': 0, 'message': 'Login Failed'}), 401
 
-@app.get('/admin/dashboard')
+dashboardRoute = '/admin/dashboard'
+
+@app.get(dashboardRoute)
 def dashboardAdmin():
-    return render_template('admin/login.html')
+    if 'admin' in session:
+        return render_template('admin/dashboard.html')
+    else:
+        #session.pop('admin')
+        return redirect(url_for('loginAdmin'))
+
+@app.get(dashboardRoute + '/home')
+@jwt_required()
+def adminHome():
+    user_id = get_jwt_identity()
+    if user_id:
+        datos = {'mensaje': "Bienvenido a la pantalla de administracion."}
+        return render_template('admin/fragmento.html', datos=datos)
+    
+@app.get('/api/admin/pacientes')
+@jwt_required()
+def getPacientes():
+    user_id = get_jwt_identity()
+    if user_id:
+        controlador = PacientesControlador()
+        pacientes = controlador.getPacientes()
+        return jsonify(pacientes)
+    
+@app.get('/api/admin/chats')
+@jwt_required()
+def getChats():
+    user_id = get_jwt_identity()
+    if user_id:
+        controlador = ChatControlador()
+        chats = controlador.getChats()
+        return jsonify(chats)
+        
+@app.get('/admin/logout')
+def adminLogout():
+    if 'admin' in session:
+        session.pop('admin')
+        return jsonify({'res': 1, 'contenido': 'Se deslogueo correctamente'})
+    else:
+        return jsonify({'res': 0, 'contenido': 'No hay sesion'})
+    
+@app.get(dashboardRoute + '/chats')
+def consultaChat():
+    return render_template('admin/chats.html')
+
+@app.get(dashboardRoute + '/chat')
+@jwt_required()
+def consultaContenidoChat():
+    user_id = get_jwt_identity()
+    if user_id:
+        codigo = request.args.get('cod')
+        controlador = ChatControlador()
+        chat = controlador.getContenidoChat(codigo)
+        chat['datos'] = json.dumps(chat['datos'])
+        print(json.dumps(chat['datos']))
+        return jsonify(chat)
 
 @app.post('/paciente')
 def getPaciente():
@@ -206,6 +282,7 @@ def guardarFormulario():
     
     controlador = FormularioControlador()
     return jsonify(controlador.guardarFormulario(parametros))
+
 
 @app.get('/detenerAsistente')
 def stopAsistente():

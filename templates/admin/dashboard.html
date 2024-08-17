@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="shortcut icon" type="image/ico" href="../static/img/admin.ico"/>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="../static/css/dashboard.css">
+    <link rel="stylesheet" href="../static/css/loading.css">
+    <script src="https://kit.fontawesome.com/ba52fcc0fa.js" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div id="contenedor">
+
+    </div>
+    <div class="d-flex flex-column align-items-center" >
+        <div class="dashboard-contenedor" style="width: 80%;">
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="inicio-tab" data-bs-toggle="tab" data-bs-target="#inicio-tab-pane"
+                        type="button" role="tab" aria-controls="inicio-tab-pane" aria-selected="true">Inicio</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pacientes-tab" data-bs-toggle="tab" data-bs-target="#pacientes-tab-pane"
+                        type="button" role="tab" aria-controls="pacientes-tab-pane" aria-selected="false">Pacientes</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="chat-tab" data-bs-toggle="tab" data-bs-target="#chat-tab-pane" type="button"
+                        role="tab" aria-controls="chat-tab-pane" aria-selected="false">Chat</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="formularios-tab" data-bs-toggle="tab" data-bs-target="#formularios-tab-pane" type="button"
+                        role="tab" aria-controls="formularios-tab-pane" aria-selected="false">Formularios</button>
+                </li>
+            </ul>
+            <div class="tab-content" id="myTabContent" style="overflow:auto; position:relative; height:400px; padding:20px 20px; border: 1px solid #dee2e6;border-top: none;border-radius: 0 0 10px 10px;">
+                <div class="formulario-carga" id="formulario-carga" style="display: none">
+                    <div class="loadingio-spinner-ellipsis-2by998twmg8">
+                        <div class="ldio-yzaezf3dcmj">
+                            <div></div><div></div><div></div><div></div><div></div>
+                        </div>
+                    </div>
+                    <div class="mensaje-cargaf" id="mensaje-cargaf">
+                        <p>Cargando formulario...</p>
+                    </div>
+                </div>
+                <div class="tab-pane fade show active" id="inicio-tab-pane" role="tabpanel" aria-labelledby="inicio-tab"
+                    tabindex="0"></div>
+                <div class="tab-pane fade" id="pacientes-tab-pane" role="tabpanel" aria-labelledby="pacientes-tab" tabindex="0" style="font-size: 10pt; ">
+                    </div>
+                <div class="tab-pane fade" id="chat-tab-pane" role="tabpanel" aria-labelledby="chat-tab" tabindex="0" style="font-size: 10pt; "></div>
+                <div class="tab-pane fade" id="formularios-tab-pane" role="tabpanel" aria-labelledby="formularios-tab" tabindex="0" style="font-size: 10pt; ">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        window.onload = () => {
+            opciones = {method:'GET'};
+            pedirConToken('/admin/dashboard/home', opciones, (data) => {
+                document.getElementById('contenedor').innerHTML = data;
+            }, 0);
+        }
+
+        function toggleLoading(accion, mensaje=""){
+            if(accion == 'mostrar'){
+                $('#formulario-carga').show();
+            }else if(accion == 'ocultar'){
+                $('#formulario-carga').hide();
+            }
+            $('#mensaje-cargaf p').text(mensaje);
+        }
+
+        document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(function(tab) {
+            tab.addEventListener('shown.bs.tab', function(event) {
+                let idContenedor = event.target.id.split('-')[0];
+                switch(idContenedor){
+                    case "pacientes":
+                        consultarPacientes();
+                    break;
+                    case "chat":
+                        consultarHistorialChats();
+                    break;
+                    default:
+                        console.log("Nueva pestaña activa: ", idContenedor);
+                    break;
+                }
+                // Aquí puedes ejecutar cualquier código adicional que necesites
+            });
+        });
+
+        function construirTablas(elemento, datos, encabezados){
+            let tabla = $('<table class="table table-hover"></table>');
+            let tHead = $('<thead></thead>');
+            let tBody = $('<tbody></tbody>');
+            //let titulos = Object.keys(datos[0]);
+            for(let e of encabezados){
+                let th = $('<th></th>').text(e);
+                tHead.append(th)
+            }
+            tabla.append(tHead);
+            for(let fila of datos){
+                let tr = $('<tr></tr>');
+                let titulos = Object.keys(fila);
+                for(let t of titulos){
+                    let td = $('<td></td>').text(fila[t]);
+                    if(t=='id') td = $('<td></td>').html(`<b>${fila[t]}</b>`);
+                    if(t.includes('html')) td = $('<td></td>').html(fila[t]);
+
+                    tr.append(td);
+                }
+                tBody.append(tr)
+            }
+            tabla.append(tBody);
+            $(`#${elemento}`).html(tabla);
+        }
+
+        function consultarPacientes(){
+            toggleLoading('mostrar', 'Consultando pacientes...');
+
+            opciones = {method:'GET'};
+            pedirConToken('/api/admin/pacientes', opciones, (data) => {
+                toggleLoading('ocultar');
+
+                let pacientes = [];
+                for(let p of data['datos']){
+                    let paciente = {
+                        'id': p['id'],
+                        'cedula': p['cedula'],
+                        'nombres': p['nombres'],
+                        'apellidos': p['apellidos'],
+                        'f_nacimiento': p['f_nacimiento'],
+                        'edad': p['edad'],
+                        'telefono': p['telefono'],
+                        'correo': p['correo'],
+                        'ciudad': p['ciudad'],
+                        'direccion': p['direccion'],
+                        'genero': p['genero']
+                    }
+                    pacientes.push(paciente);
+                    //console.log(chat);
+                }
+
+                let encabezados = ['#', 'Cedula', 'Nombres', 'Apellidos', 'Nacimiento', 'Edad', 'Telefono', 'Correo', 'Ciudad', 'Direccion', 'Genero'];
+                construirTablas('pacientes-tab-pane', pacientes, encabezados);
+                console.log(data);
+            });
+        }
+
+        function consultarHistorialChats(){
+            toggleLoading('mostrar', 'Consultando historial de conversaciones...');
+
+            opciones = {method:'GET'};
+            pedirConToken('/api/admin/chats', opciones, (data) => {
+                toggleLoading('ocultar');
+
+                let chats = [];
+                for(let c of data['datos']){
+                    let chat = {
+                        'id': c['id'],
+                        'codigo': c['codigo'],
+                        'paciente': c['paciente'],
+                        'fecha': c['fecha'],
+                        'mensajes': c['mensajes'],
+                        'html_link': `<a href='/admin/dashboard/chats?cod=${c['codigo']}' target='_blank'>Ver chat</a>`
+                    }
+                    chats.push(chat);
+                    //console.log(chat);
+                }
+
+                let encabezados = ['#', 'Codigo', 'Paciente', 'Fecha', 'Mensajes', ''];
+                construirTablas('chat-tab-pane', chats, encabezados);
+                //console.log(data['datos']);
+            });
+        }
+
+        function cerrarSesion(){
+            fetch('/admin/logout', {
+                method: 'GET',
+            })
+            .then(response => response.json())
+            .then(r => {
+                localStorage.removeItem('access_token');
+                window.location.href = '/admin/login';
+            })
+            .catch(err => Swal.fire('Error', `Ocurrio un error. Error: ${err}`, error))
+        }
+
+        function pedirConToken(url, opciones, accion, json = 1){
+            const token = localStorage.getItem('access_token');
+
+            if (token) {
+                opciones['headers'] = {'Authorization': `Bearer ${token}`};
+                fetch(url, opciones)
+                .then(response => {
+                    if (response.status === 401) {
+                        // Token inválido o expirado
+                        cerrarSesion();
+                    } else {
+                        if(json){
+                            return response.json();
+                        }else{
+                            return response.text();
+                        }
+                    } 
+                })
+                .then(respuesta => {
+                    accion(respuesta);
+                })
+                .catch(error => {
+                    Swal.fire('Error', 'Sucedio un error al realizar la peticion', 'error');
+                    cerrarSesion();
+                });
+            } else {
+                // No hay token, redirigir al login
+                cerrarSesion();
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>

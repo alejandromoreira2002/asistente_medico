@@ -42,6 +42,36 @@ class PacientesControlador():
             return {
                 "code": 0
             }
+        
+    def getPacientes(self):
+        datos = self.modelo.getPacientes()
+        if datos and len(datos) > 0:
+            return {
+                "res": 1,
+                "datos": datos
+            }
+        else:
+            return {
+                "res": 0,
+                "datos": "No existen datos."
+            }
+            """
+            pacientes = []
+            for paciente in datos:
+                pac = {
+                    'id': paciente['id'],
+                    'cedula': paciente['cedula'],
+                    'id': paciente['id'],
+                    'id': paciente['id'],
+                    'id': paciente['id'],
+                    'id': paciente['id'],
+                    'id': paciente['id'],
+                    'id': paciente['id'],
+                    'id': paciente['id'],
+                    'id': paciente['id'],
+                    'id': paciente['id'],
+                }
+            """
     
     def setPaciente(self, paciente):
         respuesta = self.modelo.setPaciente(paciente)

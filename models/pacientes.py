@@ -14,6 +14,15 @@ class PacienteModelo():
         else:
             return 0
     
+    def getPacientes(self):
+        sql = f"SELECT id, cedula, nombres, apellidos, f_nacimiento, edad, telefono, correo, ciudad, direccion, genero FROM pacientes"
+        datos = self.db.consultarDatos(sql)
+
+        if datos:
+            return datos
+        else:
+            return None
+    
     def getPaciente(self, cedula):
         sql = f"SELECT * FROM pacientes WHERE cedula = '{cedula}' LIMIT 1"
         datos = self.db.consultarDato(sql)
