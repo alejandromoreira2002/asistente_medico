@@ -88,13 +88,13 @@ document.addEventListener("DOMContentLoaded", () => {
         estadoAsistente = "esperando";
     };
 
-    let synth = window.speechSynthesis;
+    //let synth = window.speechSynthesis;
+    utterance = new SpeechSynthesisUtterance(); // Reproducira voz en base a texto
+    utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
 
     //Detecta que se encontraron voces para utterance
-    synth.onvoiceschanged = () => {
-        utterance = new SpeechSynthesisUtterance(); // Reproducira voz en base a texto
-        utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
-    }
+    /*synth.onvoiceschanged = () => {
+    }*/
     
 });
 
