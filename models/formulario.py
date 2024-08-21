@@ -16,6 +16,8 @@ class FormularioModelo():
         return datos
     
     def grabarSintomas(self, formulario):
+        if(len(formulario['sintomas']) >= 253):
+            formulario['sintomas'] = str(formulario['sintomas'])[0:252]
         sql = "INSERT INTO sintomas_historial(Cedula, Sintomas, Fecha) VALUES(%s, %s, %s)"
         parametros = (
             formulario['cedula'],
@@ -33,6 +35,8 @@ class FormularioModelo():
         return resultado
     
     def grabarDiagnostico(self, formulario):
+        if(len(formulario['diagnostico']) >= 253):
+            formulario['diagnostico'] = str(formulario['diagnostico'])[0:252]
         sql = "INSERT INTO diagnosticos_historial(Cedula, Diagnostico, Fecha) VALUES(%s, %s, %s)"
         parametros = (
             formulario['cedula'],
@@ -50,6 +54,8 @@ class FormularioModelo():
         return resultado
     
     def grabarTratamiento(self, formulario):
+        if(len(formulario['tratamiento']) >= 253):
+            formulario['tratamiento'] = str(formulario['tratamiento'])[0:252]
         sql = "INSERT INTO tratamientos_historial(Cedula, Tratamientos, Fecha) VALUES(%s, %s, %s)"
         parametros = (
             formulario['cedula'],

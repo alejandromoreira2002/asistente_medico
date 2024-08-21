@@ -8,6 +8,7 @@ from controllers.usuario import UsuarioControlador
 #from functions.functions import encriptar
 from functions.functions import generarCodigoAleatorio
 from functions.asistente import getMensajeSistema
+from datetime import timedelta
 import logging
 import json
 import bcrypt
@@ -19,9 +20,10 @@ compMsgs = []
 app = Flask(__name__)
 app.config['SECRET_KEY'] = b'_5#y2L"F4Q8z\n\xec]/'
 app.config["JWT_SECRET_KEY"] = b'_5#y2L"F4Q8z\n\xec]/'
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=7)
 app.config['JWT_TOKEN_LOCATION'] = ['headers']
 
-# JWT Initialization
+# Inicializacion del JWT
 jwt = JWTManager(app)
 
 with app.test_request_context():
@@ -43,6 +45,10 @@ def log_request_info():
         logger.info(f"Solicitud entrante desde: {request.remote_addr}")
         logger.info(f"Ruta requerida: {request.path}")
 
+@app.route('/<path:filename>')
+def serve_file(filename):
+    return send_from_directory('static', filename)
+
 @app.get('/')
 def Index():
     return render_template('index.html')
@@ -51,13 +57,13 @@ def Index():
 def asistente3D():
     return render_template('3d.html')
 
+@app.get('/asistente/voces')
+def vocesAsistente():
+    return render_template('voces.html')
+
 @app.get('/avatar')
 def modeloAvatar():
     return render_template('avatar.html')
-
-@app.route('/<path:filename>')
-def serve_file(filename):
-    return send_from_directory('static', filename)
 
 @app.get('/pacientes')
 def pacientesPage():
@@ -282,11 +288,6 @@ def guardarFormulario():
     
     controlador = FormularioControlador()
     return jsonify(controlador.guardarFormulario(parametros))
-
-
-@app.get('/detenerAsistente')
-def stopAsistente():
-    return jsonify({"code": 1})
 
 if __name__ == '__main__':
     app.run(port=3000, debug=True)

@@ -28,3 +28,56 @@ body{
     /* font-weight: 500; */
     margin-top: -27px;
 }
+
+.chat_contenedor{
+    height: 100%;
+    width: 100%;
+    /*background-color: aquamarine;*/
+    background: rgb(0,159,255);
+    background: linear-gradient(0deg, rgba(0,159,255,1) 0%, rgba(0,255,248,1) 100%);
+}
+
+.chat_encabezado{
+    /*width: 50%;*/
+    height: 60px; /*10%*/
+    /*margin: 0 auto;*/
+    background-color: #5c8db7;
+    font-size: 12pt;
+}
+
+.chat_contenido{
+    width: 50%;
+    height: 100%; /*90%*/
+    margin: 0 auto;
+    background-color: #fffed9;
+    font-size: 10pt;
+    overflow-y: auto;
+    padding-bottom: 20px;
+}
+.chat_contenido::-webkit-scrollbar{
+    display: none;
+}
+
+.msg_role_user{
+    position: relative;
+    width: max-content;
+    max-width: 80%;
+    background-color: #9bdd9b;
+    float: right;
+    padding: 5px 10px;
+    margin-top: 20px;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+.msg_role_assistant{
+    position: relative;
+    width: max-content;
+    max-width: 80%;
+    background-color: #d4d4d4;
+    float: left;
+    padding: 5px 10px;
+    margin-top: 20px;
+    border-radius: 5px;
+    margin-left: 10px;
+}

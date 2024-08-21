@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form action="">
+        <select name="" id="esteselect">
+            
+        </select>
+        <input type="text" placeholder="Escriba texto a reproducir...">
+        <input type="submit" value="Reproducir audio">
+    </form>
+    <script>
+        let synth;
+        let voiceSelect;
+        let voices;
+        document.addEventListener("DOMContentLoaded", () => {
+            voiceSelect = document.querySelector("#esteselect");
+            synth = window.speechSynthesis;
+            synth.onvoiceschanged = () => {
+                voices = synth.getVoices();
+                console.log(voices);
+                for(let i=0; i<voices.length; i++){
+                    let newOption = new Option(voices[i].name, i, (i==0)?true:false, false);
+                    newOption.setAttribute('data-name', voices[i].name)
+                    voiceSelect.append(newOption);
+                    //$("#DCPorcenIVA").append(newOption);
+                }
+            }
+            
+        });
+
+        const inputForm = document.querySelector("form");
+        const inputTxt = document.querySelector("input");
+
+
+        // ...
+
+        inputForm.onsubmit = (event) => {
+            event.preventDefault();
+
+            const utterThis = new SpeechSynthesisUtterance(inputTxt.value);
+            const selectedOption =
+                voiceSelect.selectedOptions[0].getAttribute("data-name");
+            for (let i = 0; i < voices.length; i++) {
+                if (voices[i].name === selectedOption) {
+                utterThis.voice = voices[i];
+                }
+            }
+            synth.speak(utterThis);
+            inputTxt.blur();
+        };
+
+        
+    </script>
+</body>
+</html>

@@ -9,7 +9,8 @@ if(window.webkitSpeechRecognition == undefined){
     });
     $('#cod-form').attr('disabled', 'true');
     $('#fecha_atencion').attr('disabled', 'true');
-}else if(window.SpeechSynthesisUtterance == undefined){
+}
+if(window.SpeechSynthesisUtterance == undefined){
     Swal.fire({
         title:"Error",
         text:"Su navegador no soporta el interprete de texto a voz.\nIntente con otro navegador",
@@ -53,19 +54,49 @@ const infoAdicional = $('#result');
 var estadoAsistente = "detenido"; // cambiar a detenido
 var asistenteFinalizo = false;
 var preferencias = ['1'];
-
+var conversacion = []; // Guardara el historial de conversacion
 $('#fecha_atencion').val(formatearFecha(new Date()));
 
-var conversacion = []; // Guardara el historial de conversacion
-const recognition = new webkitSpeechRecognition(); // Convertira la voz en texto y viceversa
-recognition.lang = 'es-ES';
-recognition.continuous = false;
-recognition.interimResults = false;
+var recognition;
+var utterance;
+/*let synth;
+let voices;*/
 
-const utterance = new SpeechSynthesisUtterance(); // Reproducira voz en base a texto
-utterance.lang = 'es-ES';
+//Inicializacion de los servicios
+document.addEventListener("DOMContentLoaded", () => {
+    recognition = new webkitSpeechRecognition(); // Reconoce la voz y la convierte en texto
+    recognition.lang = 'es-ES';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.onaudiostart = (event) => {
+        cambiaAnimacionAsistente("iw-hearing");
+        estadoAsistente = "escuchando";
+    }
+    recognition.onaudioend = (event) => {
+        cambiaAnimacionAsistente("iw-loading");
+        estadoAsistente = "detenido";
+    }
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+    
+        conversacion.push({"role": "user", "content": transcript});
+        conversarAsistente();
+    };
+    recognition.onerror = (event) => {
+        Swal.fire("Error al reconocer la voz", "Error: "+event.error, "error");
+        cambiaAnimacionAsistente("estatica");
+        estadoAsistente = "esperando";
+    };
 
-var indexT = 0;
+    let synth = window.speechSynthesis;
+
+    //Detecta que se encontraron voces para utterance
+    synth.onvoiceschanged = () => {
+        utterance = new SpeechSynthesisUtterance(); // Reproducira voz en base a texto
+        utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
+    }
+    
+});
 
 function cambiaAnimacionAsistente(animacion){
     let clasesAnim = [
@@ -268,27 +299,7 @@ function conversarAsistente(){
     });
 }
 
-recognition.onaudiostart = (event) => {
-    cambiaAnimacionAsistente("iw-hearing");
-    estadoAsistente = "escuchando";
-}
-recognition.onaudioend = (event) => {
-    cambiaAnimacionAsistente("iw-loading");
-    estadoAsistente = "detenido";
-}
 
-recognition.onresult = (event) => {
-    const transcript = event.results[0][0].transcript;
-
-    conversacion.push({"role": "user", "content": transcript});
-    conversarAsistente();
-};
-
-recognition.onerror = (event) => {
-    Swal.fire("Error al reconocer la voz", "Error: "+event.error, "error");
-    cambiaAnimacionAsistente("estatica");
-    estadoAsistente = "esperando";
-};
 
 /*recognition.onend = () => {
     //recognition.start();
