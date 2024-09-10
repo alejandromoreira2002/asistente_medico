@@ -41,8 +41,13 @@ body{
     /*width: 50%;*/
     height: 60px; /*10%*/
     /*margin: 0 auto;*/
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+    color: #fff;
+    font-weight: 600;
     background-color: #5c8db7;
-    font-size: 12pt;
+    font-size: 14pt;
 }
 
 .chat_contenido{
@@ -70,6 +75,10 @@ body{
     margin-right: 10px;
 }
 
+.msg_role_user b{
+    display: block;
+}
+
 .msg_role_assistant{
     position: relative;
     width: max-content;
@@ -80,4 +89,31 @@ body{
     margin-top: 20px;
     border-radius: 5px;
     margin-left: 10px;
+}
+
+.msg_role_user b{
+    display: block;
+}
+
+.msg_role_tool{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    height: 20px;
+    
+    /*padding: 20px 0;*/
+    top: 20px;
+    margin-bottom: 20px;
+}
+
+.msg_role_tool div{
+    width: max-content;
+    text-align: center;
+    max-width: 80%;
+    background-color: #353535;
+    color: white;
+    border-radius: 10px;
+    padding: 7px 15px;
 }

@@ -1,9 +1,11 @@
 .env
 keys
+logs
 db/dbconfig.txt
 test/pruebaia.py
 test/voice.py
 static/scripts/prueba.js
+static/scripts/copy.js
 templates/prueba.html
 test/genSalt.py
 api.rest

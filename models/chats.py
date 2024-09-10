@@ -24,8 +24,8 @@ class ChatModelo():
             return None
         
     def getContenidoChat(self, codigo):
-        sql = f"SELECT conversacion FROM chats_historial WHERE codigo = '{codigo}'"
-        datos = self.db.consultarDatos(sql)
+        sql = f"SELECT conversacion, paciente FROM chats_historial WHERE codigo = '{codigo}'"
+        datos = self.db.consultarDato(sql)
 
         if datos:
             return datos

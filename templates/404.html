@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <title>404</title>
+</head>
+<body>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+        body{
+            height: 100vh;
+            width: 100%;
+        }
+        .contenedor{
+            height: 100%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cont-imagen{
+            width: 50%;
+        }
+
+        .cont-desc{
+            width: 50%;
+            height: 100%;
+            background-color: #69bedf;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .descripcion{
+            max-width: 75%;
+        }
+
+        .descripcion h1{
+            color: #fff;
+            font-size: 150pt;
+        }
+
+        .desc-title{
+            color: #fff;
+            font-size: 18pt;
+            margin-bottom: 10px;
+        }
+
+        .desc-text{
+            color: #fff;
+            font-size: 16pt;
+        }
+
+        .cont-imagen img{
+            display: block;
+            margin: 0 auto;
+            /*height: 20%;*/
+            width: 40%;
+            border-radius: 50%;
+            border: 5px solid rgba(213,210,206,255);
+        }
+
+        .msg-img{
+            margin: 0 auto;
+            margin-bottom: 10px;
+            padding: 0 35px;
+            /*background-color: ;*/
+            color: rgb(185, 183, 181);
+            font-size: 18pt;
+            font-weight: 600;
+            width: fit-content;
+            font-family: Consolas;
+        }
+    </style>
+    <div class="contenedor">
+        <div class="cont-imagen">
+            <div class="msg-img">Offline</div>
+            {% if esDev %}
+                <img src="/../static/img/avatar_physician.png" alt="">
+            {% else %}
+                <img src="/static/img/avatar_physician.png" alt="">
+            {% endif %}
+        </div>
+        <div class="cont-desc">
+            <div class="descripcion">
+                <h1>404</h1>
+                <p class="desc-title"><b>Página no encontrada :(</b></p>
+                <p class="desc-text">El asistente médico no se encuentra disponible por el momento.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

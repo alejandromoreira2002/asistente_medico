@@ -23,7 +23,7 @@ if(window.SpeechSynthesisUtterance == undefined){
     $('#fecha_atencion').attr('disabled', 'true');
 }
 
-if(location.pathname=='/'){
+if(location.pathname=='/' || location.pathname=='/~dev/'){
     Swal.fire({
         type: 'info',
         title: 'Asistente Mejorado',
@@ -34,11 +34,9 @@ if(location.pathname=='/'){
         allowOutsideClick: false,
     }).then((result) => {
         if(result.value){
-            location.href = '/asistente/3d';
+            location.href = location.pathname + 'asistente/3d';
         }else{
             $('#cedula').focus();
-            /*$('#fondo_popups').show();
-            $('#sidebar_preferencias').collapse('show');*/
         }
     });
 }else{

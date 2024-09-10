@@ -11,11 +11,20 @@ from functions.asistente import getMensajeSistema
 from datetime import timedelta
 import logging
 import json
+import os
+from dotenv import load_dotenv
 import bcrypt
+
+load_dotenv(os.path.join(os.getcwd(), '.env'))
 
 # Guardara todos los ChatCompletions de respuesta a las funciones del asistente
 # Esto evita que el asistente vuelva a repetir el envio de la funcion
 compMsgs = []
+
+URLInicial = os.getenv('URL_DEV') or ''
+isDev = (URLInicial != '')
+
+#print("URL Inicial: " + URLInicial);
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = b'_5#y2L"F4Q8z\n\xec]/'
@@ -41,23 +50,29 @@ logger = logging.getLogger(__name__)
 # Middleware para capturar solicitudes entrantes
 @app.before_request
 def log_request_info():
-    if(request.path == '/'):
+    if(request.path == f'{URLInicial}/'):
         logger.info(f"Solicitud entrante desde: {request.remote_addr}")
         logger.info(f"Ruta requerida: {request.path}")
+
+# Manejador del error 404
+@app.errorhandler(404)
+def page_not_found(e):
+    # Renderiza una plantilla para el error 404
+    return render_template('404.html', esDev=isDev), 404
 
 @app.route('/<path:filename>')
 def serve_file(filename):
     return send_from_directory('static', filename)
 
-@app.get('/')
+@app.get(f'{URLInicial}/')
 def Index():
     return render_template('index.html')
 
-@app.get('/asistente/3d')
+@app.get(f'{URLInicial}/asistente/3d')
 def asistente3D():
     return render_template('3d.html')
 
-@app.get('/asistente/voces')
+@app.get(f'{URLInicial}/asistente/voces')
 def vocesAsistente():
     return render_template('voces.html')
 
@@ -65,7 +80,7 @@ def vocesAsistente():
 def modeloAvatar():
     return render_template('avatar.html')
 
-@app.get('/pacientes')
+@app.get(f'{URLInicial}/pacientes')
 def pacientesPage():
     return render_template('pacientes.html')
 
@@ -156,8 +171,12 @@ def consultaContenidoChat():
         codigo = request.args.get('cod')
         controlador = ChatControlador()
         chat = controlador.getContenidoChat(codigo)
-        chat['datos'] = json.dumps(chat['datos'])
-        print(json.dumps(chat['datos']))
+        if(chat['res'] == 1):
+            paciente = PacientesControlador().getPaciente(chat['datos']['paciente'])
+            chat['datos']['paciente'] = f"{paciente['datos']['nombres']} {paciente['datos']['apellidos']}"
+        #chat['datos'] = json.dumps(chat['datos'])
+        #print(json.dumps(chat['datos']))
+        #print(chat)
         return jsonify(chat)
 
 @app.post('/paciente')

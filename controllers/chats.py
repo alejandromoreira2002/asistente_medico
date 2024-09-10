@@ -27,11 +27,14 @@ class ChatControlador():
             }
     
     def getContenidoChat(self, codigo):
-        datos = self.modelo.getContenidoChat(codigo)
-        if datos and len(datos) > 0:
+        dato = self.modelo.getContenidoChat(codigo)
+        if dato and len(dato) > 0:
             return {
                 "res": 1,
-                "datos": datos
+                "datos": {
+                    'paciente': dato['paciente'],
+                    'conversacion': json.dumps(dato['conversacion'])
+                }
             }
         else:
             return {
