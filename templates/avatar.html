@@ -53,12 +53,14 @@
         }
 
         let generoAsistente = "{{asistente['genero']}}";
+        let nombreArchivo = (generoAsistente == 'masculino') ? 'MedicoBuild' : 'AsistenteIadra';
+
         var buildUrl = `../../static/resources/avatar_${generoAsistente}/Build`;
-        var loaderUrl = buildUrl + "/MedicoBuild.loader.js";
+        var loaderUrl = buildUrl + `/${nombreArchivo}.loader.js`;
         var config = {
-          dataUrl: buildUrl + "/MedicoBuild.data",
-          frameworkUrl: buildUrl + "/MedicoBuild.framework.js",
-          codeUrl: buildUrl + "/MedicoBuild.wasm",
+          dataUrl: buildUrl + `/${nombreArchivo}.data`,
+          frameworkUrl: buildUrl + `/${nombreArchivo}.framework.js`,
+          codeUrl: buildUrl + `/${nombreArchivo}.wasm`,
           streamingAssetsUrl: "StreamingAssets",
           companyName: "DefaultCompany",
           productName: "AsistenteIA",
