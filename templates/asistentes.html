@@ -99,6 +99,7 @@
     </style>
     
     <div class="d-flex align-items-center justify-content-center flex-column" style="height: 100%;width: 100%;">
+        <input id="input_dev" type="hidden" value="{{isDev}}" readonly>
         <div style="text-align: center;font-weight: 600;font-size: 15pt;margin-bottom: 10px;">Seleccione el asistente</div>
         <div class="d-flex justify-content-around align-items-center" style="width: 100%;">
             <div id="medico_m_container">
@@ -159,7 +160,8 @@
             };
 
             mensaje.onend = () => {
-                location.href = `/asistente/3d?genero=${genero}`;
+                let dev = document.getElementById('input_dev').value == 'True' ? '/~dev' : '';
+                location.href = `${dev}/asistente/3d?genero=${genero}`;
             }
 
             //location.href = `/asistente/3d?genero=${genero}`;
