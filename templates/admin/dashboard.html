@@ -49,7 +49,12 @@
                     </div>
                 </div>
                 <div class="tab-pane fade show active" id="inicio-tab-pane" role="tabpanel" aria-labelledby="inicio-tab"
-                    tabindex="0"></div>
+                    tabindex="0">
+                    <!--<p>Modo produccion/desarrollo:</p>
+                    <input type="radio" id="prod_mode" name="proddev_mode"> <label for="prod_mode">Modo producción</label>
+                    <input type="radio" id="dev_mode" name="proddev_mode"> <label for="dev_mode">Modo desarrollo</label>
+                    <button class="btn btn-primary" onclick="cambiarModoDeploy()">Guardar</button>-->
+                </div>
                 <div class="tab-pane fade" id="pacientes-tab-pane" role="tabpanel" aria-labelledby="pacientes-tab" tabindex="0" style="font-size: 10pt; ">
                     </div>
                 <div class="tab-pane fade" id="chat-tab-pane" role="tabpanel" aria-labelledby="chat-tab" tabindex="0" style="font-size: 10pt; "></div>
@@ -93,6 +98,37 @@
             });
         });
 
+        /*function cambiarModoDeploy(){
+            let modoProd = $('#prod_mode')[0].checked;
+            let modoDev = $('#dev_mode')[0].checked;
+
+            if(!(modoProd || modoDev)){
+                Swal.fire('Seleccionar un Modo de Deploy', '', 'info');
+                return;
+            }
+
+            let modoDeploy = modoDev ? 1 : 0;
+
+            //console.log(modoDeploy);
+            toggleLoading('mostrar', 'Cambiando a Modo ');
+
+            const formData = new FormData();
+            formData.append('deploy_mode', modoDeploy);
+
+            let opciones = {method:'POST', body: formData};
+            pedirConToken('/api/admin/config', opciones, (data) => {
+                console.log(data)
+                toggleLoading('ocultar');
+
+                //Hacerlo con base de datos y reinicio manual del servidor
+                if(data['res'] == 1){
+                    Swal.fire(data['msg'], '', 'success');
+                }else{
+                    Swal.fire(data['msg', '', 'error']);
+                }
+            });
+        }
+*/
         function construirTablas(elemento, datos, encabezados){
             let tabla = $('<table class="table table-hover"></table>');
             let tHead = $('<thead></thead>');

@@ -51,8 +51,9 @@
           }
           updateBannerVisibility();
         }
-  
-        var buildUrl = "../../static/Build";
+
+        let generoAsistente = "{{asistente['genero']}}";
+        var buildUrl = `../../static/resources/avatar_${generoAsistente}/Build`;
         var loaderUrl = buildUrl + "/MedicoBuild.loader.js";
         var config = {
           dataUrl: buildUrl + "/MedicoBuild.data",

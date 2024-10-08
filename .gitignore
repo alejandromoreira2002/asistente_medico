@@ -9,4 +9,5 @@ static/scripts/copy.js
 templates/prueba.html
 test/genSalt.py
 api.rest
-ayuda.txt
+db/backup
+docs

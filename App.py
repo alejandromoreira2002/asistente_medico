@@ -23,6 +23,8 @@ compMsgs = []
 
 URLInicial = os.getenv('URL_DEV') or ''
 isDev = (URLInicial != '')
+#isDev = 0
+#URLInicial = '/~dev' if isDev else ''
 
 #print("URL Inicial: " + URLInicial);
 
@@ -70,7 +72,12 @@ def Index():
 
 @app.get(f'{URLInicial}/asistente/3d')
 def asistente3D():
-    return render_template('3d.html')
+    asistente = request.args.get('genero')
+    if asistente and (asistente=='masculino' or asistente=='femenino'):
+        return render_template('3d.html', asistente={'genero':asistente}, isDev=isDev)
+    else:
+        return render_template('asistentes.html', isDev=isDev)
+
 
 @app.get(f'{URLInicial}/asistente/voces')
 def vocesAsistente():
@@ -78,7 +85,8 @@ def vocesAsistente():
 
 @app.get('/avatar')
 def modeloAvatar():
-    return render_template('avatar.html')
+    asistente = request.args.get('genero')
+    return render_template('avatar.html', asistente={'genero':asistente})
 
 @app.get(f'{URLInicial}/pacientes')
 def pacientesPage():
@@ -132,7 +140,27 @@ def adminHome():
     if user_id:
         datos = {'mensaje': "Bienvenido a la pantalla de administracion."}
         return render_template('admin/fragmento.html', datos=datos)
-    
+
+'''@app.post('/api/admin/config')
+@jwt_required()
+def changeOnAdminConfig():
+    user_id = get_jwt_identity()
+    if user_id:
+        respuesta = {'res': 0, 'msg': 'No se pudo cambiar el modo de deploy.'}
+
+        try:
+            global isDev
+            global URLInicial
+
+            isDev = request.form['deploy_mode']
+            URLInicial = '/~dev' if isDev else ''
+
+            respuesta = {'res': 1, 'msg': 'Se pudo cambiar correctamente el modo de deploy. Por favor, reinicie el servidor para aplicar los cambios'}
+        except:
+            print(respuesta)
+
+        return jsonify(respuesta)'''
+
 @app.get('/api/admin/pacientes')
 @jwt_required()
 def getPacientes():
