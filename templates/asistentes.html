@@ -5,102 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    {% if isDev %}
+        <link rel="stylesheet" href="../../../static/css/asistentes.css">
+        <link rel="stylesheet" href="../../../static/css/loading.css">
+    {% else %}
+        <link rel="stylesheet" href="../../static/css/asistente.css">
+        <link rel="stylesheet" href="../../static/css/loading.css">
+    {% endif %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://kit.fontawesome.com/ba52fcc0fa.js" crossorigin="anonymous"></script>
     <title>Seleccion de genero de asistentes</title>
 </head>
 <body>
-    <style>
-        body{
-            height: 100vh;
-            width: 100%;
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        .btn_select_doc{
-            min-width: 250px;
-            /*min-height: 400px;*/
-            overflow-x: hidden;
-            overflow-y: hidden;
-            border-radius: 15px 15px 0 0;
-            border: 5px solid black;
-            cursor: pointer;
-        }
-
-        .btn_doctor {
-            border-color: rgb(0, 162, 255);
-            transition: border-color .5s;
-            /*position: relative;*/
-        }
-        /*.btn_doctor::after{
-            content: 'DOCTOR';
-            font-weight: 600;
-            color: white;
-            text-align: center;
-            background-color: rgb(0, 162, 255);
-            position: absolute;
-            bottom: -2px;
-            width: 100%;
-        }*/
-        .btn_doctora {
-            border-color: #f37e92;
-            transition: border-color .5s;
-        }
-
-        .btn_doctor img{
-            display: block;
-            position: relative;
-            margin: 0 auto;
-            height: 350px;
-            /*object-fit: cover;*/
-            transition: transform .5s;
-        }
-
-        .btn_doctor + p{
-            background-color: rgb(0, 162, 255);
-            transition: background-color .5s;
-        }
-
-        .btn_doctor:hover>img{
-            transform: scale(1.2);
-            /*transform-origin: 0% 0% 0px;*/
-        }
-        .btn_doctor:hover{
-            border-color: rgb(83 185 243);
-        }
-        .btn_doctor:hover + p{
-            background-color: rgb(83 185 243);
-        }
-
-        .btn_doctora img{
-            display: block;
-            position: relative;
-            margin: 0 auto;
-            height: 350px;
-            /*object-fit: cover;*/
-            transition: transform .5s;
-        }
-
-        .btn_doctora + p{
-            background-color: #f37e92;
-            transition: background-color .5s;
-        }
-
-        .btn_doctora:hover>img{
-            transform: scale(1.2);
-            /*transform-origin: 0% 0% 0px;*/
-        }
-        .btn_doctora:hover{
-            border-color: #fdaab9;
-        }
-        .btn_doctora:hover + p{
-            background-color: #fdaab9;
-        }
-    </style>
+    
+    <!--<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#seleccion_voces">
+        Launch static backdrop modal
+    </button>-->
     
     <div class="d-flex align-items-center justify-content-center flex-column" style="height: 100%;width: 100%;">
+        <div class="formulario-carga" id="formulario-carga" style="display: none;">
+            <div class="loadingio-spinner-ellipsis-2by998twmg8">
+                <div class="ldio-yzaezf3dcmj">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+            </div>
+            <div class="mensaje-cargaf" id="mensaje-cargaf">
+                <p>Cargando formulario...</p>
+            </div>
+        </div>
         <input id="input_dev" type="hidden" value="{{isDev}}" readonly>
-        <div style="text-align: center;font-weight: 600;font-size: 15pt;margin-bottom: 10px;">Seleccione el asistente</div>
+        <div style="text-align: center;font-weight: 600;font-size: 1.9em;margin-bottom: 2.3em;">Seleccione el asistente</div>
         <div class="d-flex justify-content-around align-items-center" style="width: 100%;">
             <div id="medico_m_container">
                 <div class="btn_select_doc btn_doctor">
@@ -117,7 +52,7 @@
             <div id="medico_f_container">
                 <div class="btn_select_doc btn_doctora">
                     {% if isDev %}
-                        <img src="../../static/img/medico_femenino.jpg" alt="" onclick="elegirAsistente('masculino')">
+                        <img src="../../static/img/medico_femenino.jpg" alt="" onclick="elegirAsistente('femenino')">
                     {% else %}
                         <img src="../static/img/medico_femenino.jpg" alt="" onclick="elegirAsistente('femenino')">
                     {% endif %}
@@ -128,43 +63,206 @@
             </div>
         </div>
     </div>
+    <!-- Vertically centered modal -->
+    <div class="modal fade" id="modal_voces" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Seleccione voces para cada asistente</h5>
+                    <!--<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>-->
+                </div>
+                <div class="modal-body text-justify">
+                    <p style="font-size: 10pt;">
+                        No se han encontrado las voces de los asistentes en su navegador.
+                        Por favor, seleccione una voz para cada genero del asistente. <br/>
+                        <em>Nota: Estas voces serán guardadas en el navegador, y serán utilizadas por defecto en próximas consultas.</em>
+                    </p>
+                    <form>
+                        <div class="mb-3">
+                            <label for="select_voz_m" class="col-form-label"><b>Voz para asistente doctor:</b></label>
+                            <div class="input-group">
+                                <select id="select_voz_m" class="form-select" aria-label="Default select male voice" onchange="verificarVoz()">
+                                    <option selected disabled>Seleccione voz...</option>
+                                    <!--<option value="1">One</option>
+                                    <option value="2">Two</option>
+                                    <option value="3">Three</option>-->
+                                </select>
+                                <span class="input-group-btn">
+                                    <button id="play_masc" type="button" class="btn btn-success" onclick="reproducir('M');">
+                                        <i class="fa-solid fa-play" style="color:white;"></i>
+                                    </button>
+                                </span>
+                            </div>
+                            <!--<input type="text" class="form-control" id="recipient-name">-->
+                        </div>
+                        <div class="mb-3">
+                            <label for="select_voz_f" class="col-form-label"><b>Voz para asistente doctora:</b></label>
+                            <div class="input-group">
+                                <select id="select_voz_f" class="form-select" aria-label="Default select female voice" onchange="verificarVoz()">
+                                    <option selected disabled>Seleccione voz...</option>
+                                    <!--<option value="1">One</option>
+                                    <option value="2">Two</option>
+                                    <option value="3">Three</option>-->
+                                </select>
+                                <span class="input-group-btn">
+                                    <button id="play_fem" type="button" class="btn btn-success" onclick="reproducir('F');">
+                                        <i class="fa-solid fa-play" style="color:white;"></i>
+                                    </button>
+                                </span>
+                            </div>
+                            <!--<input type="text" class="form-control" id="recipient-name">-->
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="guardar_voces" class="btn btn-primary" onclick="guardarVocesDefault()" disabled>Guardar voces</button>
+                </div>
+              </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>
         var utterance;
+        var synth;
+        var voces;
+        var voz = {};
 
-        document.getElementById
-        utterance = new SpeechSynthesisUtterance(); // Reproducira voz en base a texto
-        utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
+        function toggleLoading(accion, mensaje=""){
+            if(accion == 'mostrar'){
+                $('#formulario-carga').show();
+            }else if(accion == 'ocultar'){
+                $('#formulario-carga').hide();
+            }
+            $('#mensaje-cargaf p').text(mensaje);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            utterance = new SpeechSynthesisUtterance(); // Reproducira voz en base a texto
+            synth = window.speechSynthesis;
+            toggleLoading('mostrar', 'Buscando voces...');
+            //console.log('Cargando...'); //Pantalla de carga
+
+            synth.onvoiceschanged = () => {
+                toggleLoading('ocultar');
+                //console.log('Cargo'); //Quitar pantalla de carga
+
+                voces = synth.getVoices();
+
+                if(!(localStorage.getItem('voz_masculino') && localStorage.getItem('voz_femenino'))){
+                    let vMasculino = voces.find(voz => voz.name === "Google español");
+                    let vFemenino = voces.find(voz => voz.name === "Google español de Estados Unidos");
+
+                    voz['masculino'] = vMasculino;
+                    voz['femenino'] = vFemenino;
+    
+                    if(vMasculino && vFemenino){
+                        localStorage.setItem('voz_masculino', vMasculino.voiceURI);
+                        localStorage.setItem('voz_femenino', vFemenino.voiceURI);
+                    }else{
+                        selectorVoces();
+                    }
+                }else{
+                    let vMasculino = voces.find(voz => voz.voiceURI === localStorage.getItem('voz_masculino'));
+                    let vFemenino = voces.find(voz => voz.name === localStorage.getItem('voz_femenino'));
+
+                    voz['masculino'] = vMasculino;
+                    voz['femenino'] = vFemenino;
+                }
+            };
+        });
+
+        function verificarVoz(){
+            let vMasc = $('#select_voz_m').val();
+            let vFem = $('#select_voz_f').val();
+            //console.log(vMasc + vFem);
+            if(vMasc && vFem){
+                $('#guardar_voces').attr('disabled', false);
+            }else{
+                $('#guardar_voces').attr('disabled', true);
+            }
+        }
+
+        function selectorVoces(){
+            //let voces = synth.getVoices();
+            let vES = voces.filter(v => v.lang == 'es-MX' || v.lang == 'es-ES' || v.lang == 'es-US');
+            let opcHTML = "<option value='' selected disabled>Seleccione voz...</option>";
+
+            for(let v of vES){
+                opcHTML += `<option value="${v.voiceURI}">${v.name}</option>`;
+            }
+
+            console.log(opcHTML);
+
+            $('#select_voz_m').html(opcHTML);
+            $('#select_voz_f').html(opcHTML);
+            $('#modal_voces').modal('show');
+        }
+
+        function reproducir(genero){
+            let selectVoz;
+            //let voces = synth.getVoices();
+            let doc = genero == 'M' ? 'doctor' : 'doctora';
+            let texto = "Hola yo seré tu " + doc;
+
+            if(genero == 'M'){
+                let vozURI = $('#select_voz_m').val();
+                if(!vozURI){
+                    return;
+                }
+                selectVoz = voces.find(voz => voz.voiceURI === $('#select_voz_m').val());
+            }else{
+                let vozURI = $('#select_voz_f').val();
+                if(!vozURI){
+                    return;
+                }
+                selectVoz = voces.find(voz => voz.voiceURI === $('#select_voz_f').val());
+            }
+
+            utterance.text = texto;
+            utterance.voice = selectVoz;
+            synth.speak(utterance);
+            $('#play_masc').attr('disabled', true);
+            $('#play_fem').attr('disabled', true);
+
+            utterance.onend = () => {
+                $('#play_masc').removeAttr('disabled');
+                $('#play_fem').removeAttr('disabled');
+            }
+        }
+
+        function guardarVocesDefault(){
+            toggleLoading('mostrar', 'Guardando voces...')
+            let vMasculino = $('#select_voz_m').val();
+            let vFemenino = $('#select_voz_f').val();
+
+            localStorage.setItem('voz_masculino', vMasculino);
+            localStorage.setItem('voz_femenino', vFemenino);
+
+            voz['masculino'] = voces.find(voz => voz.voiceURI === vMasculino);
+            voz['femenino'] = voces.find(voz => voz.voiceURI === vFemenino);
+            toggleLoading('ocultar')
+            $('#modal_voces').modal('hide');
+
+            Swal.fire('Se han guadado las voces correctamente.', '', 'success');
+        }
 
         function elegirAsistente(genero){
-            const texto = "Hola, paciente. Sere tu asistente medico.";
-            const synth = window.speechSynthesis;
-            const mensaje = new SpeechSynthesisUtterance(texto);
+            const texto = "Será un placer atenderle";
+            utterance.text = texto;
 
-            // Espera a que las voces estén cargadas
-            synth.onvoiceschanged = () => {
-            const voces = synth.getVoices();
+            utterance.voice = voz[genero];
             
-            // Filtrar las voces masculinas (dependiendo del navegador puede variar)
-            //const vozMasculina = voces.find(voz => voz.name.includes('Male') || voz.gender === 'male');
-            const vozMasculina = genero == 'masculino' ? voces.find(voz => voz.name === "Microsoft Raul - Spanish (Mexico)") : voces.find(voz => voz.name === "Microsoft Sabina - Spanish (Mexico)");
+            /*if (vozGenero) {
+                utterance.voice = vozGenero;
+            }*/
             
-            
-            // Si hay una voz masculina disponible, usarla
-            if (vozMasculina) {
-                mensaje.voice = vozMasculina;
-            }
-            
-            // Reproducir el mensaje
-            synth.speak(mensaje);
-            };
+            synth.speak(utterance);
 
-            mensaje.onend = () => {
+            utterance.onend = () => {
                 let dev = document.getElementById('input_dev').value == 'True' ? '/~dev' : '';
                 location.href = `${dev}/asistente/3d?genero=${genero}`;
             }
-
-            //location.href = `/asistente/3d?genero=${genero}`;
         }
     </script>
 </body>

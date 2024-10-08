@@ -40,6 +40,9 @@ if(location.pathname=='/' || location.pathname=='/~dev/'){
         }
     });
 }else{
+    if(!(localStorage.getItem('voz_masculino') && localStorage.getItem('voz_femenino'))){
+        location.href = location.pathname;
+    }
     $('#fondo_popups').show();
     $('#sidebar_preferencias').collapse('show');
 }
@@ -55,10 +58,11 @@ var preferencias = ['1'];
 var conversacion = []; // Guardara el historial de conversacion
 $('#fecha_atencion').val(formatearFecha(new Date()));
 
+const urlParams = new URLSearchParams(window.location.search);
 var recognition;
 var utterance;
-/*let synth;
-let voices;*/
+var synth;
+var voces;
 
 //Inicializacion de los servicios
 document.addEventListener("DOMContentLoaded", () => {
@@ -86,14 +90,23 @@ document.addEventListener("DOMContentLoaded", () => {
         estadoAsistente = "esperando";
     };
 
-    //let synth = window.speechSynthesis;
-    utterance = new SpeechSynthesisUtterance(); // Reproducira voz en base a texto
-    utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
+    if(location.pathname=='/' || location.pathname=='/~dev/'){
+        utterance = new SpeechSynthesisUtterance(); // Reproducira voz en base a texto
+        utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
+    }else{
+        utterance = new SpeechSynthesisUtterance(); // Reproducira voz en base a texto
+        synth = window.speechSynthesis;
+        
+        //Detecta que se encontraron voces para utterance
+        synth.onvoiceschanged = () => {
+            let generoAsistente = urlParams.get('genero');
+            voces = synth.getVoices();
+            //utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
+            utterance.voice = voces.find(voz => voz.voiceURI === localStorage.getItem(`voz_${generoAsistente}`));
+            console.log(localStorage.getItem(`voz_${generoAsistente}`));
+        }
+    }
 
-    //Detecta que se encontraron voces para utterance
-    /*synth.onvoiceschanged = () => {
-    }*/
-    
 });
 
 function cambiaAnimacionAsistente(animacion){
