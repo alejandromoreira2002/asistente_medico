@@ -21,6 +21,7 @@ load_dotenv(os.path.join(os.getcwd(), '.env'))
 # Esto evita que el asistente vuelva a repetir el envio de la funcion
 compMsgs = []
 
+v_asistente3D = int(os.getenv('ACCESO_DIRECTO'))
 URLInicial = os.getenv('URL_DEV') or ''
 isDev = (URLInicial != '')
 #isDev = 0
@@ -68,6 +69,13 @@ def serve_file(filename):
 
 @app.get(f'{URLInicial}/')
 def Index():
+    if v_asistente3D:
+        return redirect(url_for('asistente3D'))
+    else:
+        return redirect(url_for('asistente2D'))
+
+@app.get(f'{URLInicial}/asistente')
+def asistente2D():
     return render_template('index.html')
 
 @app.get(f'{URLInicial}/asistente/3d')

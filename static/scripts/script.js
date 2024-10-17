@@ -23,7 +23,7 @@ if(window.SpeechSynthesisUtterance == undefined){
     $('#fecha_atencion').attr('disabled', 'true');
 }
 
-if(location.pathname=='/' || location.pathname=='/~dev/'){
+/*if(location.pathname=='/' || location.pathname=='/~dev/'){
     Swal.fire({
         type: 'info',
         title: 'Asistente Mejorado',
@@ -45,9 +45,15 @@ if(location.pathname=='/' || location.pathname=='/~dev/'){
     }
     $('#fondo_popups').show();
     $('#sidebar_preferencias').collapse('show');
+}*/
+
+if(!(location.pathname=='/asistente' || location.pathname=='/~dev/asistente')){
+    if(!(localStorage.getItem('voz_masculino') && localStorage.getItem('voz_femenino'))){
+        location.href = location.pathname;
+    }
+    $('#fondo_popups').show();
+    $('#sidebar_preferencias').collapse('show');
 }
-
-
 
 generarCodigoForm();
 
@@ -90,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
         estadoAsistente = "esperando";
     };
 
-    if(location.pathname=='/' || location.pathname=='/~dev/'){
+    if(location.pathname=='/asistente' || location.pathname=='/~dev/asistente'){
         utterance = new SpeechSynthesisUtterance(); // Reproducira voz en base a texto
         utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
     }else{

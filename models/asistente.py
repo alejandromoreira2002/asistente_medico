@@ -26,7 +26,7 @@ class AsistenteModelo():
             if cm and cm['paciente'] == paciente: 
                 tMensajes.insert(cm['lastId'], cm['data']);
         response = self.client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o", #3.5-turbo
             #response_format={ "type": "json_object" },
             messages=tMensajes,
             tools=self.funciones,
@@ -66,7 +66,7 @@ class AsistenteModelo():
     
     def getSintomas(self, corpus):
         response = self.client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o", #3.5-turbo
             messages=[
                 {
                     "role": "system",
