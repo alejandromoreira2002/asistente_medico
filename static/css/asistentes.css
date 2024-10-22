@@ -103,3 +103,15 @@ body{
     /* font-weight: 500; */
     margin-top: -27px;
 }
+
+@media screen and (max-width: 600px) {
+    #header_selec_asis{
+        margin-bottom: 1em !important;
+
+    }
+
+    #contenedor_medicos{
+        flex-direction: column;
+        height: 80vh;
+    }
+}

@@ -5,11 +5,14 @@ if(window.webkitSpeechRecognition == undefined){
         icon:"error",
         showConfirmButton: false,
         allowOutsideClick: false,
-        footer: '<a href="https://www.google.com/intl/es-419/chrome/">Se recomienda usar Chrome</a>'
+        footer: '<em>Se recomienda usar <a href="https://www.google.com/intl/es-419/chrome/">Chrome</a> o <a href="https://www.microsoft.com/es-es/edge/download">Edge</a></em>'
     });
     $('#cod-form').attr('disabled', 'true');
     $('#fecha_atencion').attr('disabled', 'true');
+}else{
+    comprobarPermisos('microfono');
 }
+
 if(window.SpeechSynthesisUtterance == undefined){
     Swal.fire({
         title:"Error",
@@ -17,7 +20,7 @@ if(window.SpeechSynthesisUtterance == undefined){
         icon:"error",
         showConfirmButton: false,
         allowOutsideClick: false,
-        footer: '<a href="https://www.google.com/intl/es-419/chrome/">Se recomienda usar Chrome</a>'
+        footer: '<em>Se recomienda usar <a href="https://www.google.com/intl/es-419/chrome/">Chrome</a> o <a href="https://www.microsoft.com/es-es/edge/download">Edge</a></em>'
     });
     $('#cod-form').attr('disabled', 'true');
     $('#fecha_atencion').attr('disabled', 'true');

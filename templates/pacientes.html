@@ -37,16 +37,16 @@
                     <h2 class="mb-4 text-center">Registro de Pacientes</h2>
                     <div>
                         <div class="row mb-3">
-                            <div class="form-group col-2">
+                            <div class="form-group col-7 order-0 col-sm-2 order-sm-0">
                                 <input type="hidden" id="idPaciente" value=".">
                                 <label for="cedula" class="form-label">Cédula</label>
                                 <input type="text" class="form-control obligatorios col-auto" id="cedula" placeholder="Ingrese numero de cédula" onchange="buscarCedula()">
                             </div>
-                            <div class="form-group col-2">
+                            <div class="form-group col-6 order-2 col-sm-2 order-sm-1">
                                 <label for="nombre" class="form-label">Nombres</label>
                                 <input type="text" class="form-control obligatorios" id="nombres" placeholder="Ingrese nombres" onchange="comprobarCampos()">
                             </div>
-                            <div class="form-group col-2">
+                            <div class="form-group col-6 order-3 col-sm-2 order-sm-2">
                                 <label for="apellidos" class="form-label">Apellidos</label>
                                 <input type="text" class="form-control obligatorios" id="apellidos" placeholder="Ingrese apellidos" onchange="comprobarCampos()">
                             </div>
@@ -56,7 +56,7 @@
                             <!--<div class="form-group col-sm-4">
 
                             </div>-->
-                            <div class="form-group col-2">
+                            <div class="form-group col-5 order-1 col-sm-2 order-sm-3">
                                 <label for="genero" class="form-label">Genero</label>
                                 <select class="form-control obligatorios" name="genero" id="genero" onchange="comprobarCampos()">
                                     <option value="" selected disabled>Seleccione genero</option>
@@ -65,11 +65,11 @@
                                 </select>
                                 <!--<input type="text" class="form-control obligatorios" placeholder="Escriba su genero" id="genero">-->
                             </div>
-                            <div class="form-group col-2">
+                            <div class="form-group col-8 order-4 col-sm-2 order-sm-4">
                                 <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento</label>
                                 <input type="date" class="form-control obligatorios" id="fechaNacimiento" onchange="comprobarCampos(1)">
                             </div>
-                            <div class="form-group col-2">
+                            <div class="form-group col-4 order-5 col-sm-2 order-sm-5">
                                 <label for="edad" class="form-label">Edad</label>
                                 <input type="number" class="form-control obligatorios" id="edad" placeholder="Ingrese edad" onchange="comprobarCampos()" disabled>
                             </div>
@@ -95,10 +95,10 @@
                             </div>
                         </div>
                         <div class="row justify-content-center">
-                            <div class="col-3">
+                            <div class="col-5 col-sm-3">
                                 <button class="btn btn-light col-12" id="btnRegresar" style="padding: 10px 0" onclick="location.href='/'">Ir al Asistente</button>
                             </div>
-                            <div class="col-3">
+                            <div class="col-5 col-sm-3">
                                 <button class="btn btn-primary col-12" id="btnGuardarPac" style="padding: 10px 0;" onclick="registrarPaciente()" disabled>Guardar</button>
                             </div>
                         </div>
