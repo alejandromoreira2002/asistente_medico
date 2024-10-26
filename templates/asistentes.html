@@ -40,11 +40,11 @@
         <div id="header_selec_asis" style="text-align: center;font-weight: 600;font-size: 1.9em;margin-bottom: 2.3em;">Seleccione el asistente</div>
         <div id="contenedor_medicos" class="d-flex justify-content-around align-items-center" style="width: 100%;">
             <div id="medico_m_container">
-                <div class="btn_select_doc btn_doctor">
+                <div class="btn_select_doc btn_doctor" id="btn_doctor" onclick="elegirAsistente('masculino')">
                     {% if isDev %}
-                        <img src="../../static/img/medico_masculino.jpg" alt="" onclick="elegirAsistente('masculino')">
+                        <img src="../../static/img/medico_masculino.jpg" alt="">
                     {% else %}
-                        <img src="../static/img/medico_masculino.jpg" alt="" onclick="elegirAsistente('masculino')">
+                        <img src="../static/img/medico_masculino.jpg" alt="">
                     {% endif %}
                 </div>
                 <p style="color: white;text-align: center;border-radius: 0 0 15px 15px;padding-bottom: 7px;font-weight: 600;">
@@ -52,11 +52,11 @@
                 </p>
             </div>
             <div id="medico_f_container">
-                <div class="btn_select_doc btn_doctora">
+                <div class="btn_select_doc btn_doctora" id="btn_doctora" onclick="elegirAsistente('femenino')">
                     {% if isDev %}
-                        <img src="../../static/img/medico_femenino.jpg" alt="" onclick="elegirAsistente('femenino')">
+                        <img src="../../static/img/medico_femenino.jpg" alt="">
                     {% else %}
-                        <img src="../static/img/medico_femenino.jpg" alt="" onclick="elegirAsistente('femenino')">
+                        <img src="../static/img/medico_femenino.jpg" alt="">
                     {% endif %}
                 </div>
                 <p style="color: white;text-align: center;border-radius: 0 0 15px 15px;padding-bottom: 7px;font-weight: 600;">
@@ -160,10 +160,24 @@
             $('#fecha_atencion').attr('disabled', 'true');
         }
         
+        if(window.SpeechSynthesis == undefined){
+            Swal.fire({
+                title:"Error",
+                text:"Su navegador no soporta la reproduccion de voz.\nIntente con otro navegador",
+                icon:"error",
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                footer: '<em>Se recomienda usar <a href="https://www.google.com/intl/es-419/chrome/">Chrome</a> o <a href="https://www.microsoft.com/es-es/edge/download">Edge</a></em>'
+            });
+            $('#cod-form').attr('disabled', 'true');
+            $('#fecha_atencion').attr('disabled', 'true');
+        }
+        
         var utterance;
         var synth;
         var voces;
         var voz = {};
+        var intervalo;
 
         function toggleLoading(accion, mensaje=""){
             if(accion == 'mostrar'){
@@ -177,12 +191,14 @@
         document.addEventListener('DOMContentLoaded', () => {
             utterance = new SpeechSynthesisUtterance(); // Reproducira voz en base a texto
             synth = window.speechSynthesis;
+
+            //Cancelacion del speaking actual como reinicio en caso de error
+            gestionarErrorVoz();
+
             toggleLoading('mostrar', 'Buscando voces...');
-            //console.log('Cargando...'); //Pantalla de carga
 
             synth.onvoiceschanged = () => {
                 toggleLoading('ocultar');
-                //console.log('Cargo'); //Quitar pantalla de carga
 
                 voces = synth.getVoices();
 
@@ -221,7 +237,6 @@
         }
 
         function selectorVoces(){
-            //let voces = synth.getVoices();
             let vES = voces.filter(v => v.lang == 'es-MX' || v.lang == 'es-ES' || v.lang == 'es-US');
             let opcHTML = "<option value='' selected disabled>Seleccione voz...</option>";
 
@@ -237,6 +252,8 @@
         }
 
         function reproducir(genero){
+            gestionarErrorVoz();
+
             let selectVoz;
             //let voces = synth.getVoices();
             let doc = genero == 'M' ? 'doctor' : 'doctora';
@@ -285,20 +302,65 @@
         }
 
         function elegirAsistente(genero){
+            const TIEMPO_CORTE = 1;
+            gestionarErrorVoz();
+
+            /*intervalo = setTimeout(() => {
+                synth.cancel();
+            }, TIEMPO_CORTE * 1000);*/
+
             const texto = "Será un placer atenderle";
             utterance.text = texto;
-
             utterance.voice = voz[genero];
             
             /*if (vozGenero) {
                 utterance.voice = vozGenero;
             }*/
-            
-            synth.speak(utterance);
 
-            utterance.onend = () => {
+            console.log(utterance);
+
+            /*utterance.onend = () => {
                 let dev = document.getElementById('input_dev').value == 'True' ? '/~dev' : '';
                 location.href = `${dev}/asistente/3d?genero=${genero}`;
+            }*/
+
+            utterance.onstart = function(){
+                clearTimeout(intervalo);
+            }
+
+            // Manejar el evento 'end' para liberar el speaking
+            utterance.onend = function() {
+                //clearTimeout(intervalo);
+
+                let dev = document.getElementById('input_dev').value == 'True' ? '/~dev' : '';
+                location.href = `${dev}/asistente/3d?genero=${genero}`;
+                //console.log("Redirigiendo");
+            };
+
+            // Capturar errores de síntesis de voz
+            utterance.onerror = function(event) {
+                let docgen = (genero == 'masculino') ? 'doctor' : 'doctora';
+                $('#btn_'+docgen).trigger('click');
+
+                console.error('Error durante la síntesis de voz:', event.error);
+                clearTimeout(intervalo);
+
+                /*let dev = document.getElementById('input_dev').value == 'True' ? '/~dev' : '';
+                location.href = `${dev}/asistente/3d?genero=${genero}`;*/
+            };
+
+            intervalo = setTimeout(() => {
+                console.log("Se ejecuto timeout");
+                synth.cancel();
+            }, TIEMPO_CORTE * 1000);
+
+            synth.speak(utterance);
+        }
+
+        function gestionarErrorVoz(){
+            if (synth.speaking || synth.pending) {
+                console.log("El sistema sigue hablando, se procede a cancelarlo.");
+                synth.cancel();
             }
         }
     </script>

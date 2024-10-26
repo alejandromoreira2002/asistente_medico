@@ -7,6 +7,7 @@ test/voice.py
 static/scripts/prueba.js
 static/scripts/copy.js
 templates/prueba.html
+templates/pruebasvoz.html
 test/genSalt.py
 api.rest
 db/backup

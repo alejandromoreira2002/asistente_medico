@@ -35,6 +35,25 @@
     transform: translateX(-5px);
 }
 
+.alerta_personalizada{
+    position: absolute;
+    /*height: 78px;*/
+    width: 25%;
+    background-color: #b7d0ef;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 110;
+    border-radius: 10px;
+    transition: top .7s ease-in-out;
+    padding: 10px;
+    border: 2px solid #576b9e;
+}
+
+.ap_abierto{
+    top: 10px;
+}
+
 .asistente{
     display: flex;
     padding-top: 30px;
@@ -295,8 +314,22 @@
         cursor: pointer;
     }
 
-    #contenedor-typing{
-        display: none;
+    .contenedor-typing{
+        width: 70% !important;
+        bottom: 125px !important;
+    }
+
+    .ct-appear{
+        height: 99px;
+    }
+
+    .ft-2d{
+        top: -1px;
+        height: 102%;
+    }
+
+    .texto-type{
+        font-size: 12px;
     }
 
     .formulario{

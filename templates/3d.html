@@ -41,6 +41,12 @@
 </head>
 <body>
     <div class="contenedor">
+        <div class="alerta_personalizada" id="alerta_personalizada">
+            <p style="font-size: 0.8em;margin-bottom: 0;line-height: normal;color: #445275;font-weight: 400;">
+                <span style="font-size: 11pt;"><i class="fa-solid fa-circle-info"></i> <b>Aviso:</b></span> <br>
+                Debido a problemas con el navegador de <b>Chrome</b> con la sintesis de voz, es probable que exista un leve retraso en el habla del asistente.
+            </p>
+        </div>
         <div class="cont_btn_back">
             <button onclick="location.href=location.pathname" title="Selector de asistentes"><i class="fa-solid fa-arrow-left"></i></button>
         </div>
@@ -158,7 +164,10 @@
                             </div>
                         </div>
                         <h3>Datos de Consulta Médica</h3>
-                        <div class="row mb-3 mt-2">
+                        <div class="row d-flex justify-content-center align-items-center mb-3">
+                            <button type="button" class="btn btn-light" style="width:235px;" onclick="$('#modalDatosConsulta').modal('show');">Mostrar Información</button>
+                        </div>
+                        <!--<div class="row mb-3 mt-2">
                             <div class="form-group col-6">
                                 <label for="peso">Peso</label>
                                 <input type="text" class="form-control" id="peso" placeholder="Ingrese peso" disabled>
@@ -190,7 +199,7 @@
                                 <label for="temperatura">Temperatura</label>
                                 <input type="text" class="form-control" id="temperatura" placeholder="Ingrese temperatura" disabled>
                             </div>
-                        </div>
+                        </div>-->
                         <div class="row">
                             <div class="col-12 col-sm" style="display: none;">
                                 <h3>Sintomatología</h3>
@@ -218,7 +227,7 @@
                         </div>
                         <div class="row mb-3" id="cont_btn_hs_pc">
                             <div class="col-6 col-sm-4">
-                                <button style="border:none;text-decoration:underline;color:cadetblue;" onclick="abrirModalHistorialSintomas()"">Historial Sintomas</button>
+                                <button style="border:none;text-decoration:underline;color:cadetblue;" onclick="abrirModalHistorialSintomas()">Historial Sintomas</button>
                             </div>
                         </div>
                         <div class="row" style="justify-content:center;margin-bottom:10px">
@@ -268,6 +277,55 @@
             </div>
         </div>
         <!--</div>-->
+    </div>
+
+    <div class="modal fade" id="modalDatosConsulta"  tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Datos de Consulta Médica</h4>
+                </div>
+                <div class="modal-body" style="overflow-y:auto;max-height:400px">
+                    <div class="row mb-3 mt-2">
+                        <div class="form-group col-6">
+                            <label for="peso">Peso</label>
+                            <input type="text" class="form-control" id="peso" placeholder="Ingrese peso" disabled>
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="talla">Estatura</label>
+                            <input type="text" class="form-control" id="talla" placeholder="Ingrese talla" disabled>
+                        </div>
+                    </div>
+                    <label for="">Presión</label>
+                    <div class="row mb-3">
+                        <div class="form-group row col-5 col-sm-4">
+                            <div class="col-auto">
+                                <input type="text" class="form-control" id="p-sistolica" placeholder="Ingrese presión sistólica" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group row col-5 col-sm-4">
+                            <div class="col-auto">
+                                <input type="text" class="form-control" id="p-distolica" placeholder="Ingrese presión distólica" disabled>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="form-group col-6">
+                            <label for="frecuencia-card">Frecuencia Cardiaca</label>
+                            <input type="text" class="form-control" id="frecuencia-card" placeholder="Ingrese frecuencia cardiaca" disabled>
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="temperatura">Temperatura</label>
+                            <input type="text" class="form-control" id="temperatura" placeholder="Ingrese temperatura" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="modal fade" id="modalHistorialSintomas" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">

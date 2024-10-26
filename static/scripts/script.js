@@ -26,6 +26,32 @@ if(window.SpeechSynthesisUtterance == undefined){
     $('#fecha_atencion').attr('disabled', 'true');
 }
 
+if(window.SpeechSynthesis == undefined){
+    Swal.fire({
+        title:"Error",
+        text:"Su navegador no soporta la reproduccion de voz.\nIntente con otro navegador",
+        icon:"error",
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        footer: '<em>Se recomienda usar <a href="https://www.google.com/intl/es-419/chrome/">Chrome</a> o <a href="https://www.microsoft.com/es-es/edge/download">Edge</a></em>'
+    });
+    $('#cod-form').attr('disabled', 'true');
+    $('#fecha_atencion').attr('disabled', 'true');
+}
+
+if(window.SpeechSynthesis == undefined){
+    Swal.fire({
+        title:"Error",
+        text:"Su navegador no soporta la reproduccion de voz.\nIntente con otro navegador",
+        icon:"error",
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        footer: '<em>Se recomienda usar <a href="https://www.google.com/intl/es-419/chrome/">Chrome</a> o <a href="https://www.microsoft.com/es-es/edge/download">Edge</a></em>'
+    });
+    $('#cod-form').attr('disabled', 'true');
+    $('#fecha_atencion').attr('disabled', 'true');
+}
+
 /*if(location.pathname=='/' || location.pathname=='/~dev/'){
     Swal.fire({
         type: 'info',
@@ -68,10 +94,13 @@ var conversacion = []; // Guardara el historial de conversacion
 $('#fecha_atencion').val(formatearFecha(new Date()));
 
 const urlParams = new URLSearchParams(window.location.search);
-var recognition;
-var utterance;
-var synth;
-var voces;
+var recognition;    //Crea y maneja el reconocimiento de voz
+var utterance;  //Crea y guarda los estados de la reproduccion de voz
+var synth;  //Crea la sintesis
+var voces;  //Voces de la sintesis
+var intervalo; //Guarda el time out de verificacion de reproduccion de voz
+const TIEMPO_CORTE = 2; //Establece un tiempo de espera para el intervalo
+//const TIEMPO_CORTE = 25;
 
 //Inicializacion de los servicios
 document.addEventListener("DOMContentLoaded", () => {
@@ -99,15 +128,21 @@ document.addEventListener("DOMContentLoaded", () => {
         estadoAsistente = "esperando";
     };
 
+    utterance = new SpeechSynthesisUtterance(); // Reproducira voz en base a texto
+    synth = window.speechSynthesis;
+
+    gestionarErrorVoz();
+    
     if(location.pathname=='/asistente' || location.pathname=='/~dev/asistente'){
-        utterance = new SpeechSynthesisUtterance(); // Reproducira voz en base a texto
         utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
+        mostrarAdvertencia();
     }else{
-        utterance = new SpeechSynthesisUtterance(); // Reproducira voz en base a texto
-        synth = window.speechSynthesis;
-        
+
+        toggleLoading('mostrar', 'Buscando voces...');
         //Detecta que se encontraron voces para utterance
         synth.onvoiceschanged = () => {
+            toggleLoading('ocultar');
+
             let generoAsistente = urlParams.get('genero');
             voces = synth.getVoices();
             //utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
@@ -118,6 +153,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 });
+
+function mostrarAdvertencia(){
+    if(comprobarNavegador('chrome')){
+        //const texto = "Debido a problemas con el navegador de Chrome con la sintesis de voz, es probable que exista un leve retraso en el habla del asistente.";
+        $('#alerta_personalizada').addClass('ap_abierto');
+        setTimeout(() => {
+            if($('#alerta_personalizada').hasClass('ap_abierto')){
+                $('#alerta_personalizada').removeClass('ap_abierto');
+            }
+        }, 5000);
+    }
+}
 
 function cambiaAnimacionAsistente(animacion){
     let clasesAnim = [
@@ -167,6 +214,7 @@ function generarCodigoForm(){
 }
 
 function aceptarPreferenciasA(){
+    mostrarAdvertencia();
     let preferenciasElem = document.querySelectorAll('.opc_preferencias');
     let cantValidados = 0;
     preferenciasElem.forEach(p => cantValidados += p.checked == true ? 1 : 0);
@@ -191,7 +239,82 @@ function aceptarPreferenciasA(){
 
 // Funcion que permite reproducir voz en base al texto
 async function hablar(texto) {
-    const speechChunks = makeCunksOfText(texto); //Fragmenta el texto y reproduce en cola. Evita la saturación de SpeechSynthesis
+    gestionarErrorVoz();
+
+    const speechChunks = makeCunksOfText(texto);
+    let indice = 0;
+
+    if(!$('#inner-wave').hasClass('iw-enabled')){
+        $('#inner-wave').addClass('iw-enabled');
+    }
+
+    utterance.onstart = function(){
+        clearTimeout(intervalo);
+        if(indice == 0){
+            cambiaAnimacionAsistente("iw-speaking");
+            estadoAsistente = "detenido"
+        }
+    }
+
+    // Manejar el evento 'end' para liberar el speaking
+    utterance.onend = function() {
+        //clearTimeout(intervalo);
+        if(indice < speechChunks.length){
+            console.log("La reproducción del texto ha terminado.");
+            indice = voz(speechChunks[indice], indice);
+            /*if (speechChunks.length - 1 == indice) {
+                
+            }*/
+        }else{
+            gestionarErrorVoz();
+            console.log("El texto ha terminado de reproducirse.");
+            cambiaAnimacionAsistente("estatica");
+            estadoAsistente = "esperando";
+            
+            if(asistenteFinalizo){
+                $('#inner-wave').removeClass('iw-enabled');
+                guardarFormulario();
+                estadoAsistente = "detenido";
+            }
+        }
+        /*console.log("La reproducción del texto ha terminado.");
+        speakText("Este es un segundo texto reproducido tras terminar");*/
+    };
+
+    // Capturar errores de síntesis de voz
+    utterance.onerror = function(event) {
+        console.error('Error durante la síntesis de voz:', event.error);
+        clearTimeout(intervalo);
+
+        let err_ind = (indice <= 0) ? 0 : indice -1;
+        indice = voz(speechChunks[err_ind], err_ind);
+
+        /*if(indice < speechChunks.length){
+        }else{
+            gestionarErrorVoz();
+            console.log("El texto ha terminado de reproducirse.");
+        }*/
+        //speakText("Este es un segundo texto reproducido tras generar un error");
+    };
+
+    // Eventos adicionales para medir el estado de la sintesis de voz
+    utterance.onpause = (vBoundary) => {
+        console.log("Boundary event: " + vBoundary);
+    };
+
+    utterance.onboundary = (vPause) => {
+        console.log("Pause event: " + vPause);
+    };
+    
+    utterance.onresume = (vResume) => {
+        console.log("Resume event: " + vResume);
+    };
+    utterance.onmark = (vMark) => {
+        console.log("Mark event: " + vMark);
+    };
+
+    indice = voz(speechChunks[indice], indice);
+    /*const speechChunks = makeCunksOfText(texto); //Fragmenta el texto y reproduce en cola. Evita la saturación de SpeechSynthesis
     console.log(speechChunks);
     if(!$('#inner-wave').hasClass('iw-enabled')){
         $('#inner-wave').addClass('iw-enabled');
@@ -199,9 +322,9 @@ async function hablar(texto) {
     
     for (let i = 0; i < speechChunks.length; i++) {
         await new Promise((resolve, reject) => {
-            window.speechSynthesis.cancel();
+            synth.cancel();
             utterance.text = speechChunks[i];
-            window.speechSynthesis.speak(utterance);
+            synth.speak(utterance);
             utterance.onstart = () => {
                 if(i == 0){
                     cambiaAnimacionAsistente("iw-speaking");
@@ -225,8 +348,39 @@ async function hablar(texto) {
                 console.log(error);
                 resolve();
             };
+
+            utterance.onpause = (vBoundary) => {
+                console.log("Boundary event: " + vBoundary);
+                //resolve();
+            };
+
+            utterance.onboundary = (vPause) => {
+                console.log("Pause event: " + vPause);
+                //resolve();
+            };
+            
+            utterance.onresume = (vResume) => {
+                console.log("Resume event: " + vResume);
+                //resolve();
+            };
+            utterance.onmark = (vMark) => {
+                console.log("Mark event: " + vMark);
+                //resolve();
+            };
+
         });
-    }
+    }*/
+}
+
+function voz(texto, indice){
+    intervalo = setTimeout(() => {
+        synth.cancel();
+    }, TIEMPO_CORTE * 1000);
+
+    utterance.text = texto;
+    synth.speak(utterance);
+
+    return indice + 1;
 }
 
 function makeCunksOfText(text) {
@@ -740,4 +894,11 @@ function guardarFormulario(){
         toggleLoading('ocultar');
         Swal.fire("Ocurrió un error al enviar los datos", `Error: ${err}`, "error")
     })
+}
+
+function gestionarErrorVoz(){
+    if (synth.speaking || synth.pending) {
+        console.log("El sistema sigue hablando, se procede a cancelarlo.");
+        synth.cancel();
+    }
 }

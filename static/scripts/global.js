@@ -60,3 +60,22 @@ function comprobarPermisos(tipo){
 
     }
 }
+
+function comprobarNavegador(navegador) {
+    const userAgent = navigator.userAgent;
+
+    switch(navegador){
+        case "chrome":
+            return /Chrome/.test(userAgent) && /Google Inc/.test(navigator.vendor);
+        break;
+        case "safari":
+            return /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor);
+        break;
+        case "edge":
+            return /Edg/.test(navigator.userAgent); 
+        break;
+        case "opera":
+            return /OPR/.test(navigator.userAgent) || /Opera/.test(navigator.userAgent);
+        break;
+    }
+}
