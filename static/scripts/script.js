@@ -39,19 +39,6 @@ if(window.SpeechSynthesis == undefined){
     $('#fecha_atencion').attr('disabled', 'true');
 }
 
-if(window.SpeechSynthesis == undefined){
-    Swal.fire({
-        title:"Error",
-        text:"Su navegador no soporta la reproduccion de voz.\nIntente con otro navegador",
-        icon:"error",
-        showConfirmButton: false,
-        allowOutsideClick: false,
-        footer: '<em>Se recomienda usar <a href="https://www.google.com/intl/es-419/chrome/">Chrome</a> o <a href="https://www.microsoft.com/es-es/edge/download">Edge</a></em>'
-    });
-    $('#cod-form').attr('disabled', 'true');
-    $('#fecha_atencion').attr('disabled', 'true');
-}
-
 /*if(location.pathname=='/' || location.pathname=='/~dev/'){
     Swal.fire({
         type: 'info',
