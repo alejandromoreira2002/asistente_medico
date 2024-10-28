@@ -171,7 +171,7 @@ function setearVoces(){
     voces = window.speechSynthesis.getVoices();
     //utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
     utterance.voice = voces.find(voz => voz.voiceURI === localStorage.getItem(`voz_${generoAsistente}`));
-    utterance.rate = (generoAsistente == 'masculino') ? 1 : 1.2;
+    utterance.rate = (generoAsistente == 'femenino' && utterance.voice.voiceURI.includes('Google')) ? 1.2 : 1;
     console.log(localStorage.getItem(`voz_${generoAsistente}`));
 }
 
