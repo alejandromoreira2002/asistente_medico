@@ -196,6 +196,7 @@
             gestionarErrorVoz();
 
             if(/Android|iPhone|iPad/i.test(navigator.userAgent)){
+                let dev = document.getElementById('input_dev').value == 'True' ? '/~dev' : '';
                 location.href = `${dev}/asistente/3d?genero=masculino`;
             }else{
                 toggleLoading('mostrar', 'Buscando voces...');

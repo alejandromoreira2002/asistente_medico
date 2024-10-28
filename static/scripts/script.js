@@ -65,7 +65,7 @@ if(window.SpeechSynthesis == undefined){
 
 if(!(location.pathname=='/asistente' || location.pathname=='/~dev/asistente')){
     if(!(localStorage.getItem('voz_masculino') && localStorage.getItem('voz_femenino'))){
-        location.href = location.pathname;
+        if(!(/Android|iPhone|iPad/i.test(navigator.userAgent))) location.href = location.pathname;
     }
     $('#fondo_popups').show();
     $('#sidebar_preferencias').collapse('show');
@@ -125,9 +125,10 @@ document.addEventListener("DOMContentLoaded", () => {
         mostrarAdvertencia();
     }else{
         if(/Android|iPhone|iPad/i.test(navigator.userAgent)){
+            //let dev = document.getElementById('input_dev').value == 'True' ? '/~dev' : '';
             let generoAsistente = urlParams.get('genero');
             if(generoAsistente == 'femenino'){
-                location.href = `${dev}/asistente/3d?genero=masculino`;
+                location.href = location.pathname + '?genero=masculino';
             }else{
                 utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
             }
