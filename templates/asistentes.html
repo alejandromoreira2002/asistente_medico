@@ -210,39 +210,48 @@
             if(/Android|iPhone|iPad/i.test(navigator.userAgent)){
                 let dev = document.getElementById('input_dev').value == 'True' ? '/~dev' : '';
                 location.href = `${dev}/asistente/3d?genero=no`;
+            }else if(/Macintosh/i.test(navigator.userAgent)){
+                toggleLoading('ocultar');
+                toggleLoading('mostrar', 'Buscando voces...');
+    
+                synth.addEventListener("voiceschanged", setearVoces());
             }else{
                 toggleLoading('ocultar');
                 toggleLoading('mostrar', 'Buscando voces...');
     
-                synth.onvoiceschanged = () => {
-                    toggleLoading('ocultar');
-    
-                    voces = synth.getVoices();
-    
-                    if(!(localStorage.getItem('voz_masculino') && localStorage.getItem('voz_femenino'))){
-                        let vMasculino = voces.find(voz => voz.name === "Google español");
-                        let vFemenino = voces.find(voz => voz.name === "Google español de Estados Unidos");
-    
-                        voz['masculino'] = vMasculino;
-                        voz['femenino'] = vFemenino;
-        
-                        if(vMasculino && vFemenino){
-                            localStorage.setItem('voz_masculino', vMasculino.voiceURI);
-                            localStorage.setItem('voz_femenino', vFemenino.voiceURI);
-                        }else{
-                            selectorVoces();
-                        }
-                    }else{
-                        let vMasculino = voces.find(voz => voz.voiceURI === localStorage.getItem('voz_masculino'));
-                        let vFemenino = voces.find(voz => voz.name === localStorage.getItem('voz_femenino'));
-    
-                        voz['masculino'] = vMasculino;
-                        voz['femenino'] = vFemenino;
-                    }
-                };
+                synth.onvoiceschanged = setearVoces;
             }
 
         });
+
+        function setearVoces(){
+            console.log("Seteo");
+            toggleLoading('ocultar');
+
+            voces = window.speechSynthesis.getVoices();
+
+            if(!(localStorage.getItem('voz_masculino') && localStorage.getItem('voz_femenino'))){
+                let vMasculino = voces.find(voz => voz.name === "Google español");
+                let vFemenino = voces.find(voz => voz.name === "Google español de Estados Unidos");
+
+                voz['masculino'] = vMasculino;
+                voz['femenino'] = vFemenino;
+
+                if(vMasculino && vFemenino){
+                    localStorage.setItem('voz_masculino', vMasculino.voiceURI);
+                    localStorage.setItem('voz_femenino', vFemenino.voiceURI);
+                }else{
+                    selectorVoces();
+                }
+            }else{
+                let vMasculino = voces.find(voz => voz.voiceURI === localStorage.getItem('voz_masculino'));
+                let vFemenino = voces.find(voz => voz.name === localStorage.getItem('voz_femenino'));
+
+                voz['masculino'] = vMasculino;
+                voz['femenino'] = vFemenino;
+            }
+            console.log(voz);
+        }
 
         function verificarVoz(){
             let vMasc = $('#select_voz_m').val();

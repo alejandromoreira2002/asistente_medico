@@ -133,7 +133,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }else{
             if(/Android|iPhone|iPad/i.test(navigator.userAgent)){
                 location.href = location.pathname + '?genero=no';
+            }else if(/Macintosh/i.test(navigator.userAgent)){
+                toggleLoading('mostrar', 'Buscando voces...');
+    
+                synth.addEventListener("voiceschanged", setearVoces());
             }else{
+                toggleLoading('mostrar', 'Buscando voces...');
+    
+                synth.onvoiceschanged = setearVoces;
+            }
+            /*{
                 toggleLoading('mostrar', 'Buscando voces...');
                 //Detecta que se encontraron voces para utterance
                 synth.onvoiceschanged = () => {
@@ -147,11 +156,24 @@ document.addEventListener("DOMContentLoaded", () => {
                     utterance.rate = (generoAsistente == 'masculino') ? 1 : 1.2;
                     console.log(localStorage.getItem(`voz_${generoAsistente}`));
                 }
-            }
+            }*/
         }
     }
 
 });
+
+function setearVoces(){
+    let generoAsistente = urlParams.get('genero');
+    toggleLoading('ocultar');
+    
+    if(generoAsistente == 'no') generoAsistente = 'masculino';
+
+    voces = window.speechSynthesis.getVoices();
+    //utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
+    utterance.voice = voces.find(voz => voz.voiceURI === localStorage.getItem(`voz_${generoAsistente}`));
+    utterance.rate = (generoAsistente == 'masculino') ? 1 : 1.2;
+    console.log(localStorage.getItem(`voz_${generoAsistente}`));
+}
 
 function mostrarAdvertencia(){
     if(comprobarNavegador('chrome')){
