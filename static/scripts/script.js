@@ -10,7 +10,7 @@ if(window.webkitSpeechRecognition == undefined){
     $('#cod-form').attr('disabled', 'true');
     $('#fecha_atencion').attr('disabled', 'true');
 }else{
-    if(!(/Macintosh/i.test(navigator.userAgent))) comprobarPermisos('microfono');
+    /*if(!(/Macintosh/i.test(navigator.userAgent)))*/ comprobarPermisos('microfono');
 }
 
 if(window.SpeechSynthesisUtterance == undefined){

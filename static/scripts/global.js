@@ -5,7 +5,8 @@ function comprobarPermisos(tipo){
         .then(function(permissionStatus) {
             console.log('Estado del permiso del micrófono:', permissionStatus.state);
 
-            if (permissionStatus.state === 'granted') {
+            accionarPermisos(permissionStatus.state);
+            /*if (permissionStatus.state === 'granted') {
                 console.log('Acceso al micrófono');
 
             } else if (permissionStatus.state === 'prompt') {
@@ -26,34 +27,13 @@ function comprobarPermisos(tipo){
                     showConfirmButton: false,
                     allowOutsideClick: false
                 });
-                /*Swal.fire({
-                    title:"Microfono deshabilitado",
-                    html:"<p>El microfono se encuentra deshabilitado o no ha concedido los permisos de acceso al navegador.</p><p><em>Por favor, habilite el microfono para usar el asistente.</em></p>",
-                    icon:"info",
-                    showCloseButton: false,
-                    showConfirmButton: true,
-                    showCancelButton: false,
-                    allowOutsideClick: false,
-                    confirmButtonText: "Solicitar acceso"
-                    //cancelButton: "Cancelar"
-                }).then((result) => {
-                    if(result.value){
-                        solicitarPermisos('microfono');
-                    }else{
-                        Swal.fire({
-                            title:"Acceso al Microfono Denegado",
-                            html:"<p>El acceso al microfono ha sido denegado por el usuario.</p><p><em>Por favor, proporcione acceso el microfono para usar el asistente.</em></p>",
-                            icon:"error",
-                            showConfirmButton: false,
-                            allowOutsideClick: false
-                        });
-                    }
-                })*/
-            }
+            }*/
 
             // Monitorea los cambios en el estado del permiso
             permissionStatus.onchange = function() {
-                location.reload();
+                //location.reload();
+                console.log(permissionStatus.state);
+                accionarPermisos(permissionStatus.state);
             };
         })
         .catch(function(error) {
@@ -72,6 +52,32 @@ function comprobarPermisos(tipo){
     }
 }
 
+function accionarPermisos(estado){
+    if (estado === 'granted') {
+        Swal.close();
+        console.log('Acceso al micrófono');
+
+    } else if (estado === 'prompt') {
+        Swal.fire({
+            //title:"Error",
+            title:"Para poder usar el asistente correctamente debe concederle permisos de acceso al microfono",
+            html: "<button class='btn btn-success' onclick='solicitarPermisos(\"microfono\")'>Solicitar acceso</button>",
+            icon:"info",
+            showConfirmButton: false,
+            allowOutsideClick: false
+        });
+        //solicitarPermisos('microfono');
+    } else if (estado === 'denied') {
+        Swal.fire({
+            title:"Acceso al Microfono Denegado",
+            html:"<p>El acceso al microfono ha sido denegado por el usuario.</p><p><em>Por favor, proporcione acceso el microfono para usar el asistente.</em></p>",
+            icon:"error",
+            showConfirmButton: false,
+            allowOutsideClick: false
+        });
+    }
+}
+
 function solicitarPermisos(permiso){
     if(permiso == 'microfono'){
         navigator.mediaDevices.getUserMedia({ audio: true })
@@ -79,7 +85,8 @@ function solicitarPermisos(permiso){
             console.log('Permiso concedido. El micrófono está disponible.');
             // Aquí puedes hacer uso del stream de audio
             // Detén el stream si no lo necesitas inmediatamente
-            //stream.getTracks().forEach(track => track.stop());
+            Swal.close();
+            stream.getTracks().forEach(track => track.stop());
         })
         .catch(function(error) {
             if (error.name === 'NotAllowedError') {
