@@ -23,19 +23,23 @@
             }else{
                 voiceSelect = document.querySelector("#esteselect");
                 synth = window.speechSynthesis;
-                synth.onvoiceschanged = () => {
-                    voices = synth.getVoices();
-                    console.log(voices);
-                    for(let i=0; i<voices.length; i++){
-                        let newOption = new Option(voices[i].name, i, (i==0)?true:false, false);
-                        newOption.setAttribute('data-name', voices[i].name)
-                        voiceSelect.append(newOption);
-                        //$("#DCPorcenIVA").append(newOption);
-                    }
+                
+                if (synth.onvoiceschanged !== undefined) {
+                    synth.onvoiceschanged = mostrarVoces;
                 }
             }
             
         });
+
+        function mostrarVoces(){
+            voices = synth.getVoices();
+            console.log(voices);
+            for(let i=0; i<voices.length; i++){
+                let newOption = new Option(voices[i].name, i, (i==0)?true:false, false);
+                newOption.setAttribute('data-name', voices[i].name)
+                voiceSelect.append(newOption);
+            }
+        }
 
         const inputForm = document.querySelector("form");
         const inputTxt = document.querySelector("input");
