@@ -24,15 +24,13 @@
                 voiceSelect = document.querySelector("#esteselect");
                 synth = window.speechSynthesis;
                 
-                if (synth.onvoiceschanged !== undefined) {
-                    synth.onvoiceschanged = mostrarVoces;
-                }
+                synth.addEventListener("voiceschanged", mostrarVoces());
             }
             
         });
 
         function mostrarVoces(){
-            voices = synth.getVoices();
+            voices = window.speechSynthesis.getVoices();
             console.log(voices);
             for(let i=0; i<voices.length; i++){
                 let newOption = new Option(voices[i].name, i, (i==0)?true:false, false);
