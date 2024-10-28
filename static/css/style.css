@@ -38,6 +38,7 @@
 .alerta_personalizada{
     position: absolute;
     /*height: 78px;*/
+    min-width: 341px;
     width: 25%;
     background-color: #b7d0ef;
     top: -100px;
