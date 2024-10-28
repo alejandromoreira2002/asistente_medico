@@ -124,18 +124,26 @@ document.addEventListener("DOMContentLoaded", () => {
         utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
         mostrarAdvertencia();
     }else{
-
-        toggleLoading('mostrar', 'Buscando voces...');
-        //Detecta que se encontraron voces para utterance
-        synth.onvoiceschanged = () => {
-            toggleLoading('ocultar');
-
+        if(/Android|iPhone|iPad/i.test(navigator.userAgent)){
             let generoAsistente = urlParams.get('genero');
-            voces = synth.getVoices();
-            //utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
-            utterance.voice = voces.find(voz => voz.voiceURI === localStorage.getItem(`voz_${generoAsistente}`));
-            utterance.rate = (generoAsistente == 'masculino') ? 1 : 1.2;
-            console.log(localStorage.getItem(`voz_${generoAsistente}`));
+            if(generoAsistente == 'femenino'){
+                location.href = `${dev}/asistente/3d?genero=masculino`;
+            }else{
+                utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
+            }
+        }else{
+            toggleLoading('mostrar', 'Buscando voces...');
+            //Detecta que se encontraron voces para utterance
+            synth.onvoiceschanged = () => {
+                toggleLoading('ocultar');
+    
+                let generoAsistente = urlParams.get('genero');
+                voces = synth.getVoices();
+                //utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
+                utterance.voice = voces.find(voz => voz.voiceURI === localStorage.getItem(`voz_${generoAsistente}`));
+                utterance.rate = (generoAsistente == 'masculino') ? 1 : 1.2;
+                console.log(localStorage.getItem(`voz_${generoAsistente}`));
+            }
         }
     }
 

@@ -195,34 +195,39 @@
             //Cancelacion del speaking actual como reinicio en caso de error
             gestionarErrorVoz();
 
-            toggleLoading('mostrar', 'Buscando voces...');
-
-            synth.onvoiceschanged = () => {
-                toggleLoading('ocultar');
-
-                voces = synth.getVoices();
-
-                if(!(localStorage.getItem('voz_masculino') && localStorage.getItem('voz_femenino'))){
-                    let vMasculino = voces.find(voz => voz.name === "Google español");
-                    let vFemenino = voces.find(voz => voz.name === "Google español de Estados Unidos");
-
-                    voz['masculino'] = vMasculino;
-                    voz['femenino'] = vFemenino;
+            if(/Android|iPhone|iPad/i.test(navigator.userAgent)){
+                location.href = `${dev}/asistente/3d?genero=masculino`;
+            }else{
+                toggleLoading('mostrar', 'Buscando voces...');
     
-                    if(vMasculino && vFemenino){
-                        localStorage.setItem('voz_masculino', vMasculino.voiceURI);
-                        localStorage.setItem('voz_femenino', vFemenino.voiceURI);
+                synth.onvoiceschanged = () => {
+                    toggleLoading('ocultar');
+    
+                    voces = synth.getVoices();
+    
+                    if(!(localStorage.getItem('voz_masculino') && localStorage.getItem('voz_femenino'))){
+                        let vMasculino = voces.find(voz => voz.name === "Google español");
+                        let vFemenino = voces.find(voz => voz.name === "Google español de Estados Unidos");
+    
+                        voz['masculino'] = vMasculino;
+                        voz['femenino'] = vFemenino;
+        
+                        if(vMasculino && vFemenino){
+                            localStorage.setItem('voz_masculino', vMasculino.voiceURI);
+                            localStorage.setItem('voz_femenino', vFemenino.voiceURI);
+                        }else{
+                            selectorVoces();
+                        }
                     }else{
-                        selectorVoces();
+                        let vMasculino = voces.find(voz => voz.voiceURI === localStorage.getItem('voz_masculino'));
+                        let vFemenino = voces.find(voz => voz.name === localStorage.getItem('voz_femenino'));
+    
+                        voz['masculino'] = vMasculino;
+                        voz['femenino'] = vFemenino;
                     }
-                }else{
-                    let vMasculino = voces.find(voz => voz.voiceURI === localStorage.getItem('voz_masculino'));
-                    let vFemenino = voces.find(voz => voz.name === localStorage.getItem('voz_femenino'));
+                };
+            }
 
-                    voz['masculino'] = vMasculino;
-                    voz['femenino'] = vFemenino;
-                }
-            };
         });
 
         function verificarVoz(){
