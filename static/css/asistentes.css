@@ -21,18 +21,17 @@ body{
     transition: border-color .5s;
     /*position: relative;*/
 }
-/*.btn_doctor::after{
-    content: 'DOCTOR';
-    font-weight: 600;
-    color: white;
-    text-align: center;
-    background-color: rgb(0, 162, 255);
-    position: absolute;
-    bottom: -2px;
-    width: 100%;
-}*/
+
 .btn_doctora {
     border-color: #f37e92;
+    transition: border-color .5s;
+}
+
+.btn_doc_ia {
+    display: flex;
+    justify-content: center;
+    padding: 50px 0;
+    border-color: #9b9b9b;
     transition: border-color .5s;
 }
 
@@ -86,6 +85,87 @@ body{
     background-color: #fdaab9;
 }
 
+.btn_doc_ia img{
+    display: block;
+    position: relative;
+    margin: 0 auto;
+    height: 350px;
+    /*object-fit: cover;*/
+    transition: transform .5s;
+}
+
+.btn_doc_ia + p{
+    background-color: #9b9b9b;
+    transition: background-color .5s;
+}
+
+.btn_doc_ia:hover > .inner-wave:hover{
+    transform: scale(1.2);
+    /*transform-origin: 0% 0% 0px;*/
+}
+.btn_doc_ia:hover{
+    border-color: #acacac;
+}
+.btn_doc_ia:hover + p{
+    background-color: #acacac;
+}
+
+.container-icon {
+    height: 112px;
+    width: 112px;
+    /*background: #000;*/
+    /*width: 300px;
+    height: 300px;*/
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.outer-circle {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(223 223 223 / 80%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /*animation: pulse 2s infinite;*/
+    overflow: hidden;
+}
+
+.oc-pulsing{
+    animation: pulse 2s infinite;
+}
+
+.inner-wave {
+    width: 0px;
+    height: 0px;
+    border-radius: 50%;
+    background: conic-gradient(
+        from 0deg,
+        rgba(255, 0, 0, 0.8) 0deg,
+        rgba(255, 255, 0, 0.8) 90deg,
+        rgba(0, 191, 255, 0.8) 180deg,
+        rgba(255, 105, 180, 0.8) 270deg,
+        rgba(255, 0, 0, 0.8) 360deg
+    );
+    /*background: linear-gradient(45deg, #00f, #f0f);*/
+    /*animation: interactAssistant 4s linear infinite;*/
+    filter: blur(10px);
+    cursor: not-allowed;
+    transition: width .5s ease-in, height .5s ease-in, transform 1s ease;
+}
+
+.inner-wave:hover{
+    transform: rotate(-45deg) scale(0.9);
+}
+
+.iw-enabled{
+    width: 80px;
+    height:80px;
+    cursor: pointer;
+}
+
 .formulario-carga{
     position: absolute;
     display: flex;
@@ -102,6 +182,12 @@ body{
     color: #4d4d4d;
     /* font-weight: 500; */
     margin-top: -27px;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(150, 150, 150, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(150, 150, 150, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(150, 150, 150, 0); }
 }
 
 @media screen and (max-width: 600px) {

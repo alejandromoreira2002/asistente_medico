@@ -39,30 +39,6 @@ if(window.SpeechSynthesis == undefined){
     $('#fecha_atencion').attr('disabled', 'true');
 }
 
-/*if(location.pathname=='/' || location.pathname=='/~dev/'){
-    Swal.fire({
-        type: 'info',
-        title: 'Asistente Mejorado',
-        text: 'Ver el asistente medico en modelo 3D',
-        showCancelButton: true,
-        confirmButtonText: 'Ver nuevo asistente',
-        cancelButtonText: 'Continuar con asistente actual',
-        allowOutsideClick: false,
-    }).then((result) => {
-        if(result.value){
-            location.href = location.pathname + 'asistente/3d';
-        }else{
-            $('#cedula').focus();
-        }
-    });
-}else{
-    if(!(localStorage.getItem('voz_masculino') && localStorage.getItem('voz_femenino'))){
-        location.href = location.pathname;
-    }
-    $('#fondo_popups').show();
-    $('#sidebar_preferencias').collapse('show');
-}*/
-
 if(!(location.pathname=='/asistente' || location.pathname=='/~dev/asistente')){
     if(!(localStorage.getItem('voz_masculino') && localStorage.getItem('voz_femenino'))){
         if(!(/Android|iPhone|iPad/i.test(navigator.userAgent))) location.href = location.pathname;
@@ -119,16 +95,16 @@ document.addEventListener("DOMContentLoaded", () => {
     synth = window.speechSynthesis;
 
     gestionarErrorVoz();
-    
+
+    //Seteo de voces segun el genero del asistente y ruta visitada
     if(location.pathname=='/asistente' || location.pathname=='/~dev/asistente'){
         utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
         mostrarAdvertencia();
     }else{
-        if(/Android|iPhone|iPad/i.test(navigator.userAgent)){
-            //let dev = document.getElementById('input_dev').value == 'True' ? '/~dev' : '';
+        /*if(/Android|iPhone|iPad/i.test(navigator.userAgent)){
             let generoAsistente = urlParams.get('genero');
-            if(generoAsistente == 'femenino'){
-                location.href = location.pathname + '?genero=masculino';
+            if(generoAsistente != 'no'){
+                location.href = location.pathname + '?genero=no';
             }else{
                 utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
             }
@@ -139,11 +115,38 @@ document.addEventListener("DOMContentLoaded", () => {
                 toggleLoading('ocultar');
     
                 let generoAsistente = urlParams.get('genero');
+
+                if(generoAsistente == 'no') generoAsistente = 'masculino';
+
                 voces = synth.getVoices();
                 //utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
                 utterance.voice = voces.find(voz => voz.voiceURI === localStorage.getItem(`voz_${generoAsistente}`));
                 utterance.rate = (generoAsistente == 'masculino') ? 1 : 1.2;
                 console.log(localStorage.getItem(`voz_${generoAsistente}`));
+            }
+        }*/
+
+        let generoAsistente = urlParams.get('genero');
+
+        if(generoAsistente == 'no'){
+            utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
+        }else{
+            if(/Android|iPhone|iPad/i.test(navigator.userAgent)){
+                location.href = location.pathname + '?genero=no';
+            }else{
+                toggleLoading('mostrar', 'Buscando voces...');
+                //Detecta que se encontraron voces para utterance
+                synth.onvoiceschanged = () => {
+                    toggleLoading('ocultar');
+    
+                    if(generoAsistente == 'no') generoAsistente = 'masculino';
+    
+                    voces = synth.getVoices();
+                    //utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
+                    utterance.voice = voces.find(voz => voz.voiceURI === localStorage.getItem(`voz_${generoAsistente}`));
+                    utterance.rate = (generoAsistente == 'masculino') ? 1 : 1.2;
+                    console.log(localStorage.getItem(`voz_${generoAsistente}`));
+                }
             }
         }
     }
@@ -246,7 +249,7 @@ async function hablar(texto) {
 
     utterance.onstart = function(){
         clearTimeout(intervalo);
-        if(indice == 0){
+        if(indice == 1){
             cambiaAnimacionAsistente("iw-speaking");
             estadoAsistente = "detenido"
         }

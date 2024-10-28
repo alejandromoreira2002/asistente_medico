@@ -26,14 +26,14 @@
     </button>-->
     
     <div class="d-flex align-items-center justify-content-center flex-column" style="height: 100%;width: 100%;">
-        <div class="formulario-carga" id="formulario-carga" style="display: none;">
+        <div class="formulario-carga" id="formulario-carga" style="display: flex;">
             <div class="loadingio-spinner-ellipsis-2by998twmg8">
                 <div class="ldio-yzaezf3dcmj">
                     <div></div><div></div><div></div><div></div><div></div>
                 </div>
             </div>
             <div class="mensaje-cargaf" id="mensaje-cargaf">
-                <p>Cargando formulario...</p>
+                <p>Cargando..</p>
             </div>
         </div>
         <input id="input_dev" type="hidden" value="{{isDev}}" readonly>
@@ -49,6 +49,18 @@
                 </div>
                 <p style="color: white;text-align: center;border-radius: 0 0 15px 15px;padding-bottom: 7px;font-weight: 600;">
                     DOCTOR
+                </p>
+            </div>
+            <div id="medico_ia_container">
+                <div class="btn_select_doc btn_doc_ia" id="btn_doc_ia" onclick="elegirAsistente('no')">
+                    <div class="container-icon" id="asistente-btn" onclick="toggleEscucha()">
+                        <div class="outer-circle oc-pulsing" id="outer-circle">
+                            <div class="inner-wave iw-enabled" id="inner-wave"></div>
+                        </div>
+                    </div>
+                </div>
+                <p style="color: white;text-align: center;border-radius: 0 0 15px 15px;padding-bottom: 7px;font-weight: 600;">
+                    SIN GENERO
                 </p>
             </div>
             <div id="medico_f_container">
@@ -197,8 +209,9 @@
 
             if(/Android|iPhone|iPad/i.test(navigator.userAgent)){
                 let dev = document.getElementById('input_dev').value == 'True' ? '/~dev' : '';
-                location.href = `${dev}/asistente/3d?genero=masculino`;
+                location.href = `${dev}/asistente/3d?genero=no`;
             }else{
+                toggleLoading('ocultar');
                 toggleLoading('mostrar', 'Buscando voces...');
     
                 synth.onvoiceschanged = () => {
@@ -317,11 +330,14 @@
 
             const texto = "Será un placer atenderle";
             utterance.text = texto;
-            utterance.voice = voz[genero];
+            //utterance.voice = voz[genero];
             
-            /*if (vozGenero) {
-                utterance.voice = vozGenero;
-            }*/
+            console.log(genero);
+            if (genero == "no") {
+                utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
+            }else{
+                utterance.voice = voz[genero];
+            }
 
             console.log(utterance);
 
@@ -345,8 +361,17 @@
 
             // Capturar errores de síntesis de voz
             utterance.onerror = function(event) {
-                let docgen = (genero == 'masculino') ? 'doctor' : 'doctora';
-                $('#btn_'+docgen).trigger('click');
+                switch(genero){
+                    case 'masculino':
+                        $('#btn_doctor').trigger('click');
+                    break;
+                    case 'femenino':
+                        $('#btn_doctora').trigger('click');
+                    break;
+                    case 'no':
+                        $('#btn_doc_ia').trigger('click');
+                    break;
+                }
 
                 console.error('Error durante la síntesis de voz:', event.error);
                 clearTimeout(intervalo);

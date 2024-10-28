@@ -50,34 +50,56 @@
         <div class="cont_btn_back">
             <button onclick="location.href=location.pathname" title="Selector de asistentes"><i class="fa-solid fa-arrow-left"></i></button>
         </div>
-        <div class="asistente" style="padding-top: 0;">
-            <!--<div id="unity-container" class="unity-desktop" >-->
-            <div class="controles" id="controles" style="z-index:500;position: absolute;top:140px"><!--bottom: 88px;-->
-                <div class="container-icon" id="asistente-btn" onclick="toggleEscucha()">
-                    <div class="outer-circle" id="outer-circle">
-                        <div class="inner-wave" id="inner-wave"></div>
+        {% if asistente.genero == "no" %}
+            <div class="asistente">
+                <h1 style="text-align:center">Iniciar Asistente Médico</h1>
+                <div class="controles" id="controles">
+                    <div class="container-icon" id="asistente-btn" onclick="toggleEscucha()">
+                        <div class="outer-circle" id="outer-circle">
+                            <div class="inner-wave" id="inner-wave"></div>
+                        </div>
+                    </div>
+                    <!--<button id="start-recording" class="btn-act iniciar-conversacion" onclick="iniciarEscucha()" disabled><i class="fa-solid fa-play"></i></button>-->
+                    <!--<button id="stop-recording" class="btn-act detener-conversacion" onclick="detenerEscucha()" disabled><i class="fa-solid fa-stop"></i></button>-->
+                    <!--<button id="stop-recording" disabled>Detener Grabación</button>-->
+                    <p id="info-adicional"></p>
+                </div>
+                <div class="contenedor-typing" id="contenedor-typing" style="position: relative !important; bottom: 20px !important;">
+                    <div class="filtro-typing ft-2d"></div>
+                    <div class="texto-type">
+                        <p id="typeContenido">
+
+                        </p>
                     </div>
                 </div>
-                <!--<button id="start-recording" class="btn-act iniciar-conversacion" onclick="iniciarEscucha()" disabled><i class="fa-solid fa-play"></i></button>-->
-                <!--<button id="stop-recording" class="btn-act detener-conversacion" onclick="detenerEscucha()" disabled><i class="fa-solid fa-stop"></i></button>-->
-                <!--<button id="stop-recording" disabled>Detener Grabación</button>-->
-                <p id="info-adicional"></p>
             </div>
-            <div class="contenedor-typing" id="contenedor-typing" style="z-index:499; width:25%;position: absolute;bottom:88px;border-radius: 20px;background-color: #ffffffad;">
-                <div class="filtro-typing" style="display:none"></div>
-                <div class="texto-type">
-                    <p id="typeContenido" style="padding:5px 15px;">
-    
-                    </p>
+        {% else %}
+            <div class="asistente" style="padding-top: 0;">
+                <!--<div id="unity-container" class="unity-desktop" >-->
+                <div class="controles" id="controles" style="z-index:500;position: absolute;top:140px"><!--bottom: 88px;-->
+                    <div class="container-icon" id="asistente-btn" onclick="toggleEscucha()">
+                        <div class="outer-circle" id="outer-circle">
+                            <div class="inner-wave" id="inner-wave"></div>
+                        </div>
+                    </div>
+                    <!--<button id="start-recording" class="btn-act iniciar-conversacion" onclick="iniciarEscucha()" disabled><i class="fa-solid fa-play"></i></button>-->
+                    <!--<button id="stop-recording" class="btn-act detener-conversacion" onclick="detenerEscucha()" disabled><i class="fa-solid fa-stop"></i></button>-->
+                    <!--<button id="stop-recording" disabled>Detener Grabación</button>-->
+                    <p id="info-adicional"></p>
                 </div>
-            </div>
-            <iframe src="/avatar?genero={{asistente.genero}}" style="height: 100vh;width: 100%;display: flex; justify-content: center; align-items: center;">
+                <div class="contenedor-typing" id="contenedor-typing" style="z-index:499; width:25%;position: absolute;bottom:88px;border-radius: 20px;background-color: #ffffffad;">
+                    <div class="filtro-typing" style="display:none"></div>
+                    <div class="texto-type">
+                        <p id="typeContenido" style="padding:5px 15px;">
+        
+                        </p>
+                    </div>
+                </div>
+                <iframe src="/avatar?genero={{asistente.genero}}" style="height: 100vh;width: 100%;display: flex; justify-content: center; align-items: center;">
 
-            </iframe>
-                
-            
-            <!--</div>-->
-        </div>
+                </iframe>
+            </div>
+        {% endif %}
         <div class="formulario">
             <div class="formulario-carga" id="formulario-carga" style="display: none;">
                 <div class="loadingio-spinner-ellipsis-2by998twmg8">

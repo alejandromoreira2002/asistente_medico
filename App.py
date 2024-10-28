@@ -81,7 +81,7 @@ def asistente2D():
 @app.get(f'{URLInicial}/asistente/3d')
 def asistente3D():
     asistente = request.args.get('genero')
-    if asistente and (asistente=='masculino' or asistente=='femenino'):
+    if asistente and (asistente=='masculino' or asistente=='femenino' or asistente=='no'):
         return render_template('3d.html', asistente={'genero':asistente}, isDev=isDev)
     else:
         return render_template('asistentes.html', isDev=isDev)
