@@ -477,7 +477,7 @@ function conversarAsistente(){
 
         }else if(respuesta['respuesta_msg']){
             let textType = document.getElementById('typeContenido');
-            let rMensaje = respuesta['respuesta_msg']
+            let rMensaje = limpiarMensaje(respuesta['respuesta_msg'])
             let iTextChar = 0;
 
             textType.textContent = "";
@@ -495,7 +495,11 @@ function conversarAsistente(){
     });
 }
 
-
+//Aqui se iran agregando otros tipos de formateo para darle mas naturalidad al hablar el asistente
+function limpiarMensaje(mensaje){
+    let msg_limpio = mensaje.replace('**', ''); //Quita los doble asterisco del texto
+    return msg_limpio;
+}
 
 /*recognition.onend = () => {
     //recognition.start();

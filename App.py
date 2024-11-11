@@ -86,6 +86,9 @@ def asistente3D():
     else:
         return render_template('asistentes.html', isDev=isDev)
 
+#@app.get(f'{URLInicial}/asistente/demo')
+#def asistenteDemo():
+#    return render_template('demo.html')
 
 @app.get(f'{URLInicial}/asistente/voces')
 def vocesAsistente():
@@ -94,6 +97,11 @@ def vocesAsistente():
 @app.get('/avatar')
 def modeloAvatar():
     asistente = request.args.get('genero')
+    #estilo = request.args.get('estilo')
+    #if estilo and estilo == "si":
+    #    est = "style='width: 120%;height: 100%;cursor: default;top:150px'"
+    #    return render_template('avatar.html', asistente={'genero':asistente}, estilo=est)
+    #else:
     return render_template('avatar.html', asistente={'genero':asistente})
 
 @app.get(f'{URLInicial}/pacientes')

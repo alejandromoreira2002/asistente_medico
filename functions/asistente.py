@@ -3,7 +3,7 @@ def getFuncionesAsistente(codFuncs):
         "type": "function",
         "function":{
             "name": "get_sintomas",
-            "description": "Extrae los sintomas a detalle que estoy presentando actualmente, omite los sintomas que ya no presento y los que no corresponden a mi genero",
+            "description": "Extrae los sintomas a detalle que estoy presentando actualmente, omite los sintomas que ya no presento y los que no corresponden a mi genero. Los sintomas tienen que ser convertidos a palabras tecnicas de medicina.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -120,7 +120,7 @@ def getMensajeSistema(codFuncs):
         contenidoSistema += " No menciones un diagnostico ni le recomiendes algun tratamiento al paciente."
     else:
         if '2' in codFuncs:
-            contenidoSistema += " Luego de reconocer todos sus sintomas, le daras al menos tres posibles diagnosticos al paciente."
+            contenidoSistema += " Luego de reconocer todos sus sintomas, le daras al menos tres posibles diagnosticos al paciente. Aclara al paciente que el diagnostico es presuntivo"
         if '3' in codFuncs:
             adicional = " y sus posibles diagnosticos" if '2' in codFuncs else ""
             contenidoSistema += " Luego de reconocer todos sus sintomas" + adicional + ", le recomendaras seguir un tratamiento al paciente."
