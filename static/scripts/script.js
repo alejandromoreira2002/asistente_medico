@@ -63,20 +63,32 @@ var synth;  //Crea la sintesis
 var voces;  //Voces de la sintesis
 var intervalo; //Guarda el time out de verificacion de reproduccion de voz
 const TIEMPO_CORTE = 2; //Establece un tiempo de espera para el intervalo
+const ASISTENTE2D = !location.pathname.includes('/3d') || urlParams.get('genero') == 'no';
 //const TIEMPO_CORTE = 25;
-
 //Inicializacion de los servicios
 document.addEventListener("DOMContentLoaded", () => {
+    if(!ASISTENTE2D){
+        $('#inner-wave').html('<span id="icon_control" class="icon_control" title="Iniciar Asistente"></span>');
+        $('#inner-wave').removeClass('inner-wave');
+    }
     recognition = new webkitSpeechRecognition(); // Reconoce la voz y la convierte en texto
     recognition.lang = 'es-ES';
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.onaudiostart = (event) => {
-        cambiaAnimacionAsistente("iw-hearing");
+        if(ASISTENTE2D){
+            cambiaAnimacionAsistente("iw-hearing");
+        }else{
+            cambiaAnimacionAsistente("detener-asistente");
+        }
         estadoAsistente = "escuchando";
     }
     recognition.onaudioend = (event) => {
-        cambiaAnimacionAsistente("iw-loading");
+        if(ASISTENTE2D){
+            cambiaAnimacionAsistente("iw-loading");
+        }else{
+            cambiaAnimacionAsistente("cargando-asistente");
+        }
         estadoAsistente = "detenido";
     }
     recognition.onresult = (event) => {
@@ -86,8 +98,12 @@ document.addEventListener("DOMContentLoaded", () => {
         conversarAsistente();
     };
     recognition.onerror = (event) => {
+        if(ASISTENTE2D){
+            cambiaAnimacionAsistente("estatica");
+        }else{
+            cambiaAnimacionAsistente("hablar-asistente");
+        }
         Swal.fire("Error al reconocer la voz", "Error: "+event.error, "error");
-        cambiaAnimacionAsistente("estatica");
         estadoAsistente = "esperando";
     };
 
@@ -95,6 +111,8 @@ document.addEventListener("DOMContentLoaded", () => {
     synth = window.speechSynthesis;
 
     gestionarErrorVoz();
+
+
 
     //Seteo de voces segun el genero del asistente y ruta visitada
     if(location.pathname=='/asistente' || location.pathname=='/~dev/asistente'){
@@ -187,7 +205,7 @@ function mostrarAdvertencia(){
     }
 }
 
-function cambiaAnimacionAsistente(animacion){
+/*function cambiaAnimacionAsistente(animacion){
     let clasesAnim = [
         "iw-speaking",
         "iw-hearing",
@@ -206,6 +224,92 @@ function cambiaAnimacionAsistente(animacion){
     }else{
         $('#outer-circle').addClass('oc-pulsing');
     }
+}*/
+
+function cambiaAnimacionAsistente(animacion){
+    if(location.pathname=='/asistente' || location.pathname=='/~dev/asistente' || urlParams.get('genero') == 'no'){
+        let clasesAnim = [
+            "iw-speaking",
+            "iw-hearing",
+            "iw-loading"
+        ];
+    
+        for(let ca of clasesAnim){
+            if($('#inner-wave').hasClass(ca)){
+                $('#inner-wave').removeClass(ca);
+            }
+        }
+    
+        if(animacion != "estatica"){
+            $('#outer-circle').removeClass('oc-pulsing');
+            $('#inner-wave').addClass(animacion);
+        }else{
+            $('#outer-circle').addClass('oc-pulsing');
+        }
+    }else{
+        let clasesAnim = [
+            "inicializar-asistente",
+            "cargando-asistente",
+            "hablar-asistente",
+            "detener-asistente",
+            "reproduciendo-asistente"
+        ];
+    
+        for(let ca of clasesAnim){
+            if($('#inner-wave').hasClass(ca)){
+                $('#inner-wave').removeClass(ca);
+            }
+        }
+    
+        $('#inner-wave').removeAttr('disabled');
+    
+        switch(animacion){
+            case 'inicializar-asistente':
+            {
+                $('#inner-wave').addClass(animacion);
+                $('#icon_control').html('<i class="fa-solid fa-play"></i>');
+                $('#icon_control').attr('title', 'Iniciar Asistente');
+            }
+            break;
+            case 'cargando-asistente':
+            {
+                $('#inner-wave').addClass(animacion);
+                $('#icon_control').html('<i class="fa-solid fa-circle-notch"></i>');
+                $('#icon_control').attr('title', 'Procesando...');
+                $('#inner-wave').attr('disabled', true);
+            }
+            break;
+            case 'hablar-asistente':
+            {
+                $('#inner-wave').addClass(animacion);
+                $('#icon_control').html('<i class="fa-solid fa-microphone"></i>');
+                $('#icon_control').attr('title', 'Hablar');
+            }
+            break;
+            case 'detener-asistente':
+            {
+                $('#inner-wave').addClass(animacion);
+                $('#icon_control').html('<i class="fa-solid fa-microphone"></i>');
+                $('#icon_control').attr('title', 'Dejar de hablar');
+            }
+            break;
+            case 'reproduciendo-asistente':
+            {
+                $('#inner-wave').addClass(animacion);
+                $('#icon_control').html('<i class="fa-solid fa-volume-high"></i>');
+                $('#icon_control').attr('title', 'Asistente hablando...');
+                $('#inner-wave').attr('disabled', true);
+            }
+            break;
+        }
+    }
+
+    /*if(animacion != "estatica"){
+        $('#outer-circle').removeClass('oc-pulsing');
+        $('#inner-wave').addClass(animacion);
+    }else{
+        $('#outer-circle').addClass('oc-pulsing');
+    }*/
 }
 
 function generarCodigoForm(){
@@ -272,7 +376,11 @@ async function hablar(texto) {
     utterance.onstart = function(){
         clearTimeout(intervalo);
         if(indice == 1){
-            cambiaAnimacionAsistente("iw-speaking");
+            if(ASISTENTE2D){
+                cambiaAnimacionAsistente("iw-speaking");
+            }else{
+                cambiaAnimacionAsistente("reproduciendo-asistente");
+            }
             estadoAsistente = "detenido"
         }
     }
@@ -289,7 +397,11 @@ async function hablar(texto) {
         }else{
             gestionarErrorVoz();
             console.log("El texto ha terminado de reproducirse.");
-            cambiaAnimacionAsistente("estatica");
+            if(ASISTENTE2D){
+                cambiaAnimacionAsistente("estatica");
+            }else{
+                cambiaAnimacionAsistente("hablar-asistente");
+            }
             estadoAsistente = "esperando";
             
             if(asistenteFinalizo){
