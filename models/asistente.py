@@ -31,7 +31,7 @@ class AsistenteModelo():
             messages=tMensajes,
             tools=self.funciones,
             tool_choice="auto",
-            max_tokens=256,
+            max_tokens=512,
             temperature=1,
             top_p=1
         )

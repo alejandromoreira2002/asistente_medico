@@ -18,6 +18,7 @@ static/scripts/copy.js
 templates/prueba.html
 templates/demo.html
 templates/pruebasvoz.html
+templates/reconocimiento.html
 test/genSalt.py
 api.rest
 db/backup

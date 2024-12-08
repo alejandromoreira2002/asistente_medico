@@ -49,11 +49,13 @@ if(!(location.pathname=='/asistente' || location.pathname=='/~dev/asistente')){
 
 generarCodigoForm();
 
-const infoAdicional = $('#result');
-var estadoAsistente = "detenido"; // cambiar a detenido
-var asistenteFinalizo = false;
-var preferencias = ['1'];
+const infoAdicional = $('#result'); //No sirve para nada
+var estadoAsistente = "detenido"; // Guarda el estado en el que se encuentra el asistente
+var asistenteFinalizo = false; //verifica si se termina la conversacion con el asistente
+var preferencias = ['1']; //Guarda las preferencias (Sintomas, Diagnostico, Tratamiento) que elija el usuario
 var conversacion = []; // Guardara el historial de conversacion
+var cola_repro = []; //Encola nuevas respuestas del asistente para ser reproducidas
+var tratamientos = []; //Crea una lista de tratamientos
 $('#fecha_atencion').val(formatearFecha(new Date()));
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -61,8 +63,11 @@ var recognition;    //Crea y maneja el reconocimiento de voz
 var utterance;  //Crea y guarda los estados de la reproduccion de voz
 var synth;  //Crea la sintesis
 var voces;  //Voces de la sintesis
+var transcripcion; //Guarda la clase de transcripcion del reconocimiento de voz
 var intervalo; //Guarda el time out de verificacion de reproduccion de voz
-const TIEMPO_CORTE = 2; //Establece un tiempo de espera para el intervalo
+var intervaloSilencio; //Guarda el time out del reconocimiento de voz
+const TIEMPO_CORTE = 2; //Establece un tiempo de espera en segundos para el intervalo
+const TIEMPO_SILENCIO = 2.6; //Tiempo de silencio en segundos para reconocimiento de voz
 const ASISTENTE2D = !location.pathname.includes('/3d') || urlParams.get('genero') == 'no';
 //const TIEMPO_CORTE = 25;
 //Inicializacion de los servicios
@@ -73,8 +78,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     recognition = new webkitSpeechRecognition(); // Reconoce la voz y la convierte en texto
     recognition.lang = 'es-ES';
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    recognition.continuous = true;
+    recognition.interimResults = true;
     recognition.onaudiostart = (event) => {
         if(ASISTENTE2D){
             cambiaAnimacionAsistente("iw-hearing");
@@ -82,6 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
             cambiaAnimacionAsistente("detener-asistente");
         }
         estadoAsistente = "escuchando";
+        intervaloSilencio = setTimeout(detenerEscucha, TIEMPO_SILENCIO * 1000);
     }
     recognition.onaudioend = (event) => {
         if(ASISTENTE2D){
@@ -91,11 +97,28 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         estadoAsistente = "detenido";
     }
-    recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-    
-        conversacion.push({"role": "user", "content": transcript});
+
+    recognition.onend = (event) => {
+        let textoCompleto = "";
+        for (let i = 0; i < transcripcion.length; i++) {
+            const transcript = transcripcion[i][0].transcript;
+            textoCompleto += transcript;
+        }
+        console.log(textoCompleto);
+        //$('#estaarea').val(textoCompleto);
+        conversacion.push({"role": "user", "content": textoCompleto});
         conversarAsistente();
+    }
+
+    recognition.onresult = (event) => {
+        clearTimeout(intervaloSilencio);
+        transcripcion = event.results;
+
+        // Reinicia el temporizador después de recibir un resultado
+        intervaloSilencio = setTimeout(detenerEscucha, TIEMPO_SILENCIO * 1000);
+    
+        /*conversacion.push({"role": "user", "content": transcript});
+        conversarAsistente();*/
     };
     recognition.onerror = (event) => {
         if(ASISTENTE2D){
@@ -119,31 +142,6 @@ document.addEventListener("DOMContentLoaded", () => {
         utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
         mostrarAdvertencia();
     }else{
-        /*if(/Android|iPhone|iPad/i.test(navigator.userAgent)){
-            let generoAsistente = urlParams.get('genero');
-            if(generoAsistente != 'no'){
-                location.href = location.pathname + '?genero=no';
-            }else{
-                utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
-            }
-        }else{
-            toggleLoading('mostrar', 'Buscando voces...');
-            //Detecta que se encontraron voces para utterance
-            synth.onvoiceschanged = () => {
-                toggleLoading('ocultar');
-    
-                let generoAsistente = urlParams.get('genero');
-
-                if(generoAsistente == 'no') generoAsistente = 'masculino';
-
-                voces = synth.getVoices();
-                //utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
-                utterance.voice = voces.find(voz => voz.voiceURI === localStorage.getItem(`voz_${generoAsistente}`));
-                utterance.rate = (generoAsistente == 'masculino') ? 1 : 1.2;
-                console.log(localStorage.getItem(`voz_${generoAsistente}`));
-            }
-        }*/
-
         let generoAsistente = urlParams.get('genero');
 
         if(generoAsistente == 'no'){
@@ -160,21 +158,6 @@ document.addEventListener("DOMContentLoaded", () => {
     
                 synth.onvoiceschanged = setearVoces;
             }
-            /*{
-                toggleLoading('mostrar', 'Buscando voces...');
-                //Detecta que se encontraron voces para utterance
-                synth.onvoiceschanged = () => {
-                    toggleLoading('ocultar');
-    
-                    if(generoAsistente == 'no') generoAsistente = 'masculino';
-    
-                    voces = synth.getVoices();
-                    //utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
-                    utterance.voice = voces.find(voz => voz.voiceURI === localStorage.getItem(`voz_${generoAsistente}`));
-                    utterance.rate = (generoAsistente == 'masculino') ? 1 : 1.2;
-                    console.log(localStorage.getItem(`voz_${generoAsistente}`));
-                }
-            }*/
         }
     }
 
@@ -187,7 +170,6 @@ function setearVoces(){
     if(generoAsistente == 'no') generoAsistente = 'masculino';
 
     voces = window.speechSynthesis.getVoices();
-    //utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
     utterance.voice = voces.find(voz => voz.voiceURI === localStorage.getItem(`voz_${generoAsistente}`));
     utterance.rate = (generoAsistente == 'femenino' && utterance.voice.voiceURI.includes('Google')) ? 1.2 : 1;
     console.log(localStorage.getItem(`voz_${generoAsistente}`));
@@ -195,7 +177,6 @@ function setearVoces(){
 
 function mostrarAdvertencia(){
     if(comprobarNavegador('chrome')){
-        //const texto = "Debido a problemas con el navegador de Chrome con la sintesis de voz, es probable que exista un leve retraso en el habla del asistente.";
         $('#alerta_personalizada').addClass('ap_abierto');
         setTimeout(() => {
             if($('#alerta_personalizada').hasClass('ap_abierto')){
@@ -204,27 +185,6 @@ function mostrarAdvertencia(){
         }, 5000);
     }
 }
-
-/*function cambiaAnimacionAsistente(animacion){
-    let clasesAnim = [
-        "iw-speaking",
-        "iw-hearing",
-        "iw-loading"
-    ];
-
-    for(let ca of clasesAnim){
-        if($('#inner-wave').hasClass(ca)){
-            $('#inner-wave').removeClass(ca);
-        }
-    }
-
-    if(animacion != "estatica"){
-        $('#outer-circle').removeClass('oc-pulsing');
-        $('#inner-wave').addClass(animacion);
-    }else{
-        $('#outer-circle').addClass('oc-pulsing');
-    }
-}*/
 
 function cambiaAnimacionAsistente(animacion){
     if(location.pathname=='/asistente' || location.pathname=='/~dev/asistente' || urlParams.get('genero') == 'no'){
@@ -303,13 +263,6 @@ function cambiaAnimacionAsistente(animacion){
             break;
         }
     }
-
-    /*if(animacion != "estatica"){
-        $('#outer-circle').removeClass('oc-pulsing');
-        $('#inner-wave').addClass(animacion);
-    }else{
-        $('#outer-circle').addClass('oc-pulsing');
-    }*/
 }
 
 function generarCodigoForm(){
@@ -364,145 +317,100 @@ function aceptarPreferenciasA(){
 
 // Funcion que permite reproducir voz en base al texto
 async function hablar(texto) {
-    gestionarErrorVoz();
-
-    const speechChunks = makeCunksOfText(texto);
-    let indice = 0;
-
-    if(!$('#inner-wave').hasClass('iw-enabled')){
-        $('#inner-wave').addClass('iw-enabled');
-    }
-
-    utterance.onstart = function(){
-        clearTimeout(intervalo);
-        if(indice == 1){
-            if(ASISTENTE2D){
-                cambiaAnimacionAsistente("iw-speaking");
-            }else{
-                cambiaAnimacionAsistente("reproduciendo-asistente");
-            }
-            estadoAsistente = "detenido"
-        }
-    }
-
-    // Manejar el evento 'end' para liberar el speaking
-    utterance.onend = function() {
-        //clearTimeout(intervalo);
-        if(indice < speechChunks.length){
-            console.log("La reproducción del texto ha terminado.");
-            indice = voz(speechChunks[indice], indice);
-            /*if (speechChunks.length - 1 == indice) {
-                
-            }*/
-        }else{
-            gestionarErrorVoz();
-            console.log("El texto ha terminado de reproducirse.");
-            if(ASISTENTE2D){
-                cambiaAnimacionAsistente("estatica");
-            }else{
-                cambiaAnimacionAsistente("hablar-asistente");
-            }
-            estadoAsistente = "esperando";
-            
-            if(asistenteFinalizo){
-                $('#inner-wave').removeClass('iw-enabled');
-                guardarFormulario();
-                estadoAsistente = "detenido";
-            }
-        }
-        /*console.log("La reproducción del texto ha terminado.");
-        speakText("Este es un segundo texto reproducido tras terminar");*/
-    };
-
-    // Capturar errores de síntesis de voz
-    utterance.onerror = function(event) {
-        console.error('Error durante la síntesis de voz:', event.error);
-        clearTimeout(intervalo);
-
-        let err_ind = (indice <= 0) ? 0 : indice -1;
-        indice = voz(speechChunks[err_ind], err_ind);
-
-        /*if(indice < speechChunks.length){
-        }else{
-            gestionarErrorVoz();
-            console.log("El texto ha terminado de reproducirse.");
-        }*/
-        //speakText("Este es un segundo texto reproducido tras generar un error");
-    };
-
-    // Eventos adicionales para medir el estado de la sintesis de voz
-    utterance.onpause = (vBoundary) => {
-        console.log("Boundary event: " + vBoundary);
-    };
-
-    utterance.onboundary = (vPause) => {
-        console.log("Pause event: " + vPause);
-    };
+    if(synth.speaking){
+        cola_repro.push(texto);
+    }else{
+        gestionarErrorVoz();
     
-    utterance.onresume = (vResume) => {
-        console.log("Resume event: " + vResume);
-    };
-    utterance.onmark = (vMark) => {
-        console.log("Mark event: " + vMark);
-    };
-
-    indice = voz(speechChunks[indice], indice);
-    /*const speechChunks = makeCunksOfText(texto); //Fragmenta el texto y reproduce en cola. Evita la saturación de SpeechSynthesis
-    console.log(speechChunks);
-    if(!$('#inner-wave').hasClass('iw-enabled')){
-        $('#inner-wave').addClass('iw-enabled');
-    }
+        const speechChunks = makeCunksOfText(texto);
+        let indice = 0;
     
-    for (let i = 0; i < speechChunks.length; i++) {
-        await new Promise((resolve, reject) => {
-            synth.cancel();
-            utterance.text = speechChunks[i];
-            synth.speak(utterance);
-            utterance.onstart = () => {
-                if(i == 0){
+        if(!$('#inner-wave').hasClass('iw-enabled')){
+            $('#inner-wave').addClass('iw-enabled');
+        }
+    
+        utterance.onstart = function(){
+            clearTimeout(intervalo);
+            if(indice == 1){
+                if(ASISTENTE2D){
                     cambiaAnimacionAsistente("iw-speaking");
-                    estadoAsistente = "detenido"
+                }else{
+                    cambiaAnimacionAsistente("reproduciendo-asistente");
                 }
+                estadoAsistente = "detenido";
+                
+                let textType = document.getElementById('typeContenido');
+                let iTextChar = 0;
+
+                textType.textContent = "";
+                idInt = setInterval(() => {
+                    if (iTextChar < texto.length) {
+                        textType.textContent += texto.charAt(iTextChar);
+                        iTextChar++;
+                    }else{
+                        clearInterval(idInt);
+                    }
+                }, 55); // Cambia el tiempo de espera según la velocidad deseada
             }
-            utterance.onend = () => {
-                if (speechChunks.length - 1 == i) {
-                   cambiaAnimacionAsistente("estatica");
-                   estadoAsistente = "esperando";
-                   
+        }
+    
+        // Manejar el evento 'end' para liberar el speaking
+        utterance.onend = function() {
+            //clearTimeout(intervalo);
+            if(indice < speechChunks.length){
+                console.log("La reproducción del texto ha terminado.");
+                indice = voz(speechChunks[indice], indice);
+            }else{
+                if(cola_repro.length > 0){
+                    let nuevoMsg = cola_repro.shift();
+                    hablar(nuevoMsg);
+                }else{
+                    gestionarErrorVoz();
+                    console.log("El texto ha terminado de reproducirse.");
+                    if(ASISTENTE2D){
+                        cambiaAnimacionAsistente("estatica");
+                    }else{
+                        cambiaAnimacionAsistente("hablar-asistente");
+                    }
+                    estadoAsistente = "esperando";
+                    
                     if(asistenteFinalizo){
                         $('#inner-wave').removeClass('iw-enabled');
                         guardarFormulario();
                         estadoAsistente = "detenido";
                     }
                 }
-                resolve();
-            };
-            utterance.onerror = (error) => {
-                console.log(error);
-                resolve();
-            };
-
-            utterance.onpause = (vBoundary) => {
-                console.log("Boundary event: " + vBoundary);
-                //resolve();
-            };
-
-            utterance.onboundary = (vPause) => {
-                console.log("Pause event: " + vPause);
-                //resolve();
-            };
-            
-            utterance.onresume = (vResume) => {
-                console.log("Resume event: " + vResume);
-                //resolve();
-            };
-            utterance.onmark = (vMark) => {
-                console.log("Mark event: " + vMark);
-                //resolve();
-            };
-
-        });
-    }*/
+            }
+        };
+    
+        // Capturar errores de síntesis de voz
+        utterance.onerror = function(event) {
+            //Intentar ponerle la cola de reproduccion aqui tambien
+            console.error('Error durante la síntesis de voz:', event.error);
+            clearTimeout(intervalo);
+    
+            let err_ind = (indice <= 0) ? 0 : indice -1;
+            indice = voz(speechChunks[err_ind], err_ind);
+        };
+    
+        // Eventos adicionales para medir el estado de la sintesis de voz
+        utterance.onpause = (vBoundary) => {
+            console.log("Boundary event: " + vBoundary);
+        };
+    
+        utterance.onboundary = (vPause) => {
+            console.log("Pause event: " + vPause);
+        };
+        
+        utterance.onresume = (vResume) => {
+            console.log("Resume event: " + vResume);
+        };
+        utterance.onmark = (vMark) => {
+            console.log("Mark event: " + vMark);
+        };
+    
+        indice = voz(speechChunks[indice], indice);
+    }
 }
 
 function voz(texto, indice){
@@ -517,7 +425,7 @@ function voz(texto, indice){
 }
 
 function makeCunksOfText(text) {
-    const maxLength = 220; // entre 190 y 220
+    const maxLength = 200; // entre 190 y 220
     let speechChunks = [];
 
     // Split the text into chunks of maximum length maxLength without breaking words
@@ -587,20 +495,9 @@ function conversarAsistente(){
         if(respuesta['asis_funciones']){
             ejecutarFuncion(respuesta['asis_funciones']);
 
-        }else if(respuesta['respuesta_msg']){
-            let textType = document.getElementById('typeContenido');
+        }
+        if(respuesta['respuesta_msg']){
             let rMensaje = limpiarMensaje(respuesta['respuesta_msg'])
-            let iTextChar = 0;
-
-            textType.textContent = "";
-            idInt = setInterval(() => {
-                if (iTextChar < rMensaje.length) {
-                    textType.textContent += rMensaje.charAt(iTextChar);
-                    iTextChar++;
-                }else{
-                    clearInterval(idInt);
-                }
-            }, 55); // Cambia el tiempo de espera según la velocidad deseada
             hablar(rMensaje);
             conversacion.push({"role": "assistant", "content": rMensaje});
         }
@@ -609,18 +506,9 @@ function conversarAsistente(){
 
 //Aqui se iran agregando otros tipos de formateo para darle mas naturalidad al hablar el asistente
 function limpiarMensaje(mensaje){
-    let msg_limpio = mensaje.replace('**', ''); //Quita los doble asterisco del texto
-    return msg_limpio;
+    let sinasteriscos = mensaje.replaceAll('*', ''); //Quita los doble asterisco del texto
+    return sinasteriscos; //retorna el texto limpio
 }
-
-/*recognition.onend = () => {
-    //recognition.start();
-    btnStop.hide();
-    btnStart.show();
-    btnStart.attr("disabled", "true");
-    btnStop.attr("disabled", "true");
-    //cambiaAnimacionAsistente("iw-loading");
-};*/
 
 function toggleLoading(accion, mensaje=""){
     if(accion == 'mostrar'){
@@ -643,6 +531,11 @@ function abrirModalHistorialSintomas(){
 
 //Buscar paciente por numero de cedula
 function buscarPaciente() {
+    if(ASISTENTE2D){
+        cambiaAnimacionAsistente("iw-loading");
+    }else{
+        cambiaAnimacionAsistente("cargando-asistente");
+    }
     let cedula = document.getElementById('cedula').value;
     let fecha = document.getElementById('fecha_atencion').value;
 
@@ -658,7 +551,6 @@ function buscarPaciente() {
     })
     .then(response => response.json())
     .then(data => {
-        //toggleLoading('ocultar');
         asistenteFinalizo = false;
         if(data.code == 1){
             let paciente = data['datos']
@@ -842,9 +734,6 @@ async function ejecutarFuncion(asisFunciones){
     }
 
     for(let afuncion of asisFunciones){
-        //afuncion['funcion']
-        //afuncion['funcion_args'] = JSON.parse(afuncion['funcion_args']);
-        //console.log(afuncion);
         const activarFuncion = handleAFunciones[afuncion['funcion_name']];
 
         let rcontent = activarFuncion(afuncion);
@@ -879,32 +768,11 @@ function getSintomas(sintomas){
     let sintomasFinales = sFiltrados;
     if(fArgumentos['sfromgenero'] && fArgumentos['sfromgenero'].length > 0){
         sintomasFinales = [];
-        /*if(typeof(fArgumentos['sfromgenero']) == 'object'){
-            for(let sfg of fArgumentos['sfromgenero']){
-                for(let sfilt of sFiltrados){
-                    console.log(sfg);
-                    console.log(sfilt);
-                    if(!sfilt.includes(sfg)){
-                        sintomasFinales.push(sfilt);
-                    }
-                }
-            }
-        }else{
-            for(let sfilt of sFiltrados){
-                let sfg = fArgumentos['sfromgenero'];
-                console.log(sfg);
-                console.log(sfilt);
-                if(!sfilt.includes(sfg)){
-                    sintomasFinales.push(sfilt);
-                }
-            }
-        }*/
         for(let sfilt of sFiltrados){
             if(!fArgumentos['sfromgenero'].includes(sfilt)){
                 sintomasFinales.push(sfilt);
             }
         }
-        //sintomasFinales = sFiltrados.filter(s => !fArgumentos['sfromgenero'].includes(s));
         console.log("SinGenero => " + sintomasFinales);
 
     }
@@ -938,7 +806,8 @@ function getDiagnostico(respuesta){
 
 function getTratamiento(respuesta){
     let tratamiento = respuesta['funcion_args']['tratamiento'];
-    $('#tratamiento').val(tratamiento);
+    tratamientos.push(tratamiento);
+    $('#tratamiento').val(tratamientos.join('. '));
     $('#tratamiento').removeAttr('disabled');
     document.querySelector("#tratamiento").scrollIntoView({ behavior: 'smooth' });
     return JSON.stringify({success: true});
@@ -948,30 +817,10 @@ function finalizarAsistente(respuesta){
     let fArgumentos = respuesta['funcion_args'];
     console.log(fArgumentos);
 
-    //asistenteFinalizo = true;
-    //return JSON.stringify({success: true, extraMsg: "Preguntale al paciente que si desea guardar el formulario, lo puede hacer dando clic el botón de guardar o tambien pidiendotelo a ti."});
     return "Informale al paciente que puede guardar el formulario solicitandotelo a ti o si lo desea tambien puede hacerlo dando click en el botón.";
 }
 
 async function guardarxAsistente(respuesta){
-    /*let fArgumentos = respuesta['funcion_args'];
-    console.log(fArgumentos);
-    let data = await guardarFormulario();
-    let r;
-
-    if (data){
-        if(data.res == 1){
-            asistenteFinalizo = true;
-            r = JSON.stringify({success: true}); //Informale que se esta guardando el formulario
-        }else{
-            r = `Hubo un problema al guardar el formulario: ${data["contenido"]}`;
-        }
-    })
-    .catch(err => {
-        r = err;
-    });
-
-    return r;*/
     let fArgumentos = respuesta['funcion_args'];
     console.log(fArgumentos);
 

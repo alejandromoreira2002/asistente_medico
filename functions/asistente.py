@@ -51,7 +51,7 @@ def getFuncionesAsistente(codFuncs):
         "type": "function",
         "function":{
             "name": "get_tratamiento",
-            "description": "Devuelveme el tratamiento que debe seguir el paciente",
+            "description": str("En base al posible diagnostico " if '2' in codFuncs else "En base a los sintomas de la conversación ") + "devuelveme el tratamiento que debe seguir el paciente",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -111,6 +111,8 @@ def getFuncionesAsistente(codFuncs):
         funciones.append(tratamiento)
     
     funciones += [finalizar, guardado]
+
+    print(funciones)
 
     return funciones
 
