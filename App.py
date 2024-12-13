@@ -106,7 +106,7 @@ def modeloAvatar():
 
 @app.get(f'{URLInicial}/pacientes')
 def pacientesPage():
-    return render_template('pacientes.html')
+    return render_template('pacientes.html', isDev=isDev)
 
 @app.get('/admin')
 def indexAdmin():

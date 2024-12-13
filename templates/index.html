@@ -26,6 +26,9 @@
                 Debido a problemas con el navegador de <b>Chrome</b> con la sintesis de voz, es probable que exista un leve retraso en el habla del asistente.
             </p>
         </div>
+        <div class="cont_btn_abrir_form" id="cont_btn_abrir_form">
+            <button  data-bs-toggle="offcanvas" data-bs-target="#responsiveContainer" aria-controls="responsiveContainer" title="Abrir formulario"><i class="fa-solid fa-angles-right"></i></button>
+        </div>
         <div class="asistente">
             <h1 style="text-align:center">Iniciar Asistente Médico</h1>
             <div class="controles" id="controles">
@@ -45,178 +48,159 @@
                 </div>
             </div>
         </div>
-        <div class="formulario">
-            <div class="formulario-carga" id="formulario-carga" style="display: none;">
-                <div class="loadingio-spinner-ellipsis-2by998twmg8">
-                    <div class="ldio-yzaezf3dcmj">
-                        <div></div><div></div><div></div><div></div><div></div>
-                    </div>
-                </div>
-                <div class="mensaje-cargaf" id="mensaje-cargaf">
-                    <p>Cargando formulario...</p>
-                </div>
+        <div id="responsiveContainer" class="offcanvas-md offcanvas-start" tabindex="-1"
+            aria-labelledby="responsiveContainerLabel">
+            <div class="offcanvas-header d-flex justify-content-between pb-0" id="offcanvas_encabezado_portrait">
+                <h2 class="offcanvas-title" id="responsiveContainerLabel">Formulario Médico</h2>
+                <button class="mb-0 fs-2 btn btn-outline-secondary btn-sm" onclick="ocultarOffCanvas();"><i class="fa-solid fa-angles-left" aria-hidden="true"></i></button>
             </div>
-            <div style="width:100%;height:100%;overflow-y:scroll;">
-                <div class="container mt-5" id="formu_container">
-                    <h2 class="mb-4 text-center">Formulario Médico</h2>
-                    <div>
-                        <div class="row mt-2">
-                            <div class="form-group col-6 col-sm-5 row mb-3">
-                                <div class="col-12 col-sm-7">
-                                    <label for="cod-form">Cod. Formulario</label>
-                                </div>
-                                <div class="col-12 col-sm-5">
-                                    <input type="text" class="form-control" id="cod-form" placeholder="N° Form" disabled>
-                                </div>
-                            </div>
-                            <div class="form-group offset-1 col-6 offset-sm-2 col-sm-5 row mb-3">
-                                <div class="col-12 col-sm-auto">
-                                    <label for="fecha_atencion">Fecha de Atención</label>
-                                </div>
-                                <div class="col-12 col-sm-auto">
-                                    <input type="date" class="form-control" id="fecha_atencion" disabled>
-                                </div>
+            <div class="offcanvas-body" style="height:100%;">
+                <div class="formulario">
+                    <div class="formulario-carga" id="formulario-carga" style="display: none;">
+                        <div class="loadingio-spinner-ellipsis-2by998twmg8">
+                            <div class="ldio-yzaezf3dcmj">
+                                <div></div><div></div><div></div><div></div><div></div>
                             </div>
                         </div>
-                        <div class="mt-1">
-                            <h3 style="display: inline-block; margin-right:15px">Datos del Paciente</h3>
-                            {% if isDev %}
-                                <a href="/~dev/pacientes" style="text-decoration: underline;">Agregar pacientes</a>
-                            {% else %}
-                                <a href="/pacientes" style="text-decoration: underline;">Agregar pacientes</a>
-                            {% endif %}
+                        <div class="mensaje-cargaf" id="mensaje-cargaf">
+                            <p>Cargando formulario...</p>
                         </div>
-                        <div class="row mb-3">
-                            <div class="form-group col-12 col-sm-4">
-                                <input type="hidden" id="idPaciente" value=".">
-                                <label for="cedula">Cédula</label>
+                    </div>
+                    <div style="width:100%;height:100%;overflow-y:scroll;">
+                        <div class="container mt-5" id="formu_container">
+                            <h2 class="mb-4 text-center" id="offcanvas_encabezado_landscape">Formulario Médico</h2>
+                            <div>
+                                <div class="row mt-2">
+                                    <div class="form-group col-6 col-sm-5 row mb-3">
+                                        <div class="col-12 col-sm-7">
+                                            <label for="cod-form">Cod. Formulario</label>
+                                        </div>
+                                        <div class="col-12 col-sm-5">
+                                            <input type="text" class="form-control" id="cod-form" placeholder="N° Form" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="form-group offset-1 col-6 offset-sm-2 col-sm-5 row mb-3">
+                                        <div class="col-12 col-sm-auto">
+                                            <label for="fecha_atencion">Fecha Atención</label>
+                                        </div>
+                                        <div class="col-12 col-sm-auto">
+                                            <input type="date" class="form-control" id="fecha_atencion" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-1">
+                                    <h3 style="display: inline-block; margin-right:15px">Datos del Paciente</h3>
+                                    {% if isDev %}
+                                        <a href="/~dev/pacientes" style="text-decoration: underline;">Agregar pacientes</a>
+                                    {% else %}
+                                        <a href="/pacientes" style="text-decoration: underline;">Agregar pacientes</a>
+                                    {% endif %}
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="form-group col-12 col-sm-4 mb-3">
+                                        <input type="hidden" id="idPaciente" value=".">
+                                        <label for="cedula">Cédula</label>
+                                        <div class="row">
+                                            <div class="col-8">
+                                                <!--<input type="text" class="form-control col-auto" id="cedula" placeholder="Ingrese numero de cédula" disabled onchange="comprobarCampos(2)">-->
+                                                <input type="text" class="form-control col-auto" id="cedula" placeholder="Ingrese numero de cédula">
+                                            </div>
+                                            <div class="col-4">
+                                                <button class="btn btn-primary" id="btn-buscar" onclick="buscarPaciente()">Buscar</button>
+                                                <!--<button class="btn btn-primary" id="btn-buscar" onclick="buscarPaciente()" disabled>Buscar</button>-->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-12 col-sm-4 mb-3">
+                                        <label for="nombre">Nombres y Apellidos</label>
+                                        <input type="text" class="form-control" id="nombres" disabled onchange="comprobarCampos(2)">
+                                        <input type="hidden" class="form-control" id="genero" disabled>
+                                    </div>
+                                    <div class="form-group col-8 col-sm-2">
+                                        <label for="fechaNacimiento">Fecha Nacimiento</label>
+                                        <input type="date" class="form-control" id="fechaNacimiento" disabled onchange="comprobarCampos(2)">
+                                    </div>
+                                    <div class="form-group col-4 col-sm-2">
+                                        <label for="edad">Edad</label>
+                                        <input type="number" class="form-control" id="edad" disabled onchange="comprobarCampos(2)">
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="form-group col-6">
+                                        <label for="telefono">Número de Teléfono</label>
+                                        <input type="tel" class="form-control" id="telefono" disabled onchange="comprobarCampos(2)">
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label for="correo">Correo Personal</label>
+                                        <input type="email" class="form-control" id="correo" disabled onchange="comprobarCampos(2)">
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="form-group col-6">
+                                        <label for="ciudad">Ciudad</label>
+                                        <input type="text" class="form-control" id="ciudad" disabled onchange="comprobarCampos(2)">
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label for="direccion">Dirección</label>
+                                        <input type="text" class="form-control" id="direccion" disabled onchange="comprobarCampos(2)">
+                                    </div>
+                                </div>
+                                <h3>Datos de Consulta Médica</h3>
+                                <div class="row mb-3 mt-2">
+                                    <div class="form-group col-6">
+                                        <label for="peso">Peso</label>
+                                        <input type="text" class="form-control" id="peso" placeholder="Ingrese peso" disabled>
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label for="talla">Estatura</label>
+                                        <input type="text" class="form-control" id="talla" placeholder="Ingrese talla" disabled>
+                                    </div>
+                                </div>
+                                <label for="">Presión</label>
+                                <div class="row mb-3">
+                                    <div class="form-group row col-4">
+                                        <div class="col-auto">
+                                            <input type="text" class="form-control" id="p-sistolica" placeholder="Ingrese presión sistólica" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row col-4">
+                                        <div class="col-auto">
+                                            <input type="text" class="form-control" id="p-distolica" placeholder="Ingrese presión distólica" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="form-group col-6">
+                                        <label for="frecuencia-card">Frecuencia Cardiaca</label>
+                                        <input type="text" class="form-control" id="frecuencia-card" placeholder="Ingrese frecuencia cardiaca" disabled>
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label for="temperatura">Temperatura</label>
+                                        <input type="text" class="form-control" id="temperatura" placeholder="Ingrese temperatura" disabled>
+                                    </div>
+                                </div>
                                 <div class="row">
-                                    <div class="col-8">
-                                        <!--<input type="text" class="form-control col-auto" id="cedula" placeholder="Ingrese numero de cédula" disabled onchange="comprobarCampos(2)">-->
-                                        <input type="text" class="form-control col-auto" id="cedula" placeholder="Ingrese numero de cédula">
-                                    </div>
-                                    <div class="col-4">
-                                        <button class="btn btn-primary" id="btn-buscar" onclick="buscarPaciente()">Buscar</button>
-                                        <!--<button class="btn btn-primary" id="btn-buscar" onclick="buscarPaciente()" disabled>Buscar</button>-->
+                                    <div class="col-12 col-sm">
+                                        <h3>Sintomatología</h3>
+                                        <textarea class="form-control mt-2" id="sintomatologia" style="height:150px;margin-bottom: 10px;" disabled>
+        
+                                        </textarea>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="form-group col-12 col-sm-4">
-                                <label for="nombre">Nombres y Apellidos</label>
-                                <input type="text" class="form-control" id="nombres" disabled onchange="comprobarCampos(2)">
-                                <input type="hidden" class="form-control" id="genero" disabled>
-                            </div>
-                            <div class="form-group col-8 col-sm-2">
-                                <label for="fechaNacimiento">Fecha de Nacimiento</label>
-                                <input type="date" class="form-control" id="fechaNacimiento" disabled onchange="comprobarCampos(2)">
-                            </div>
-                            <div class="form-group col-4 col-sm-2">
-                                <label for="edad">Edad</label>
-                                <input type="number" class="form-control" id="edad" disabled onchange="comprobarCampos(2)">
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="form-group col-6">
-                                <label for="telefono">Número de Teléfono</label>
-                                <input type="tel" class="form-control" id="telefono" disabled onchange="comprobarCampos(2)">
-                            </div>
-                            <div class="form-group col-6">
-                                <label for="correo">Correo Personal</label>
-                                <input type="email" class="form-control" id="correo" disabled onchange="comprobarCampos(2)">
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="form-group col-6">
-                                <label for="ciudad">Ciudad</label>
-                                <input type="text" class="form-control" id="ciudad" disabled onchange="comprobarCampos(2)">
-                            </div>
-                            <div class="form-group col-6">
-                                <label for="direccion">Dirección</label>
-                                <input type="text" class="form-control" id="direccion" disabled onchange="comprobarCampos(2)">
-                            </div>
-                        </div>
-                        <h3>Datos de Consulta Médica</h3>
-                        <div class="row mb-3 mt-2">
-                            <div class="form-group col-6">
-                                <label for="peso">Peso</label>
-                                <input type="text" class="form-control" id="peso" placeholder="Ingrese peso" disabled>
-                            </div>
-                            <div class="form-group col-6">
-                                <label for="talla">Estatura</label>
-                                <input type="text" class="form-control" id="talla" placeholder="Ingrese talla" disabled>
-                            </div>
-                        </div>
-                        <label for="">Presión</label>
-                        <div class="row mb-3">
-                            <div class="form-group row col-4">
-                                <div class="col-auto">
-                                    <input type="text" class="form-control" id="p-sistolica" placeholder="Ingrese presión sistólica" disabled>
+                                <div class="row mb-3">
+                                    <div class="col-6 col-sm-4">
+                                        <button style="border:none;text-decoration:underline;color:cadetblue;" onclick="abrirModalHistorialSintomas()">Historial Sintomas</button>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group row col-4">
-                                <div class="col-auto">
-                                    <input type="text" class="form-control" id="p-distolica" placeholder="Ingrese presión distólica" disabled>
+                                <div class="row" style="justify-content:center;margin-bottom:10px">
+                                    <div class="col-3">
+                                        <button class="btn btn-primary col-12" id="btnGuardarForm" style="padding: 10px 0;" onclick="pedirGuardarForm()" disabled>Guardar</button>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="form-group col-6">
-                                <label for="frecuencia-card">Frecuencia Cardiaca</label>
-                                <input type="text" class="form-control" id="frecuencia-card" placeholder="Ingrese frecuencia cardiaca" disabled>
-                            </div>
-                            <div class="form-group col-6">
-                                <label for="temperatura">Temperatura</label>
-                                <input type="text" class="form-control" id="temperatura" placeholder="Ingrese temperatura" disabled>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12 col-sm">
-                                <h3>Sintomatología</h3>
-                                <textarea class="form-control mt-2" id="sintomatologia" style="height:150px;margin-bottom: 10px;" disabled>
-
-                                </textarea>
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-6 col-sm-4">
-                                <button style="border:none;text-decoration:underline;color:cadetblue;" onclick="abrirModalHistorialSintomas()">Historial Sintomas</button>
-                            </div>
-                        </div>
-                        <div class="row" style="justify-content:center;margin-bottom:10px">
-                            <div class="col-3">
-                                <button class="btn btn-primary col-12" id="btnGuardarForm" style="padding: 10px 0;" onclick="pedirGuardarForm()" disabled>Guardar</button>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div id="fondo_popups" style="display:none;position: absolute;width: 100vw; height: 100vh;background-color: rgba(0, 0, 0, 0.118); z-index: 499;">
-
-        </div>
-        <div class="collapse collapse-horizontal" id="sidebar_preferencias" style="position: absolute; top:0; right: 0; height: 100vh; width: 300px; z-index:500;">
-            <div class="card card-body" style="width: 300px;margin: 20px 0;">
-                <h3>Preferencias</h3>
-                <p>Elige las preferencias del asistente:</p>
-                <div class="form-check">
-                    <input class="form-check-input opc_preferencias" type="checkbox" value="1" id="pref_sintomas" name="opc_preferencias">
-                    <label class="form-check-label" for="pref_sintomas">
-                        Obtener sintomatologia
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input opc_preferencias" type="checkbox" value="2" id="pref_diagnostico" name="opc_preferencias">
-                    <label class="form-check-label" for="pref_diagnostico">
-                        Obtener diagnostico
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input opc_preferencias" type="checkbox" value="3" id="pref_tratamiento" name="opc_preferencias">
-                    <label class="form-check-label" for="pref_tratamiento">
-                        Obtener tratamiento
-                    </label>
-                </div>
-                <div class="d-flex justify-content-center"><button class="btn btn-primary" onclick="aceptarPreferenciasA()">Aceptar</button></div>
             </div>
         </div>
     </div>

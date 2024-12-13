@@ -24,8 +24,6 @@ class AsistenteControlador():
         if funciones:
             obj_funciones = [];
             for funcion in funciones:
-                print("Revisar aqui")
-                print(funcion)
                 argumentos = json.loads(funcion.function.arguments)
                 #json_args = json.loads(argumentos)
                 #print(argumentos)

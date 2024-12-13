@@ -207,21 +207,37 @@
             //Cancelacion del speaking actual como reinicio en caso de error
             gestionarErrorVoz();
 
-            if(/Android|iPhone|iPad/i.test(navigator.userAgent)){
-                let dev = document.getElementById('input_dev').value == 'True' ? '/~dev' : '';
-                location.href = `${dev}/asistente/3d?genero=no`;
-            }else if(/Macintosh/i.test(navigator.userAgent)){
-                toggleLoading('ocultar');
-                toggleLoading('mostrar', 'Buscando voces...');
-    
-                synth.addEventListener("voiceschanged", setearVoces());
+            if(navigator.platform){
+                if(/Linux|iPhone|iPad/i.test(navigator.platform)){
+                    let dev = document.getElementById('input_dev').value == 'True' ? '/~dev' : '';
+                    location.href = `${dev}/asistente/3d?genero=no`;
+                }else if(/Mac/i.test(navigator.platform)){
+                    toggleLoading('ocultar');
+                    toggleLoading('mostrar', 'Buscando voces...');
+        
+                    synth.addEventListener("voiceschanged", setearVoces());
+                }else{
+                    toggleLoading('ocultar');
+                    toggleLoading('mostrar', 'Buscando voces...');
+        
+                    synth.onvoiceschanged = setearVoces;
+                }
             }else{
-                toggleLoading('ocultar');
-                toggleLoading('mostrar', 'Buscando voces...');
-    
-                synth.onvoiceschanged = setearVoces;
+                if(/Android|iPhone|iPad/i.test(navigator.userAgent)){
+                    let dev = document.getElementById('input_dev').value == 'True' ? '/~dev' : '';
+                    location.href = `${dev}/asistente/3d?genero=no`;
+                }else if(/Macintosh/i.test(navigator.userAgent)){
+                    toggleLoading('ocultar');
+                    toggleLoading('mostrar', 'Buscando voces...');
+        
+                    synth.addEventListener("voiceschanged", setearVoces());
+                }else{
+                    toggleLoading('ocultar');
+                    toggleLoading('mostrar', 'Buscando voces...');
+        
+                    synth.onvoiceschanged = setearVoces;
+                }
             }
-
         });
 
         function setearVoces(){

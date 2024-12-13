@@ -41,10 +41,14 @@ if(window.SpeechSynthesis == undefined){
 
 if(!(location.pathname=='/asistente' || location.pathname=='/~dev/asistente')){
     if(!(localStorage.getItem('voz_masculino') && localStorage.getItem('voz_femenino'))){
-        if(!(/Android|iPhone|iPad/i.test(navigator.userAgent))) location.href = location.pathname;
+        if(navigator.platform){
+            if(!(/Linux|iPhone|iPad/i.test(navigator.platform))) location.href = location.pathname;
+        }else{
+            if(!(/Android|iPhone|iPad/i.test(navigator.userAgent))) location.href = location.pathname;
+        }
     }
-    $('#fondo_popups').show();
-    $('#sidebar_preferencias').collapse('show');
+    //$('#fondo_popups').show();
+    //$('#sidebar_preferencias').collapse('show');
 }
 
 generarCodigoForm();
@@ -52,7 +56,8 @@ generarCodigoForm();
 const infoAdicional = $('#result'); //No sirve para nada
 var estadoAsistente = "detenido"; // Guarda el estado en el que se encuentra el asistente
 var asistenteFinalizo = false; //verifica si se termina la conversacion con el asistente
-var preferencias = ['1']; //Guarda las preferencias (Sintomas, Diagnostico, Tratamiento) que elija el usuario
+var mostrandoResultados = false;
+var preferencias = ['1', '2', '3']; //Guarda las preferencias (Sintomas, Diagnostico, Tratamiento) que elija el usuario
 var conversacion = []; // Guardara el historial de conversacion
 var cola_repro = []; //Encola nuevas respuestas del asistente para ser reproducidas
 var tratamientos = []; //Crea una lista de tratamientos
@@ -139,6 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     //Seteo de voces segun el genero del asistente y ruta visitada
     if(location.pathname=='/asistente' || location.pathname=='/~dev/asistente'){
+        preferencias = ['1']; //Solo mostrara sintomas
         utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
         mostrarAdvertencia();
     }else{
@@ -147,21 +153,48 @@ document.addEventListener("DOMContentLoaded", () => {
         if(generoAsistente == 'no'){
             utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
         }else{
-            if(/Android|iPhone|iPad/i.test(navigator.userAgent)){
-                location.href = location.pathname + '?genero=no';
-            }else if(/Macintosh/i.test(navigator.userAgent)){
-                toggleLoading('mostrar', 'Buscando voces...');
-    
-                synth.addEventListener("voiceschanged", setearVoces());
+            if(navigator.platform){
+                if(/Linux|iPhone|iPad/i.test(navigator.platform)){
+                    location.href = location.pathname + '?genero=no';
+                }else if(/Mac/i.test(navigator.platform)){
+                    toggleLoading('mostrar', 'Buscando voces...');
+                    synth.addEventListener("voiceschanged", setearVoces());
+                }else{
+                    toggleLoading('mostrar', 'Buscando voces...');
+                    synth.onvoiceschanged = setearVoces;
+                }
             }else{
-                toggleLoading('mostrar', 'Buscando voces...');
-    
-                synth.onvoiceschanged = setearVoces;
+                if(/Android|iPhone|iPad/i.test(navigator.userAgent)){
+                    location.href = location.pathname + '?genero=no';
+                }else if(/Macintosh/i.test(navigator.userAgent)){
+                    toggleLoading('mostrar', 'Buscando voces...');
+        
+                    synth.addEventListener("voiceschanged", setearVoces());
+                }else{
+                    toggleLoading('mostrar', 'Buscando voces...');
+        
+                    synth.onvoiceschanged = setearVoces;
+                }
             }
         }
     }
-
 });
+
+function mostrarOffCanvas(){
+    const offcanvasElement = document.getElementById('responsiveContainer');
+    const offcanvasInstance = bootstrap.Offcanvas.getInstance(offcanvasElement) || new bootstrap.Offcanvas(offcanvasElement);
+
+    // Ocultar el offcanvas
+    offcanvasInstance.show();
+}
+
+function ocultarOffCanvas(){
+    const offcanvasElement = document.getElementById('responsiveContainer');
+    const offcanvasInstance = bootstrap.Offcanvas.getInstance(offcanvasElement) || new bootstrap.Offcanvas(offcanvasElement);
+
+    // Ocultar el offcanvas
+    offcanvasInstance.hide();
+}
 
 function setearVoces(){
     let generoAsistente = urlParams.get('genero');
@@ -332,6 +365,9 @@ async function hablar(texto) {
         utterance.onstart = function(){
             clearTimeout(intervalo);
             if(indice == 1){
+                if(!mostrandoResultados){
+                    ocultarOffCanvas();
+                }
                 if(ASISTENTE2D){
                     cambiaAnimacionAsistente("iw-speaking");
                 }else{
@@ -749,6 +785,8 @@ async function ejecutarFuncion(asisFunciones){
 }
 
 function getSintomas(sintomas){
+    mostrandoResultados = true;
+    mostrarOffCanvas();
     let fArgumentos = sintomas['funcion_args'];
     console.log(fArgumentos);
 
@@ -787,7 +825,11 @@ function getSintomas(sintomas){
         let sintomasgenero = (typeof(fArgumentos['sfromgenero']) == 'object') ? fArgumentos['sfromgenero'].join(',') : fArgumentos['sfromgenero'];
         return sintomasgenero + " no son sintomas que correspondan al genero " + genero;
     }else{
-        return JSON.stringify({success: true});
+        if(preferencias.length == 1 && preferencias.includes('1')){
+            return JSON.stringify({success: true});
+        }else{
+            return "En base a estos sintomas devuelve diagnosticos.";
+        }
     }
 }
 
@@ -797,14 +839,18 @@ function getSintomasxGenero(sintomas){
 }
 
 function getDiagnostico(respuesta){
+    mostrandoResultados = true;
+    mostrarOffCanvas();
     let diagnostico = respuesta['funcion_args']['diagnosticos'].join(', ');
     $('#diagnostico').val(diagnostico);
     $('#diagnostico').removeAttr('disabled');
     document.querySelector("#diagnostico").scrollIntoView({ behavior: 'smooth' });
-    return JSON.stringify({success: true});
+    return "En base a los sintomas y al diagnostico, devuelve tratamientos.";
 }
 
 function getTratamiento(respuesta){
+    mostrandoResultados = true;
+    mostrarOffCanvas();
     let tratamiento = respuesta['funcion_args']['tratamiento'];
     tratamientos.push(tratamiento);
     $('#tratamiento').val(tratamientos.join('. '));

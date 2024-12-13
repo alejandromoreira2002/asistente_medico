@@ -36,7 +36,7 @@ class AsistenteModelo():
             top_p=1
         )
         respuesta = response.choices[0].message
-        print(response.choices[0])
+        #print(response.choices[0])
         return {
             'respuesta': respuesta,
             'respuesta_msg': respuesta.content,

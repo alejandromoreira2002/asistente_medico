@@ -95,9 +95,15 @@
                             </div>
                         </div>
                         <div class="row justify-content-center">
-                            <div class="col-5 col-sm-3">
-                                <button class="btn btn-light col-12" id="btnRegresar" style="padding: 10px 0" onclick="location.href='/'">Ir al Asistente</button>
-                            </div>
+                            {% if isDev %}
+                                <div class="col-5 col-sm-3">
+                                    <button class="btn btn-light col-12" id="btnRegresar" style="padding: 10px 0" onclick="location.href='/~dev/'">Ir al Asistente</button>
+                                </div>
+                            {% else %}
+                                <div class="col-5 col-sm-3">
+                                    <button class="btn btn-light col-12" id="btnRegresar" style="padding: 10px 0" onclick="location.href='/'">Ir al Asistente</button>
+                                </div>
+                            {% endif %}
                             <div class="col-5 col-sm-3">
                                 <button class="btn btn-primary col-12" id="btnGuardarPac" style="padding: 10px 0;" onclick="registrarPaciente()" disabled>Guardar</button>
                             </div>

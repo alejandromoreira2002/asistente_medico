@@ -34,6 +34,12 @@
         <div class="cont_btn_back">
             <button onclick="location.href=location.pathname" title="Selector de asistentes"><i class="fa-solid fa-arrow-left"></i></button>
         </div>
+        <div class="cont_btn_abrir_form" id="cont_btn_abrir_form">
+            <button  data-bs-toggle="offcanvas" data-bs-target="#responsiveContainer" aria-controls="responsiveContainer" title="Abrir formulario"><i class="fa-solid fa-angles-right"></i></button>
+        </div>
+        <!--<button class="cont_btn_abrir_form" id="cont_btn_abrir_form" title="Abrir formulario" onclick="mostrarOffCanvas()">
+            <div><i class="fa-solid fa-angles-right"></i></div>
+        </button>-->
         {% if asistente.genero == "no" %}
             <div class="asistente">
                 <h1 style="text-align:center">Iniciar Asistente Médico</h1>
@@ -79,139 +85,149 @@
                 </iframe>
             </div>
         {% endif %}
-        <div class="formulario">
-            <div class="formulario-carga" id="formulario-carga" style="display: none;">
-                <div class="loadingio-spinner-ellipsis-2by998twmg8">
-                    <div class="ldio-yzaezf3dcmj">
-                        <div></div><div></div><div></div><div></div><div></div>
-                    </div>
-                </div>
-                <div class="mensaje-cargaf" id="mensaje-cargaf">
-                    <p>Cargando formulario...</p>
-                </div>
-            </div>
-            <div style="width:100%;height:100%;overflow-y:scroll;">
-                <div class="container mt-5" id="formu_container">
-                    <h2 class="mb-4 text-center">Formulario Médico</h2>
-                    <div>
-                        <div class="row mt-2">
-                            <div class="form-group col-6 col-sm-5 row mb-3">
-                                <div class="col-12 col-sm-7">
-                                    <label for="cod-form">Cod. Formulario</label>
-                                </div>
-                                <div class="col-12 col-sm-5">
-                                    <input type="text" class="form-control" id="cod-form" placeholder="N° Form" disabled>
-                                </div>
-                            </div>
-                            <div class="form-group offset-1 col-6 offset-sm-2 col-sm-5 row mb-3">
-                                <div class="col-12 col-sm-auto">
-                                    <label for="fecha_atencion">Fecha de Atención</label>
-                                </div>
-                                <div class="col-12 col-sm-auto">
-                                    <input type="date" class="form-control" id="fecha_atencion" disabled>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-1">
-                            <h3 style="display: inline-block; margin-right:15px">Datos del Paciente</h3>
-                            {% if isDev %}
-                                <a href="/~dev/pacientes" style="text-decoration: underline;">Agregar pacientes</a>
-                            {% else %}
-                                <a href="/pacientes" style="text-decoration: underline;">Agregar pacientes</a>
-                            {% endif %}
-                        </div>
-                        <div class="row mb-3">
-                            <div class="form-group col-12 col-sm-4">
-                                <input type="hidden" id="idPaciente" value=".">
-                                <label for="cedula">Cédula</label>
-                                <div class="row">
-                                    <div class="col-8">
-                                        <input type="text" class="form-control col-auto" id="cedula" placeholder="Ingrese numero de cédula">
-                                    </div>
-                                    <div class="col-4">
-                                        <button class="btn btn-primary" id="btn-buscar" onclick="buscarPaciente()">Buscar</button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group col-12 col-sm-4">
-                                <label for="nombre">Nombres y Apellidos</label>
-                                <input type="text" class="form-control" id="nombres" disabled onchange="comprobarCampos(2)">
-                                <input type="hidden" class="form-control" id="genero" disabled>
-                            </div>
-                            <div class="form-group col-8 col-sm-2">
-                                <label for="fechaNacimiento">Fecha de Nacimiento</label>
-                                <input type="date" class="form-control" id="fechaNacimiento" disabled onchange="comprobarCampos(2)">
-                            </div>
-                            <div class="form-group col-4 col-sm-2">
-                                <label for="edad">Edad</label>
-                                <input type="number" class="form-control" id="edad" disabled onchange="comprobarCampos(2)">
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="form-group col-6">
-                                <label for="telefono">Número de Teléfono</label>
-                                <input type="tel" class="form-control" id="telefono" disabled onchange="comprobarCampos(2)">
-                            </div>
-                            <div class="form-group col-6">
-                                <label for="correo">Correo Personal</label>
-                                <input type="email" class="form-control" id="correo" disabled onchange="comprobarCampos(2)">
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="form-group col-6">
-                                <label for="ciudad">Ciudad</label>
-                                <input type="text" class="form-control" id="ciudad" disabled onchange="comprobarCampos(2)">
-                            </div>
-                            <div class="form-group col-6">
-                                <label for="direccion">Dirección</label>
-                                <input type="text" class="form-control" id="direccion" disabled onchange="comprobarCampos(2)">
-                            </div>
-                        </div>
-                        <h3>Datos de Consulta Médica</h3>
-                        <div class="row d-flex justify-content-center align-items-center mb-3">
-                            <button type="button" class="btn btn-light" style="width:235px;" onclick="$('#modalDatosConsulta').modal('show');">Mostrar Información</button>
-                        </div>
-                        <div class="row">
-                            <div class="col-12 col-sm" style="display: none;">
-                                <h3>Sintomatología</h3>
-                                <textarea class="form-control mt-2" id="sintomatologia" style="height:150px;margin-bottom: 10px;" disabled>
         
-                                </textarea>
-                                <div class="row col-12 mb-3" id="cont_btn_hs_movil">
-                                    <div class="col-6 col-sm-4">
-                                        <button style="border:none;text-decoration:underline;color:cadetblue;" onclick="abrirModalHistorialSintomas()"">Historial Sintomas</button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-sm" style="display: none;">
-                                <h3>Diagnóstico</h3>
-                                <textarea class="form-control mt-2" id="diagnostico" style="height:150px;margin-bottom: 10px;" disabled>
-        
-                                </textarea>
-                            </div>
-                            <div class="col-12 col-sm" style="display: none;">
-                                <h3>Tratamiento</h3>
-                                <textarea class="form-control mt-2" id="tratamiento" style="height:150px;margin-bottom: 10px;" disabled>
-        
-                                </textarea>
-                            </div>
-                        </div>
-                        <div class="row mb-3" id="cont_btn_hs_pc">
-                            <div class="col-6 col-sm-4">
-                                <button style="border:none;text-decoration:underline;color:cadetblue;" onclick="abrirModalHistorialSintomas()">Historial Sintomas</button>
-                            </div>
-                        </div>
-                        <div class="row" style="justify-content:center;margin-bottom:10px">
-                            <div class="col-5 col-sm-3">
-                                <button class="btn btn-primary col-12" id="btnGuardarForm" style="padding: 10px 0;" onclick="pedirGuardarForm()" title="Guardar el formulario" disabled>Guardar</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div id="fondo_popups" style="display:none;position: absolute;width: 100vw; height: 100vh;background-color: rgba(0, 0, 0, 0.118); z-index: 499;">
-
+            
+        </div>
+        <div id="responsiveContainer" class="offcanvas-md offcanvas-start" tabindex="-1"
+            aria-labelledby="responsiveContainerLabel">
+            <div class="offcanvas-header d-flex justify-content-between pb-0" id="offcanvas_encabezado_portrait">
+                <h2 class="offcanvas-title" id="responsiveContainerLabel">Formulario Médico</h2>
+                <button class="mb-0 fs-2 btn btn-outline-secondary btn-sm" onclick="ocultarOffCanvas();"><i class="fa-solid fa-angles-left" aria-hidden="true"></i></button>
+            </div>
+            <div class="offcanvas-body" style="height:100%;">
+                <div class="formulario">
+                    <div class="formulario-carga" id="formulario-carga" style="display: none;">
+                        <div class="loadingio-spinner-ellipsis-2by998twmg8">
+                            <div class="ldio-yzaezf3dcmj">
+                                <div></div><div></div><div></div><div></div><div></div>
+                            </div>
+                        </div>
+                        <div class="mensaje-cargaf" id="mensaje-cargaf">
+                            <p>Cargando formulario...</p>
+                        </div>
+                    </div>
+                    <div style="width:100%;height:100%;overflow-y:scroll;">
+                        <div class="container mt-5" id="formu_container">
+                            <h2 class="mb-4 text-center" id="offcanvas_encabezado_landscape">Formulario Médico</h2>
+                            <div>
+                                <div class="row mt-2">
+                                    <div class="form-group col-6 col-sm-5 row mb-3">
+                                        <div class="col-12 col-sm-7">
+                                            <label for="cod-form">Cod. Formulario</label>
+                                        </div>
+                                        <div class="col-12 col-sm-5">
+                                            <input type="text" class="form-control" id="cod-form" placeholder="N° Form" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="form-group offset-1 col-6 offset-sm-2 col-sm-5 row mb-3">
+                                        <div class="col-12 col-sm-auto">
+                                            <label for="fecha_atencion">Fecha Atención</label>
+                                        </div>
+                                        <div class="col-12 col-sm-auto">
+                                            <input type="date" class="form-control" id="fecha_atencion" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-1">
+                                    <h3 style="display: inline-block; margin-right:15px">Datos del Paciente</h3>
+                                    {% if isDev %}
+                                        <a href="/~dev/pacientes" style="text-decoration: underline;">Agregar pacientes</a>
+                                    {% else %}
+                                        <a href="/pacientes" style="text-decoration: underline;">Agregar pacientes</a>
+                                    {% endif %}
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="form-group col-12 col-sm-4 mb-3">
+                                        <input type="hidden" id="idPaciente" value=".">
+                                        <label for="cedula">Cédula</label>
+                                        <div class="row">
+                                            <div class="col-8">
+                                                <input type="text" class="form-control col-auto" id="cedula" placeholder="Ingrese numero de cédula">
+                                            </div>
+                                            <div class="col-4">
+                                                <button class="btn btn-primary" id="btn-buscar" onclick="buscarPaciente()">Buscar</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-12 col-sm-4 mb-3">
+                                        <label for="nombre">Nombres y Apellidos</label>
+                                        <input type="text" class="form-control" id="nombres" disabled onchange="comprobarCampos(2)">
+                                        <input type="hidden" class="form-control" id="genero" disabled>
+                                    </div>
+                                    <div class="form-group col-8 col-sm-2">
+                                        <label for="fechaNacimiento">Fecha Nacimiento</label>
+                                        <input type="date" class="form-control" id="fechaNacimiento" disabled onchange="comprobarCampos(2)">
+                                    </div>
+                                    <div class="form-group col-4 col-sm-2">
+                                        <label for="edad">Edad</label>
+                                        <input type="number" class="form-control" id="edad" disabled onchange="comprobarCampos(2)">
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="form-group col-6">
+                                        <label for="telefono">Número de Teléfono</label>
+                                        <input type="tel" class="form-control" id="telefono" disabled onchange="comprobarCampos(2)">
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label for="correo">Correo Personal</label>
+                                        <input type="email" class="form-control" id="correo" disabled onchange="comprobarCampos(2)">
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="form-group col-6">
+                                        <label for="ciudad">Ciudad</label>
+                                        <input type="text" class="form-control" id="ciudad" disabled onchange="comprobarCampos(2)">
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label for="direccion">Dirección</label>
+                                        <input type="text" class="form-control" id="direccion" disabled onchange="comprobarCampos(2)">
+                                    </div>
+                                </div>
+                                <h3>Datos de Consulta Médica</h3>
+                                <div class="row d-flex justify-content-center align-items-center mb-3">
+                                    <button type="button" class="btn btn-light" style="width:235px;" onclick="$('#modalDatosConsulta').modal('show');">Mostrar Información</button>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 col-sm">
+                                        <h3>Sintomatología</h3>
+                                        <textarea class="form-control mt-2" id="sintomatologia" style="height:150px;margin-bottom: 10px;" disabled>
+                
+                                        </textarea>
+                                        <div class="row col-12 mb-3" id="cont_btn_hs_movil">
+                                            <div class="col-6 col-sm-4">
+                                                <button style="border:none;text-decoration:underline;color:cadetblue;" onclick="abrirModalHistorialSintomas()"">Historial Sintomas</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm">
+                                        <h3>Diagnóstico</h3>
+                                        <textarea class="form-control mt-2" id="diagnostico" style="height:150px;margin-bottom: 10px;" disabled>
+                
+                                        </textarea>
+                                    </div>
+                                    <div class="col-12 col-sm">
+                                        <h3>Tratamiento</h3>
+                                        <textarea class="form-control mt-2" id="tratamiento" style="height:150px;margin-bottom: 10px;" disabled>
+                
+                                        </textarea>
+                                    </div>
+                                </div>
+                                <div class="row mb-3" id="cont_btn_hs_pc">
+                                    <div class="col-6 col-sm-4">
+                                        <button style="border:none;text-decoration:underline;color:cadetblue;" onclick="abrirModalHistorialSintomas()">Historial Sintomas</button>
+                                    </div>
+                                </div>
+                                <div class="row" style="justify-content:center;margin-bottom:10px">
+                                    <div class="col-5 col-sm-3">
+                                        <button class="btn btn-primary col-12" id="btnGuardarForm" style="padding: 10px 0;" onclick="pedirGuardarForm()" title="Guardar el formulario" disabled>Guardar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="collapse collapse-horizontal" id="sidebar_preferencias" style="position: absolute; top:0; right: 0; height: 100vh; width: 300px; z-index:500;">
             <div class="card card-body" style="width: 300px;margin: 20px 0;">
@@ -319,7 +335,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>-->
     {% if isDev %}
         <script src="../../../static/scripts/global.js"></script>
         <script src="../../../static/scripts/script.js"></script>
