@@ -440,40 +440,10 @@
         position: relative;
     }
 
-    /*.controles{
-        top: auto !important;
-        bottom: 0 !important;
-    }
-
-    .container-icon{
-        height: 80px;
-        width: 80px;
-    }
-
-    .iw-enabled{
-        width: 55px;
-        height:55px;
-        cursor: pointer;
-    }*/
-
     .contenedor-typing{
         width: 70% !important;
-        /*bottom: 125px !important;*/
     }
-
-    /*.ct-appear{
-        height: 99px;
-    }
-
-    .ft-2d{
-        top: -1px;
-        height: 102%;
-    }
-
-    .texto-type{
-        font-size: 12px;
-    }*/
-
+    
     .formulario{
         position: relative;
         height: 100%;

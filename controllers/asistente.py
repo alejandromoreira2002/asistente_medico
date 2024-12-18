@@ -12,8 +12,8 @@ class AsistenteControlador():
             "sintomas": str(sintomas.replace('síntomas: ', ''))
         }
     
-    def getRespuesta(self, paciente, mensajes, compMsgs, genero):
-        respuesta = self.modelo.getRespuesta(paciente, mensajes, compMsgs)
+    def getRespuesta(self, codigoSesion, paciente, mensajes, compMsgs, genero):
+        respuesta = self.modelo.getRespuesta(codigoSesion, paciente, mensajes, compMsgs)
         respuesta_msg = respuesta['respuesta_msg']
         funciones = respuesta['asis_funciones']
 
@@ -27,7 +27,7 @@ class AsistenteControlador():
                 argumentos = json.loads(funcion.function.arguments)
                 #json_args = json.loads(argumentos)
                 #print(argumentos)
-                if(funcion.function.name == 'get_sintomas'):
+                if(genero != "" and funcion.function.name == 'get_sintomas'):
                     nFiltrados = self.modelo.filtrarSintomasxGenero(argumentos, genero)
                     resnfilt = json.loads(nFiltrados)
                     argumentos['nuevos'] = resnfilt['otros'] if 'otros' in resnfilt else []

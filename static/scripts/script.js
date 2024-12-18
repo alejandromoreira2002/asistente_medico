@@ -54,9 +54,10 @@ if(!(location.pathname=='/asistente' || location.pathname=='/~dev/asistente')){
 generarCodigoForm();
 
 const infoAdicional = $('#result'); //No sirve para nada
-var estadoAsistente = "detenido"; // Guarda el estado en el que se encuentra el asistente
+var estadoAsistente = "inicial"; // Guarda el estado en el que se encuentra el asistente
 var asistenteFinalizo = false; //verifica si se termina la conversacion con el asistente
 var mostrandoResultados = false;
+var cedulaxvoz = false;
 var preferencias = ['1', '2', '3']; //Guarda las preferencias (Sintomas, Diagnostico, Tratamiento) que elija el usuario
 var conversacion = []; // Guardara el historial de conversacion
 var cola_repro = []; //Encola nuevas respuestas del asistente para ser reproducidas
@@ -139,6 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
     synth = window.speechSynthesis;
 
     gestionarErrorVoz();
+    mostrarAdvertencia();
 
 
 
@@ -146,12 +148,17 @@ document.addEventListener("DOMContentLoaded", () => {
     if(location.pathname=='/asistente' || location.pathname=='/~dev/asistente'){
         preferencias = ['1']; //Solo mostrara sintomas
         utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
-        mostrarAdvertencia();
+        $('#inner-wave').addClass('iw-enabled');
+        cambiaAnimacionAsistente('estatica');
+        //inicializarAsistente();
     }else{
         let generoAsistente = urlParams.get('genero');
 
         if(generoAsistente == 'no'){
             utterance.lang = 'es-ES' || 'es-MX' || 'es-US' || 'en-US';
+            $('#inner-wave').addClass('iw-enabled');
+            cambiaAnimacionAsistente("estatica");
+            //inicializarAsistente();
         }else{
             if(navigator.platform){
                 if(/Linux|iPhone|iPad/i.test(navigator.platform)){
@@ -180,20 +187,69 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-function mostrarOffCanvas(){
-    const offcanvasElement = document.getElementById('responsiveContainer');
-    const offcanvasInstance = bootstrap.Offcanvas.getInstance(offcanvasElement) || new bootstrap.Offcanvas(offcanvasElement);
+function inicializarAsistente(){
+    if(ASISTENTE2D){
+        cambiaAnimacionAsistente("iw-loading");
+    }else{
+        cambiaAnimacionAsistente("cargando-asistente");
+    }
+    let codigoSesion = localStorage.getItem('codigoSesion');
 
-    // Ocultar el offcanvas
-    offcanvasInstance.show();
+    const formData = new FormData();
+    formData.append('codfuncs', preferencias);
+    formData.append('codigoSesion', codigoSesion ? codigoSesion : '');
+    //formData.append('mensaje', msgInicial);
+
+    toggleLoading('mostrar', 'Inicializando asistente...');
+
+    fetch('/inicializar', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        toggleLoading('ocultar');
+        if(data.res == 1){
+            localStorage.setItem('codigoSesion', data.codigo);
+        }
+        let msgInicial = {"role": "user", "content": "Pidele al usuario que te de su numero de cedula."}
+        conversacion.push(msgInicial);
+        conversarAsistente();
+    });
+}
+
+function generarCadenaAleatoria(longitud = 5) {
+    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let resultado = '';
+
+    for (let i = 0; i < longitud; i++) {
+        const indiceAleatorio = Math.floor(Math.random() * caracteres.length);
+        resultado += caracteres.charAt(indiceAleatorio);
+    }
+
+    return resultado;
+}
+
+function mostrarOffCanvas(){
+    let elOffCvs = $('#offcanvas_encabezado_portrait');
+
+    if(elOffCvs.css("display") == 'flex'){
+        const offcanvasElement = document.getElementById('responsiveContainer');
+        const offcanvasInstance = bootstrap.Offcanvas.getInstance(offcanvasElement) || new bootstrap.Offcanvas(offcanvasElement);
+    
+        offcanvasInstance.show();
+    }
 }
 
 function ocultarOffCanvas(){
-    const offcanvasElement = document.getElementById('responsiveContainer');
-    const offcanvasInstance = bootstrap.Offcanvas.getInstance(offcanvasElement) || new bootstrap.Offcanvas(offcanvasElement);
+    let elOffCvs = $('#offcanvas_encabezado_portrait');
 
-    // Ocultar el offcanvas
-    offcanvasInstance.hide();
+    if(elOffCvs.css("display") == 'flex'){
+        const offcanvasElement = document.getElementById('responsiveContainer');
+        const offcanvasInstance = bootstrap.Offcanvas.getInstance(offcanvasElement) || new bootstrap.Offcanvas(offcanvasElement);
+    
+        offcanvasInstance.hide();
+    }
 }
 
 function setearVoces(){
@@ -206,6 +262,16 @@ function setearVoces(){
     utterance.voice = voces.find(voz => voz.voiceURI === localStorage.getItem(`voz_${generoAsistente}`));
     utterance.rate = (generoAsistente == 'femenino' && utterance.voice.voiceURI.includes('Google')) ? 1.2 : 1;
     console.log(localStorage.getItem(`voz_${generoAsistente}`));
+    if(ASISTENTE2D){
+        $('#inner-wave').addClass('iw-enabled');
+        cambiaAnimacionAsistente("estatica");
+    }else{
+        cambiaAnimacionAsistente("inicializar-asistente");
+        $('#inner-wave').addClass('oc-pulsing');
+    }
+    //inicializarAsistente();
+    /*estadoAsistente = "esperando";
+    toggleEscucha();*/
 }
 
 function mostrarAdvertencia(){
@@ -423,10 +489,17 @@ async function hablar(texto) {
         utterance.onerror = function(event) {
             //Intentar ponerle la cola de reproduccion aqui tambien
             console.error('Error durante la síntesis de voz:', event.error);
-            clearTimeout(intervalo);
-    
-            let err_ind = (indice <= 0) ? 0 : indice -1;
-            indice = voz(speechChunks[err_ind], err_ind);
+            if(event.error == 'not-allowed'){
+                let err_ind = (indice <= 0) ? 0 : indice -1;
+                setTimeout(()=> {
+                    indice = voz(speechChunks[err_ind], err_ind);
+                }, 3000);
+            }else{
+                clearTimeout(intervalo);
+        
+                let err_ind = (indice <= 0) ? 0 : indice -1;
+                indice = voz(speechChunks[err_ind], err_ind);
+            }
         };
     
         // Eventos adicionales para medir el estado de la sintesis de voz
@@ -455,6 +528,7 @@ function voz(texto, indice){
     }, TIEMPO_CORTE * 1000);
 
     utterance.text = texto;
+    console.log(utterance.text);
     synth.speak(utterance);
 
     return indice + 1;
@@ -501,6 +575,8 @@ function toggleEscucha(){
         iniciarEscucha();
     }else if(estadoAsistente == "escuchando"){
         detenerEscucha();
+    }else if(estadoAsistente == "inicial"){
+        inicializarAsistente();
     }
 }
 
@@ -514,9 +590,15 @@ function detenerEscucha(){
 
 // hace posible la conversacion con el asistente
 function conversarAsistente(){
+    let genero = "";
+    if($("#genero").val()=='M'){
+        genero = "Masculino";
+    }else if($("#genero").val()=='F'){
+        genero = "Femenino";
+    }
     const formData = new FormData();
     formData.append('mensaje', JSON.stringify(conversacion));
-    formData.append('genero', $("#genero").val()=='M'?"Masculino":"Femenino");
+    formData.append('genero', genero); //cambiar a solo recoger por sesion en /pacientes
     console.log(conversacion);
     fetch('/conversar', {
         method: 'POST',
@@ -589,6 +671,10 @@ function buscarPaciente() {
     .then(data => {
         asistenteFinalizo = false;
         if(data.code == 1){
+            conversacion = [];
+            if(cedulaxvoz){
+                cedulaxvoz = false;
+            }
             let paciente = data['datos']
             cargarDatosPacientes(paciente);
 
@@ -601,8 +687,15 @@ function buscarPaciente() {
 
             cargarHistorialSintomas(cedula, paciente['nombres']);
         }else{
-            $('#btn-buscar').removeAttr('disabled');
-            Swal.fire('Error', 'No hay pacientes con ese número de cedula', 'error');
+            if(cedulaxvoz){
+                cedulaxvoz = false;
+                conversacion.push({'role': 'assistant', 'content': "No se pudo encontrar al usuario con cedula " + cedula});
+                conversacion.push({'role': 'user', 'content': "Mencionale al usuario que no se pudo encontrar al paciente con el numero de cedula proporcionado"});
+                conversarAsistente();
+            }else{
+                $('#btn-buscar').removeAttr('disabled');
+                Swal.fire('Error', 'No hay pacientes con ese número de cedula', 'error');
+            }
         }
     })
     .catch(err => {
@@ -761,6 +854,7 @@ function formatearFecha(date){
 async function ejecutarFuncion(asisFunciones){
     console.log(asisFunciones);
     let handleAFunciones = {
+        'get_cedula': getCedula,
         'get_sintomas': getSintomas,
         'sfromgenero': getSintomasxGenero,
         'get_diagnostico': getDiagnostico,
@@ -782,6 +876,17 @@ async function ejecutarFuncion(asisFunciones){
         conversacion.push(respuestaF);
     }
     conversarAsistente();
+}
+
+function getCedula(respuesta){
+    let cedula = respuesta['funcion_args']['cedula'];
+    $('#cedula').val(cedula);
+    cedulaxvoz = true;
+    setTimeout(() => {
+        $('#btn-buscar').trigger('click');
+    }, 5000);
+    //document.querySelector("#diagnostico").scrollIntoView({ behavior: 'smooth' });
+    return "Mencionale al usuario que ya se esta buscando los datos del paciente en el sistema";
 }
 
 function getSintomas(sintomas){

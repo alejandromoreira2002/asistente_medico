@@ -7,7 +7,7 @@ from controllers.chats import ChatControlador
 from controllers.usuario import UsuarioControlador
 #from functions.functions import encriptar
 from functions.functions import generarCodigoAleatorio
-from functions.asistente import getMensajeSistema
+from functions.asistente import getMensajeSistema, getMensajeSistemaInicial
 from datetime import timedelta
 import logging
 import json
@@ -223,6 +223,30 @@ def consultaContenidoChat():
         #print(chat)
         return jsonify(chat)
 
+@app.post('/inicializar')
+def iniciarAsistente():
+    global compMsgs
+    codfuncs = request.form['codfuncs'].split(',') if request.form['codfuncs'] else ['1']
+    codigo = request.form['codigoSesion']
+    res = {'res': 0}
+    if codigo == '':
+        existeCodigo = 1
+        while(existeCodigo):
+            codigo = generarCodigoAleatorio(5)
+            existeCodigo = 1 if len(list(filter(lambda x: x['codigoSesion'] == codigo, compMsgs))) > 0 else 0
+        res = {'res': 1, 'codigo': codigo}
+    #print(codigo)
+    session['codigo'] = ""
+    session['codigoSesion'] = codigo
+    session['user'] = "."
+    session['codfuncs'] = codfuncs
+    tmpMensaje = getMensajeSistemaInicial(codfuncs)
+    session['mensajes'] = tmpMensaje
+    #historialControl.insertarChat(tmpMensaje, codigo, cedula, fecha)
+    compMsgs = list(filter(lambda x: x['codigoSesion'] != codigo, compMsgs))
+        #print(compMsgs)
+    return jsonify(res)
+
 @app.post('/paciente')
 def getPaciente():
     global compMsgs
@@ -247,16 +271,9 @@ def getPaciente():
         tmpMensaje = getMensajeSistema(codfuncs)
         session['mensajes'] = tmpMensaje
         historialControl.insertarChat(tmpMensaje, codigo, cedula, fecha)
-        compMsgs = list(filter(lambda x: x['paciente'] != cedula, compMsgs))
+        compMsgs = list(filter(lambda x: x['paciente'] != cedula and x['codigoSesion'] != session.get('codigoSesion'), compMsgs))
         #print(compMsgs)
     return jsonify(paciente)
-
-@app.get('/prueba/paciente')
-def getPruebaPaciente():
-    controlador = PacientesControlador()
-    paciente = controlador.getPaciente('1316307618')
-    #print(paciente)
-    return jsonify({'paciente': paciente})
 
 @app.post('/paciente/verificar')
 def existePaciente():
@@ -308,18 +325,19 @@ def getRespuesta():
     
     mTmpAsis = list(mensTemp)
     controlador = AsistenteControlador(session['codfuncs'])
-    respuesta = controlador.getRespuesta(session.get('user'), mTmpAsis, compMsgs, genero)
+    respuesta = controlador.getRespuesta(session.get('codigoSesion'), session.get('user'), mTmpAsis, compMsgs, genero)
     almacenar_msg = respuesta['almacenar_msg']
     if respuesta['mensaje']:
-        nuevoCM = {"paciente": session.get('user'), "lastId": len(almacenar_msg), "data": respuesta['mensaje']}
+        nuevoCM = {"codigoSesion": session.get('codigoSesion'), "paciente": session.get('user'), "lastId": len(almacenar_msg), "data": respuesta['mensaje']}
         compMsgs.append(nuevoCM)
         almacenar_msg.append(str(respuesta['mensaje']))
     else:
         almacenar_msg.append({'role': 'assistant', 'content': respuesta['respuesta_msg']})
-    
-    historialControl = ChatControlador()
-    #print(almacenar_msg)
-    historialControl.actualizarChat(session['codigo'], almacenar_msg)
+
+    if session.get('codigo') != "":
+        historialControl = ChatControlador()
+        #print(almacenar_msg)
+        historialControl.actualizarChat(session['codigo'], almacenar_msg)
 
     session['mensajes'] = mensTemp
     return jsonify({"respuesta_msg": respuesta['respuesta_msg'], "asis_funciones": respuesta['asis_funciones']})

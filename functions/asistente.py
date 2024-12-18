@@ -65,6 +65,24 @@ def getFuncionesAsistente(codFuncs):
         }
     }
 
+    cedula = {
+        "type": "function",
+        "function":{
+            "name": "get_cedula",
+            "description": "Detecta cuando el usuario diga su numero de cedula",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "cedula": {
+                        "type": "string",
+                        "description": "Devuelve el numero de cedula que menciono el usuario, sin espacios entre los digitos"
+                    }
+                },
+                "required": ["cedula"]
+            }
+        }
+    }
+
     finalizar = {
         "type": "function",
         "function":{
@@ -101,7 +119,7 @@ def getFuncionesAsistente(codFuncs):
         }
     }
     
-    funciones = []
+    funciones = [cedula]
 
     if '1' in codFuncs:
         funciones.append(sintomas)
@@ -112,7 +130,7 @@ def getFuncionesAsistente(codFuncs):
     
     funciones += [finalizar, guardado]
 
-    print(funciones)
+    #print(funciones)
 
     return funciones
 
@@ -127,6 +145,13 @@ def getMensajeSistema(codFuncs):
             adicional = " y sus posibles diagnosticos" if '2' in codFuncs else ""
             contenidoSistema += " Luego de reconocer todos sus sintomas" + adicional + ", le recomendaras seguir un tratamiento al paciente."
 
+    return [{
+        "role": "system",
+        "content": contenidoSistema
+    }]
+
+def getMensajeSistemaInicial(codFuncs):
+    contenidoSistema = "Eres un asistente medico y atenderas a un paciente, pero antes debes pedirle su numero de cedula para acceder a su historial medico. Por ahora no le preguntes nada sobre sus sintomas"
     return [{
         "role": "system",
         "content": contenidoSistema
