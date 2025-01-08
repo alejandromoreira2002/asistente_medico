@@ -477,9 +477,9 @@ async function hablar(texto) {
                     estadoAsistente = "esperando";
                     
                     if(asistenteFinalizo){
-                        $('#inner-wave').removeClass('iw-enabled');
+                        //$('#inner-wave').removeClass('iw-enabled');
                         guardarFormulario();
-                        estadoAsistente = "detenido";
+                        //estadoAsistente = "detenido";
                     }
                 }
             }
@@ -669,6 +669,7 @@ function buscarPaciente() {
     })
     .then(response => response.json())
     .then(data => {
+        toggleLoading('ocultar');
         asistenteFinalizo = false;
         if(data.code == 1){
             conversacion = [];
@@ -684,6 +685,18 @@ function buscarPaciente() {
             $('#p-distolica').removeAttr('disabled');
             $('#frecuencia-card').removeAttr('disabled');
             $('#temperatura').removeAttr('disabled');
+            if(preferencias.includes('1')){
+                $('#sintomatologia').val('');
+                $('#sintomatologia').attr('disabled', true);
+            }
+            if(preferencias.includes('2')){
+                $('#diagnostico').val('');
+                $('#diagnostico').attr('disabled', true);
+            }
+            if(preferencias.includes('3')){
+                $('#tratamiento').val('');
+                $('#tratamiento').attr('disabled', true);
+            }
 
             cargarHistorialSintomas(cedula, paciente['nombres']);
         }else{

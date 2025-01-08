@@ -374,7 +374,7 @@
     justify-content: center;
     align-items: center;
     height: 100%;
-    width: 100%;
+    width: 69%;
     background-color: rgba(255,255,255,0.5);
     z-index: 50;
 }
@@ -430,6 +430,10 @@
 
 /*@media screen and (max-width: 600px) {*/
 @media (orientation: portrait) {
+    .formulario-carga{
+        width: 100%;
+    }
+    
     .contenedor{
         flex-direction: column;
     }
