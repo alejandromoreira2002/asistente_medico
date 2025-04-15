@@ -8,6 +8,9 @@ class AsistenteModelo():
         self.client = OpenAI(
             api_key=os.environ.get("API_GPT")
         )
+        #self.asistente = os.environ.get("ID_ASISTENTE")
+        #self.hilo = None
+        #self.run = None
         self.sistema = [
             {
                 "role": "system",
@@ -24,7 +27,8 @@ class AsistenteModelo():
         tMensajes = mensajes
         for cm in compMsgs:
             if cm and cm['paciente'] == paciente and cm['codigoSesion'] == codigoSesion: 
-                tMensajes.insert(cm['lastId'], cm['data']);
+                tMensajes.insert(cm['lastId'], cm['data'])
+        print(tMensajes)
         response = self.client.chat.completions.create(
             model="gpt-4o", #3.5-turbo
             #response_format={ "type": "json_object" },

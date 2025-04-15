@@ -1,0 +1,7 @@
+flask
+mysql-connector-python
+openai
+python-dotenv
+bcrypt
+Flask-JWT-Extended
+bcrypt
