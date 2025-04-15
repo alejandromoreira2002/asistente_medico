@@ -5,7 +5,7 @@ class FormularioModelo():
         self.db = db()
     
     def getCodigo(self):
-        procedimiento = 'sp_obtener_codform'
+        procedimiento = 'sp_obtener_codform2'
         params = (0,)
         resultado = self.db.ejecutar_SP(procedimiento, params)
         return resultado[0]

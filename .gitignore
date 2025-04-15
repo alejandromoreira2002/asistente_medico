@@ -23,3 +23,8 @@ test/genSalt.py
 api.rest
 db/backup
 docs
+functions/__pycache__
+controllers/__pycache__
+models/__pycache__
+db/__pycache__
+__pycache__
