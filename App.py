@@ -115,6 +115,10 @@ def indexAdmin():
     else:
         return redirect(url_for('loginAdmin'))
 
+@app.get('/triaje')
+def formTriaje():
+    return render_template('triaje.html')
+
 @app.get('/admin/login')
 def loginAdmin():
     if 'admin' in session:
