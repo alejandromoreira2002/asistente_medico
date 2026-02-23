@@ -51,7 +51,7 @@ if(!(location.pathname=='/asistente' || location.pathname=='/~dev/asistente')){
     //$('#sidebar_preferencias').collapse('show');
 }
 
-generarCodigoForm();
+// generarCodigoForm();
 
 const infoAdicional = $('#result'); //No sirve para nada
 var estadoAsistente = "inicial"; // Guarda el estado en el que se encuentra el asistente
