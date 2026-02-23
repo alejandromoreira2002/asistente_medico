@@ -85,6 +85,14 @@ def asistente3D():
         return render_template('3d.html', asistente={'genero':asistente}, isDev=isDev)
     else:
         return render_template('asistentes.html', isDev=isDev)
+    
+@app.get(f'{URLInicial}/asistente/3d_triaje')
+def asistente3DTriaje():
+    asistente = request.args.get('genero')
+    if asistente and (asistente=='masculino' or asistente=='femenino' or asistente=='no'):
+        return render_template('3d_triaje.html', asistente={'genero':asistente}, isDev=isDev)
+    else:
+        return render_template('asistentes.html', isDev=isDev)
 
 #@app.get(f'{URLInicial}/asistente/demo')
 #def asistenteDemo():

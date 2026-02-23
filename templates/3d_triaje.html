@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistente Médico Virtual</title>
+    <meta name="author" content="Teddy Alejandro Moreira Vélez">
+    <meta name="description" content="Asistente medico virtual conversacional para preconsulta">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    {% if isDev %}
+        <link rel="shortcut icon" type="image/ico" href="../../../static/img/favicon.ico"/>
+        <link rel="stylesheet" href="../../../static/css/style.css">
+        <link rel="stylesheet" href="../../../static/css/loading.css">
+        <link rel="stylesheet" href="../../../static/resources/avatar_{{asistente['genero']}}/TemplateData/style.css">
+    {% else %}
+        <link rel="shortcut icon" type="image/ico" href="../../static/img/favicon.ico"/>
+        <link rel="stylesheet" href="../../static/css/style.css">
+        <link rel="stylesheet" href="../../static/css/loading.css">
+        <link rel="stylesheet" href="../../static/resources/avatar_{{asistente['genero']}}/TemplateData/style.css">
+    {% endif %}
+    <script src="https://kit.fontawesome.com/ba52fcc0fa.js" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        /* Aumentar el ancho del offcanvas */
+        #responsiveContainer {
+            width: 65vw !important;
+            max-width: 800px;
+        }
+        
+        /* Para pantallas medianas y pequeñas, usar el 80% del ancho */
+        @media (max-width: 991px) {
+            #responsiveContainer {
+                width: 80vw !important;
+            }
+        }
+        
+        /* Para pantallas muy pequeñas (móviles), usar el 90% del ancho */
+        @media (max-width: 576px) {
+            #responsiveContainer {
+                width: 90vw !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="contenedor">
+        <div class="alerta_personalizada" id="alerta_personalizada">
+            <p style="font-size: 0.8em;margin-bottom: 0;line-height: normal;color: #445275;font-weight: 400;">
+                <span style="font-size: 11pt;"><i class="fa-solid fa-circle-info"></i> <b>Aviso:</b></span> <br>
+                Debido a problemas con el navegador de <b>Chrome</b> con la sintesis de voz, es probable que exista un leve retraso en el habla del asistente.
+            </p>
+        </div>
+        <div class="cont_btn_back">
+            <button onclick="location.href=location.pathname" title="Selector de asistentes"><i class="fa-solid fa-arrow-left"></i></button>
+        </div>
+        <div class="cont_btn_abrir_form" id="cont_btn_abrir_form">
+            <button  data-bs-toggle="offcanvas" data-bs-target="#responsiveContainer" aria-controls="responsiveContainer" title="Abrir formulario"><i class="fa-solid fa-angles-right"></i></button>
+        </div>
+        <!--<button class="cont_btn_abrir_form" id="cont_btn_abrir_form" title="Abrir formulario" onclick="mostrarOffCanvas()">
+            <div><i class="fa-solid fa-angles-right"></i></div>
+        </button>-->
+        {% if asistente.genero == "no" %}
+            <div class="asistente">
+                <h1 style="text-align:center">Iniciar Asistente Médico</h1>
+                <div class="controles" id="controles">
+                    <div class="container-icon" id="asistente-btn" onclick="toggleEscucha()">
+                        <div class="outer-circle" id="outer-circle">
+                            <div class="inner-wave" id="inner-wave">
+                            </div>
+                        </div>
+                    </div>
+                    <p id="info-adicional"></p>
+                </div>
+                <div class="contenedor-typing" id="contenedor-typing" style="position: relative !important; bottom: 20px !important;">
+                    <div class="filtro-typing ft-2d"></div>
+                    <div class="texto-type">
+                        <p id="typeContenido">
+
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="asistente" style="padding-top: 0;">
+                <div class="controles" id="controles" style="z-index:500;position: absolute;top:140px"><!--bottom: 88px;-->
+                    <div class="container-icon" id="asistente-btn" onclick="toggleEscucha()">
+                        <div class="outer-circle" id="outer-circle">
+                            <div class="inner-wave" id="inner-wave">
+                            </div>
+                        </div>
+                    </div>
+                    <p id="info-adicional"></p>
+                </div>
+                <div class="contenedor-typing" id="contenedor-typing" style="z-index:499; width:25%;position: absolute;bottom:88px;border-radius: 20px;background-color: #ffffffad;">
+                    <div class="filtro-typing" style="display:none"></div>
+                    <div class="texto-type">
+                        <p id="typeContenido" style="padding:5px 15px;">
+        
+                        </p>
+                    </div>
+                </div>
+                <iframe src="https://alejandromoreira2002.github.io/gestor_modelos_am/?genero={{asistente.genero}}" style="height: 100vh;width: 100%;display: flex; justify-content: center; align-items: center;">
+
+                </iframe>
+            </div>
+        {% endif %}
+        
+        <div id="fondo_popups" style="display:none;position: absolute;width: 100vw; height: 100vh;background-color: rgba(0, 0, 0, 0.118); z-index: 499;">
+            
+        </div>
+        <div id="responsiveContainer" class="offcanvas-md offcanvas-start" tabindex="-1"
+            aria-labelledby="responsiveContainerLabel">
+            <div class="offcanvas-header d-flex justify-content-between pb-0" id="offcanvas_encabezado_portrait">
+                <h2 class="offcanvas-title text-center" id="responsiveContainerLabel">Ficha No. <span id="n_ficha" class="text-danger fw-bold">1</span> de Intervención y Acogida</br>Trabajo Social</h2>
+                <button class="mb-0 fs-2 btn btn-outline-secondary btn-sm" onclick="ocultarOffCanvas();"><i class="fa-solid fa-angles-left" aria-hidden="true"></i></button>
+            </div>
+            <div class="offcanvas-body" style="height:100%;">
+                <div class="formulario">
+                    <div class="formulario-carga" id="formulario-carga" style="display: none;">
+                        <div class="loadingio-spinner-ellipsis-2by998twmg8">
+                            <div class="ldio-yzaezf3dcmj">
+                                <div></div><div></div><div></div><div></div><div></div>
+                            </div>
+                        </div>
+                        <div class="mensaje-cargaf" id="mensaje-cargaf">
+                            <p>Cargando formulario...</p>
+                        </div>
+                    </div>
+                    <div style="width:100%;height:100%;overflow-y:scroll;">
+                        <div class="container mt-5" id="formu_container">
+                            <h2 class="mb-4 text-center" id="offcanvas_encabezado_landscape">Ficha No. <span id="n_ficha" class="text-danger fw-bold">1</span> de Intervención y Acogida</br>Trabajo Social</h2>
+        <div class="row mt-2">
+            <div class="card px-0">
+                <div class="card-header text-center">
+                    Ficha de Datos Iniciales
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <div class="row py-1">
+                            <div class="form-group col-4">
+                                <label for="provincia">Provincia:</label>
+                                <input type="text" class="form-control" id="provincia">
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="ciudad">Ciudad:</label>
+                                <input type="text" class="form-control" id="ciudad">
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="parroquia">Parroquia:</label>
+                                <input type="text" class="form-control" id="parroquia">
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="row py-1">
+                            <div class="form-group col-3">
+                                <label for="es_estudiante">Es estudiante:</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="es_estudiante" id="estudiante_si">
+                                    <label class="form-check-label" for="estudiante_si">
+                                        SI
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="es_estudiante" id="estudiante_no">
+                                    <label class="form-check-label" for="estudiante_no">
+                                        NO
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="institucion">Mencione la institucion:</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="institucion" id="institucion_utm">
+                                    <label class="form-check-label" for="institucion_utm">
+                                        UTM
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="institucion" id="institucion_otro">
+                                    <label class="form-check-label" for="institucion_otro">
+                                        OTRO
+                                    </label>
+                                </div>
+                                <div class="form-floating" id="institucion_div" style="display:none;">
+                                    <input class="form-control" placeholder="Especifique institucion" id="text_institucion"></input>
+                                    <label for="text_institucion">Especifique:</label>
+                                </div>
+                            </div>
+                            <div class="col-5">
+                                <div class="input-group mb-1">
+                                    <span class="input-group-text" id="facultad">Facultad</span>
+                                    <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="facultad">
+                                </div>
+                                <div class="input-group mb-1">
+                                    <span class="input-group-text" id="carrera">Carrera</span>
+                                    <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="carrera">
+                                </div>
+                                <div class="input-group mb-1">
+                                    <label class="input-group-text" for="modalidad_estudio">Modalidad</label>
+                                    <select class="form-select" id="modalidad_estudio">
+                                        <option selected disabled>Seleccione...</option>
+                                        <option value="mod_presencial">PRESENCIAL</option>
+                                        <option value="mod_hibrida">HÍBRIDA</option>
+                                        <option value="mod_en_linea">EN LÍNEA</option>
+                                    </select>
+                                </div>
+                                <div class="input-group mb-1">
+                                    <span class="input-group-text" id="nivel">Nivel</span>
+                                    <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="nivel">
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <!-- <div class="card-body">
+                    <div class="row">
+                        <div class="form-group col-4">
+                            <label for="provincia">Provincia:</label>
+                            <input type="text" class="form-control" id="provincia">
+                        </div>
+                        <div class="form-group col-4">
+                            <label for="ciudad">Ciudad:</label>
+                            <input type="text" class="form-control" id="ciudad">
+                        </div>
+                        <div class="form-group col-4">
+                            <label for="parroquia">Parroquia:</label>
+                            <input type="text" class="form-control" id="parroquia">
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="form-group col-3">
+                            <label for="es_estudiante">Es estudiante:</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="es_estudiante" id="estudiante_si">
+                                <label class="form-check-label" for="estudiante_si">
+                                    SI
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="es_estudiante" id="estudiante_no">
+                                <label class="form-check-label" for="estudiante_no">
+                                    NO
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group col-4">
+                            <label for="institucion">Mencione la institucion:</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="institucion" id="institucion_utm">
+                                <label class="form-check-label" for="institucion_utm">
+                                    UTM
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="institucion" id="institucion_otro">
+                                <label class="form-check-label" for="institucion_otro">
+                                    OTRO
+                                </label>
+                            </div>
+                            <div class="form-floating">
+                                <input class="form-control" placeholder="Especifique institucion" id="text_institucion"></input>
+                                <label for="text_institucion">Especifique:</label>
+                            </div>
+                        </div>
+                        <div class="col-5">
+                            <div class="input-group mb-1">
+                                <span class="input-group-text" id="facultad">Facultad</span>
+                                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="facultad">
+                            </div>
+                            <div class="input-group mb-1">
+                                <span class="input-group-text" id="carrera">Carrera</span>
+                                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="carrera">
+                            </div>
+                            <div class="input-group mb-1">
+                                <label class="input-group-text" for="modalidad_estudio">Modalidad</label>
+                                <select class="form-select" id="modalidad_estudio">
+                                    <option selected disabled>Seleccione...</option>
+                                    <option value="mod_presencial">PRESENCIAL</option>
+                                    <option value="mod_hibrida">HIBRIDA</option>
+                                    <option value="mod_en_linea">EN LINEA</option>
+                                </select>
+                            </div>
+                            <div class="input-group mb-1">
+                                <span class="input-group-text" id="nivel">Nivel</span>
+                                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="nivel">
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="card px-0">
+                <div class="card-header">
+                    1. Datos de Identificación del Usuario
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <div class="py-1">
+                            <div class="row mb-2">
+                                <div class="input-group">
+                                    <span class="input-group-text">Nombres:</span>
+                                    <input type="text" aria-label="nombres" class="form-control">
+                                    <span class="input-group-text">Apellidos:</span>
+                                    <input type="text" aria-label="apellidos" class="form-control">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-12">
+                                    <div class="input-group">
+                                        <span class="input-group-text">Cédula:</span>
+                                        <input type="text" aria-label="cedula" class="form-control">
+                                        <span class="input-group-text">Celular:</span>
+                                        <input type="text" aria-label="celular" class="form-control">
+                                        <span class="input-group-text">Correo:</span>
+                                        <input type="text" aria-label="correo" class="form-control">
+                                        <span class="input-group-text">@utm.edu.ec</span>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-3">
+                                    <div class="input-group">
+                                        <span class="input-group-text">Cedula</span>
+                                        <input type="text" aria-label="cedula" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="input-group">
+                                        <span class="input-group-text">Celular</span>
+                                        <input type="text" aria-label="celular" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-5">
+                                    <div class="input-group">
+                                        <span class="input-group-text">Correo</span>
+                                        <input type="text" aria-label="correo" class="form-control">
+                                        <span class="input-group-text">@utm.edu.ec</span>
+                                    </div>
+                                </div> -->
+                            </div>
+                            <div class="row mb-2">
+                                <div class="input-group">
+                                    <span class="input-group-text">Edad:</span>
+                                    <input type="text" aria-label="cedula" class="form-control">
+                                    <span class="input-group-text">Fecha de nacimiento:</span>
+                                    <input type="date" aria-label="celular" class="form-control">
+                                    <span class="input-group-text">Nacionalidad:</span>
+                                    <input type="text" aria-label="correo" class="form-control">
+                                </div>
+                            </div>
+                            <!-- <div class="row mb-2">
+                                <div class="input-group">
+                                    <span class="input-group-text">Sexo:</span>
+                                    <div class="input-group-text">
+                                        <input class="form-check-input" type="radio" name="sexo" id="sexo_femenino" value="femenino" aria-label="Checkbox for following text input">
+                                        <label class="form-check-label" for="sexo_femenino">Femenino</label>
+                                    </div>
+                                    <div class="input-group-text">
+                                        <input class="form-check-input" type="radio" name="sexo" id="sexo_masculino" value="masculino" aria-label="Checkbox for following text input">
+                                        <label class="form-check-label" for="sexo_masculino">Masculino</label>
+                                    </div>
+                                    <div class="input-group-text">
+                                        <input class="form-check-input" type="radio" name="sexo" id="sexo_otro" value="otro" aria-label="Checkbox for following text input">
+                                        <label class="form-check-label" for="sexo_otro">Otro</label>
+                                    </div>
+                                    <input type="text" aria-label="text_sexo_otro" id="text_sexo_otro" class="form-control">
+                                </div>
+                            </div> -->
+                            <div class="row row-cols-auto ms-1 mb-2 d-flex align-items-center">
+                                <div class="col-auto">
+                                    <label for="sexo">Sexo:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="sexo" id="sexo_femenino" value="femenino">
+                                        <label class="form-check-label" for="sexo_femenino">Femenino</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="sexo" id="sexo_masculino" value="masculino">
+                                        <label class="form-check-label" for="sexo_masculino">Masculino</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="sexo" id="sexo_otro" value="otro">
+                                        <label class="form-check-label" for="sexo_otro">Otro:</label>
+                                        <!-- <input type="text" class="form-control" id="inputEmail3"> -->
+                                    </div>
+                                </div>
+                                <div class="col-5" id="sexo_div" style="display:none;">
+                                    <input type="text" class="form-control" id="text_sexo_otro" placeholder="Especifique sexo">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="input-group">
+                                    <span class="input-group-text">Identidad de género (opcional):</span>
+                                    <input type="text" aria-label="identidad_genero" class="form-control">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="input-group">
+                                    <span class="input-group-text">Dirección domicilio:</span>
+                                    <input type="text" aria-label="direccion_domicilio" class="form-control">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="input-group">
+                                    <span class="input-group-text">Lugar de residencia:</span>
+                                    <input type="text" aria-label="lugar_residencia" class="form-control" placeholder="En caso de residir en otra ciudad o provincia, especifique aqui">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="input-group">
+                                    <span class="input-group-text">Nombre y contacto de referencia:</span>
+                                    <input type="text" aria-label="contacto_referencia" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="card px-0">
+                <div class="card-header">
+                    2. Área de Consulta
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <div class="py-1">
+                            <div class="form-group">
+                                <div class="row mb-1 d-flex align-items-center">
+                                    <div class="col-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="area_consulta" id="ginecologia">
+                                            <label class="form-check-label" for="ginecologia">
+                                                GINECOLOGÍA
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="area_consulta" id="asesoria_juridica">
+                                            <label class="form-check-label" for="asesoria_juridica">
+                                                ASESORÍA JURÍDICA
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="area_consulta" id="trabajo_social">
+                                            <label class="form-check-label" for="trabajo_social">
+                                                TRABAJO SOCIAL
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="area_consulta" id="psicologia">
+                                            <label class="form-check-label" for="psicologia">
+                                                PSICOLOGÍA
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="area_consulta" id="laboratorio_clinico">
+                                            <label class="form-check-label" for="laboratorio_clinico">
+                                                LABORATORIO CLÍNICO
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <!-- <div class="col-8">
+                                        <div class="row row-cols-auto d-flex align-items-center">
+                                            <div class="col-auto">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="area_consulta" id="laboratorio_clinico">
+                                                    <label class="form-check-label" for="laboratorio_clinico">
+                                                        LABORATORIO CLÍNICO
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <select class="form-select form-select-sm" aria-label="Default select example">
+                                                    <option value="" selected disabled>Especifique</option>
+                                                    <option value="VIH">VIH</option>
+                                                    <option value="sifilis">SIFILIS</option>
+                                                    <option value="hepatitis_b">HEPATITIS B</option>
+                                                    <option value="hepatitis_c">HEPATITIS C</option>
+                                                    <option value="p_embarazo">P. EMBARAZO</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div> -->
+                                    <div class="col-4" id="area_consulta_div" style="display:none;">
+                                        <select class="form-select form-select-sm" aria-label="Default select example">
+                                            <option value="" selected disabled>Especifique</option>
+                                            <option value="VIH">VIH</option>
+                                            <option value="sifilis">SÍFILIS</option>
+                                            <option value="hepatitis_b">HEPATITIS B</option>
+                                            <option value="hepatitis_c">HEPATITIS C</option>
+                                            <option value="p_embarazo">P. EMBARAZO</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row my-3">
+            <div class="card px-0">
+                <div class="card-header">
+                    3. Datos Personales
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <div class="row py-1">
+                            <div class="col-12">
+                                <label for="atencion_inmediata">El usuario requiere atención médica inmediata:</label>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="atencion_inmediata" id="inmediata_si" value="1">
+                                        <label class="form-check-label" for="inmediata_si">SÍ</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="atencion_inmediata" id="inmediata_no" value="0">
+                                        <label class="form-check-label" for="inmediata_no">NO</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row row-cols-auto py-1 d-flex align-items-center">
+                            <div class="col-auto">
+                                <div class="form-group">
+                                    <label for="embarazada">Se encuentra usted embarazada:</label>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="embarazada" id="embarazada_si" value="1">
+                                        <label class="form-check-label" for="embarazada_si">SÍ</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="embarazada" id="embarazada_no" value="0">
+                                        <label class="form-check-label" for="embarazada_no">NO</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3" id="embarazada_div" style="display:none;">
+                                <div class="input-group">
+                                    <input type="text" aria-label="meses_embarazo" id="meses_embarazo" class="form-control">
+                                    <span class="input-group-text">Meses</span>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="row py-1">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="discapacidad">Presenta alguna condición o discapacidad:</label>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="discapacidad" id="discapacidad_si" value="1">
+                                        <label class="form-check-label" for="discapacidad_si">SÍ</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="discapacidad" id="discapacidad_no" value="0">
+                                        <label class="form-check-label" for="discapacidad_no">NO</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="discapacidad_div" style="display:none;">
+                            <div class="row py-1">
+                                <div class="col-12">
+                                    
+                                    <!-- <label for="textarea_discapacidad" class="form-label">Describa brevemente la condicion o discapacidad que usted presenta:</label>
+                                    <textarea class="form-control" id="textarea_discapacidad" rows="2"></textarea> -->
+                                    <div class="form-floating">
+                                        <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea"></textarea>
+                                        <label for="floatingTextarea">Describa brevemente la condición o discapacidad que usted presenta:</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row row-cols-auto py-1 d-flex align-items-center">
+                                <div class="col-12">
+                                    <label for="carnet_discapacidad">Carnet de discapacidad:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="form-group">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="carnet_discapacidad" id="carnet_discapacidad_si" value="1">
+                                            <label class="form-check-label" for="carnet_discapacidad_si">SÍ</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="carnet_discapacidad" id="carnet_discapacidad_no" value="0">
+                                            <label class="form-check-label" for="carnet_discapacidad_no">NO</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="input-group">
+                                        <input type="text" aria-label="porc_discapacidad" id="porc_discapacidad" class="form-control">
+                                        <span class="input-group-text">Porcentaje de discapacidad</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        
+                        <div class="form-group">
+                            <div class="row row-cols-auto mb-1 py-1 d-flex align-items-center">
+                                <div class="col-12">
+                                    <label for="estado_civil">Estado civil o tipo de relación de pareja:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="estado_civil" id="casado">
+                                        <label class="form-check-label" for="casado">
+                                            Casada/o
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="estado_civil" id="union_hecho">
+                                        <label class="form-check-label" for="union_hecho">
+                                            Unión de hecho (registrada)
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="estado_civil" id="viuda_o">
+                                        <label class="form-check-label" for="viuda_o">
+                                            Viuda/o
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="estado_civil" id="soltera_o">
+                                        <label class="form-check-label" for="soltera_o">
+                                            Soltera/o
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="estado_civil" id="divorciada_o">
+                                        <label class="form-check-label" for="divorciada_o">
+                                            Divorciada/o
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="estado_civil" id="separada_o">
+                                        <label class="form-check-label" for="separada_o">
+                                            Separada/o
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="estado_civil" id="union_libre">
+                                        <label class="form-check-label" for="union_libre">
+                                            Unión libre, "compromiso"
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="row row-cols-auto d-flex align-items-center">
+                                        <div class="col-auto">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="estado_civil" id="otro_estado_civil">
+                                                <label class="form-check-label" for="otro_estado_civil">
+                                                    Otro (especifique)
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto" id="estado_civil_div" style="display:none;">
+                                            <input type="text" class="form-control" id="text_otro_estado_civil">
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                
+                            </div>
+                        </div>
+                        
+                    </li>
+                    <li class="list-group-item">
+                        
+                        <div class="form-group">
+                            <div class="row mb-1 py-1 d-flex align-items-center">
+                                <div class="col-12">
+                                    <label for="etnia">Pertenencia étnico-cultural:</label>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="etnia" id="indigena">
+                                        <label class="form-check-label" for="indigena">
+                                            Indígena
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="etnia" id="afrodescendiente">
+                                        <label class="form-check-label" for="afrodescendiente">
+                                            Afrodescendiente
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="etnia" id="montubio">
+                                        <label class="form-check-label" for="montubio">
+                                            Montubia/o
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="etnia" id="mestiza_o">
+                                        <label class="form-check-label" for="mestiza_o">
+                                            Mestiza/o
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="etnia" id="blanca_o">
+                                        <label class="form-check-label" for="blanca_o">
+                                            Blanca/o
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="row row-cols-auto d-flex align-items-center">
+                                        <div class="col-auto">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="etnia" id="otra_etnia">
+                                                <label class="form-check-label" for="otra_etnia">
+                                                    Otra:
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto" id="etnia_div" style="display:none;">
+                                            <input type="text" class="form-control" id="text_otra_etnia">
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                
+                            </div>
+                        </div>
+                        
+                    </li>
+                </ul>
+            </div>
+        </div>
+                            <!-- <h2 class="mb-4 text-center" id="offcanvas_encabezado_landscape">Formulario Médico</h2>
+                            <div>
+                                <div class="row mt-2">
+                                    <div class="form-group col-6 col-sm-5 row mb-3">
+                                        <div class="col-12 col-sm-7">
+                                            <label for="cod-form">Cod. Formulario</label>
+                                        </div>
+                                        <div class="col-12 col-sm-5">
+                                            <input type="text" class="form-control" id="cod-form" placeholder="N° Form" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="form-group offset-1 col-6 offset-sm-2 col-sm-5 row mb-3">
+                                        <div class="col-12 col-sm-auto">
+                                            <label for="fecha_atencion">Fecha Atención</label>
+                                        </div>
+                                        <div class="col-12 col-sm-auto">
+                                            <input type="date" class="form-control" id="fecha_atencion" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-1">
+                                    <h3 style="display: inline-block; margin-right:15px">Datos del Paciente</h3>
+                                    {% if isDev %}
+                                        <a href="/~dev/pacientes" style="text-decoration: underline;">Agregar pacientes</a>
+                                    {% else %}
+                                        <a href="/pacientes" style="text-decoration: underline;">Agregar pacientes</a>
+                                    {% endif %}
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="form-group col-12 col-sm-4 mb-3">
+                                        <input type="hidden" id="idPaciente" value=".">
+                                        <label for="cedula">Cédula</label>
+                                        <div class="row">
+                                            <div class="col-8">
+                                                <input type="text" class="form-control col-auto" id="cedula" placeholder="Ingrese numero de cédula">
+                                            </div>
+                                            <div class="col-4">
+                                                <button class="btn btn-primary" id="btn-buscar" onclick="buscarPaciente()">Buscar</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-12 col-sm-4 mb-3">
+                                        <label for="nombre">Nombres y Apellidos</label>
+                                        <input type="text" class="form-control" id="nombres" disabled onchange="comprobarCampos(2)">
+                                        <input type="hidden" class="form-control" id="genero" disabled>
+                                    </div>
+                                    <div class="form-group col-8 col-sm-2">
+                                        <label for="fechaNacimiento">Fecha Nacimiento</label>
+                                        <input type="date" class="form-control" id="fechaNacimiento" disabled onchange="comprobarCampos(2)">
+                                    </div>
+                                    <div class="form-group col-4 col-sm-2">
+                                        <label for="edad">Edad</label>
+                                        <input type="number" class="form-control" id="edad" disabled onchange="comprobarCampos(2)">
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="form-group col-6">
+                                        <label for="telefono">Número de Teléfono</label>
+                                        <input type="tel" class="form-control" id="telefono" disabled onchange="comprobarCampos(2)">
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label for="correo">Correo Personal</label>
+                                        <input type="email" class="form-control" id="correo" disabled onchange="comprobarCampos(2)">
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="form-group col-6">
+                                        <label for="ciudad">Ciudad</label>
+                                        <input type="text" class="form-control" id="ciudad" disabled onchange="comprobarCampos(2)">
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label for="direccion">Dirección</label>
+                                        <input type="text" class="form-control" id="direccion" disabled onchange="comprobarCampos(2)">
+                                    </div>
+                                </div>
+                                <h3>Datos de Consulta Médica</h3>
+                                <div class="row d-flex justify-content-center align-items-center mb-3">
+                                    <button type="button" class="btn btn-light" style="width:235px;" onclick="$('#modalDatosConsulta').modal('show');">Mostrar Información</button>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 col-sm">
+                                        <h3>Sintomatología</h3>
+                                        <textarea class="form-control mt-2" id="sintomatologia" style="height:150px;margin-bottom: 10px;" disabled>
+                
+                                        </textarea>
+                                        <div class="row col-12 mb-3" id="cont_btn_hs_movil">
+                                            <div class="col-6 col-sm-4">
+                                                <button style="border:none;text-decoration:underline;color:cadetblue;" onclick="abrirModalHistorialSintomas()"">Historial Sintomas</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm">
+                                        <h3>Diagnóstico</h3>
+                                        <textarea class="form-control mt-2" id="diagnostico" style="height:150px;margin-bottom: 10px;" disabled>
+                
+                                        </textarea>
+                                    </div>
+                                    <div class="col-12 col-sm">
+                                        <h3>Tratamiento</h3>
+                                        <textarea class="form-control mt-2" id="tratamiento" style="height:150px;margin-bottom: 10px;" disabled>
+                
+                                        </textarea>
+                                    </div>
+                                </div>
+                                <div class="row mb-3" id="cont_btn_hs_pc">
+                                    <div class="col-6 col-sm-4">
+                                        <button style="border:none;text-decoration:underline;color:cadetblue;" onclick="abrirModalHistorialSintomas()">Historial Sintomas</button>
+                                    </div>
+                                </div>
+                                <div class="row" style="justify-content:center;margin-bottom:10px">
+                                    <div class="col-5 col-sm-3">
+                                        <button class="btn btn-primary col-12" id="btnGuardarForm" style="padding: 10px 0;" onclick="pedirGuardarForm()" title="Guardar el formulario" disabled>Guardar</button>
+                                    </div>
+                                </div>
+                            </div> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="collapse collapse-horizontal" id="sidebar_preferencias" style="position: absolute; top:0; right: 0; height: 100vh; width: 300px; z-index:500;">
+            <div class="card card-body" style="width: 300px;margin: 20px 0;">
+                <h3>Preferencias</h3>
+                <p>Elige las preferencias del asistente:</p>
+                <div class="form-check">
+                    <input class="form-check-input opc_preferencias" type="checkbox" value="1" id="pref_sintomatologia" name="opc_preferencias">
+                    <label class="form-check-label" for="pref_sintomatologia">
+                        Obtener sintomatologia
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input opc_preferencias" type="checkbox" value="2" id="pref_diagnostico" name="opc_preferencias">
+                    <label class="form-check-label" for="pref_diagnostico">
+                        Obtener diagnostico
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input opc_preferencias" type="checkbox" value="3" id="pref_tratamiento" name="opc_preferencias">
+                    <label class="form-check-label" for="pref_tratamiento">
+                        Obtener tratamiento
+                    </label>
+                </div>
+                <div class="d-flex justify-content-center"><button class="btn btn-primary" onclick="aceptarPreferenciasA()">Aceptar</button></div>
+            </div>
+        </div>
+        <div style="
+            position: absolute;
+            bottom: 0;
+            right: 17px;
+            z-index: 500;
+        " class="text-secondary">Por Alejandro Moreira Vélez</div>
+    </div>
+
+    <div class="modal fade" id="modalDatosConsulta"  tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Datos de Consulta Médica</h4>
+                </div>
+                <div class="modal-body" style="overflow-y:auto;max-height:400px">
+                    <div class="row mb-3 mt-2">
+                        <div class="form-group col-6">
+                            <label for="peso">Peso</label>
+                            <input type="text" class="form-control" id="peso" placeholder="Ingrese peso" disabled>
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="talla">Estatura</label>
+                            <input type="text" class="form-control" id="talla" placeholder="Ingrese talla" disabled>
+                        </div>
+                    </div>
+                    <label for="">Presión</label>
+                    <div class="row mb-3">
+                        <div class="form-group row col-5 col-sm-4">
+                            <div class="col-auto">
+                                <input type="text" class="form-control" id="p-sistolica" placeholder="Ingrese presión sistólica" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group row col-5 col-sm-4">
+                            <div class="col-auto">
+                                <input type="text" class="form-control" id="p-distolica" placeholder="Ingrese presión distólica" disabled>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="form-group col-6">
+                            <label for="frecuencia-card">Frecuencia Cardiaca</label>
+                            <input type="text" class="form-control" id="frecuencia-card" placeholder="Ingrese frecuencia cardiaca" disabled>
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="temperatura">Temperatura</label>
+                            <input type="text" class="form-control" id="temperatura" placeholder="Ingrese temperatura" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalHistorialSintomas" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Historial de Sintomas</h4>
+                </div>
+                <div class="modal-body" style="overflow-y:auto;max-height:400px">
+                    <table class="table table-hover" id="tblHistorialSintomas">
+                        <thead>
+                            <tr>
+                                <th><b>#</b></th>
+                                <th>Fecha</th>
+                                <th>Cedula</th>
+                                <th>Sintomas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>-->
+    {% if isDev %}
+        <script src="../../../static/scripts/global.js"></script>
+        <script src="../../../static/scripts/script.js"></script>
+    {% else %}
+        <script src="../../static/scripts/global.js"></script>
+        <script src="../../static/scripts/script.js"></script>
+    {% endif %}
+</body>
+</html>
