@@ -648,6 +648,16 @@
                 </ul>
             </div>
         </div>
+        <div class="row my-3">
+            <div class="card px-0">
+                <div class="card-header">
+                    <h2 class="text-center">FIRMA</h2>
+                </div>
+                <div class="card-body">
+                    <canvas id="pizarra" height="75" style="touch-action: none; border-bottom: 1px solid #ccc;"></canvas>
+                </div>
+            </div>
+        </div>
         
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
@@ -674,6 +684,35 @@
             });
             $('input[type=radio][name=etnia]').change(function() {
                 mostrarElemento(this, 'etnia');
+            });
+
+            const canvas = document.getElementById('pizarra');
+            const ctx = canvas.getContext('2d');
+            let dibujando = false;
+
+            // Configuración de la línea
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#000';
+
+            // Iniciar dibujo
+            canvas.addEventListener('pointerdown', (e) => {
+                dibujando = true;
+                ctx.beginPath();
+                ctx.moveTo(e.offsetX, e.offsetY);
+            });
+
+            // Dibujar mientras se mueve
+            canvas.addEventListener('pointermove', (e) => {
+                if (dibujando) {
+                    ctx.lineTo(e.offsetX, e.offsetY);
+                    ctx.stroke();
+                }
+            });
+
+            // Detener dibujo
+            window.addEventListener('pointerup', () => {
+                dibujando = false;
             });
         });
 
